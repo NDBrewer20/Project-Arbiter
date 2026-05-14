@@ -10,6 +10,7 @@ seed = 1
 frequency = 0.0502
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_puwgh"]
+resource_local_to_scene = true
 width = 1024
 height = 1024
 seamless = true

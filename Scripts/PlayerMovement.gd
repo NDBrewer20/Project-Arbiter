@@ -4,25 +4,59 @@ extends CharacterBody3D
 
 # Player movement parameters
 @export var Speed: float = 5.0
+
+var input_Direction: Vector3 = Vector3.ZERO
+
+# Player jumping parameters
 @export var JumpVelocity: float = 4.5
+@export var JumpBuffer: float = 0.2
+@export var CoyoteTime: float = 0.15
+
+
+var coyoteUsable: bool # can the user press jump and have it work after starting to fall?
+var coyoteWindow: bool # if the timer hasn't timed out (time since jump + coyote time > current time), the user can still jump
+var canCoyote: bool: # is the user within the window to use coyote time?
+	get:
+		return coyoteUsable and coyoteWindow
+var CoyoteTimer: Timer # timer to track coyote time
+
+var is_jumping: bool # is the user currently trying to jump?
+var bufferJumpUsable: bool # can the user press jump and have it work before landing?
+var bufferWindow: bool # if the timer hasn't timed out (time since jump + jump buffer time > current time), the user can still jump
+var canBufferJump: bool: # is the user within the window to use buffered jump?
+	get:
+		return bufferJumpUsable and bufferWindow
+var BufferJumpTimer: Timer # timer to track jump buffering
+
 
 # Air control parameters
 @export var AirControlStart: float = 1.0
 @export var AirControlEnd: float = 0.45
 @export var AirControlFadeTime: float = 1.5
 
+var air_time: float = 0.0
+
 # Camera control parameters
 @onready var camPivot: Node3D = $CamOrigin
 @export var camClamp: Vector2 = Vector2(-90, 45)
 @export var mouse_Sensitivity: float = 0.1
 
-# Internal variables
-var input_Direction: Vector3 = Vector3.ZERO
-var air_time: float = 0.0
-
-
 func _ready() -> void:
 	$"CamOrigin/SpringArm3D".add_excluded_object(self)
+	CoyoteTimer = Timer.new()
+	CoyoteTimer.one_shot = true
+	CoyoteTimer.wait_time = CoyoteTime
+	CoyoteTimer.timeout.connect(func():
+		coyoteWindow = false
+	)
+	add_child(CoyoteTimer)
+	BufferJumpTimer = Timer.new()
+	BufferJumpTimer.one_shot = true
+	BufferJumpTimer.wait_time = JumpBuffer
+	BufferJumpTimer.timeout.connect(func():
+		bufferWindow = false
+	)
+	add_child(BufferJumpTimer)
 
 func _input(event: InputEvent) -> void:
 	input_Direction = Vector3.ZERO
