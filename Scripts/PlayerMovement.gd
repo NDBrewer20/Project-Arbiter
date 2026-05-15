@@ -3,63 +3,60 @@ extends CharacterBody3D
 @export var debug: bool = false
 
 # Player movement parameters
-@export var Speed: float = 5.0
+@export var speed: float = 5.0
+var _inputDirection: Vector3 = Vector3.ZERO
 
-var input_Direction: Vector3 = Vector3.ZERO
 
 # Player jumping parameters
-@export var JumpVelocity: float = 4.5
-@export var JumpBuffer: float = 0.2
-@export var CoyoteTime: float = 0.15
+@export var jumpVelocity: float = 4.5
+var _isjumping: bool # is the user currently trying to jump?
+var _lastJumpPressed: float # how long since the user last tried to jump?
+var _lastTimeOnGround: float # how long since the user was last on the ground?
 
-
-var coyoteUsable: bool # can the user press jump and have it work after starting to fall?
-var coyoteWindow: bool # if the timer hasn't timed out (time since jump + coyote time > current time), the user can still jump
-var canCoyote: bool: # is the user within the window to use coyote time?
+# Player Coyote Time parameters
+@export var coyoteTime: float = 0.15
+var _coyoteUsable: bool # can the user press jump and have it work after starting to fall?
+var _coyoteWindow: bool: # if the timer hasn't timed out (time since jump + coyote time > current time), the user can still jump
 	get:
-		return coyoteUsable and coyoteWindow
-var CoyoteTimer: Timer # timer to track coyote time
-
-var is_jumping: bool # is the user currently trying to jump?
-var bufferJumpUsable: bool # can the user press jump and have it work before landing?
-var bufferWindow: bool # if the timer hasn't timed out (time since jump + jump buffer time > current time), the user can still jump
-var canBufferJump: bool: # is the user within the window to use buffered jump?
+		return _timeSinceFirstFrame < _lastTimeOnGround + coyoteTime
+var _canCoyote: bool: # is the user within the window to use coyote time?
 	get:
-		return bufferJumpUsable and bufferWindow
-var BufferJumpTimer: Timer # timer to track jump buffering
+		return _coyoteUsable and !is_on_floor() and _coyoteWindow
+
+# Player Jump Buffer parameters
+@export var jumpBuffer: float = 0.2
+var _bufferJumpUsable: bool # can the user press jump and have it work before landing?
+var _bufferWindow: bool: # if the timer hasn't timed out (time since jump + jump buffer time > current time), the user can still jump
+	get:
+		return _timeSinceFirstFrame < _lastJumpPressed + jumpBuffer
+var _canBufferJump: bool: # is the user within the window to use buffered jump?
+	get:
+		return _bufferJumpUsable and _bufferWindow
 
 
 # Air control parameters
-@export var AirControlStart: float = 1.0
-@export var AirControlEnd: float = 0.45
-@export var AirControlFadeTime: float = 1.5
+@export var airControlStart: float = 1.0
+@export var airControlEnd: float = 0.45
+@export var airControlFadeTime: float = 1.5
+var _airtime: float = 0.0
 
-var air_time: float = 0.0
 
-# Camera control parameters
+# Camera control parametera
 @onready var camPivot: Node3D = $CamOrigin
 @export var camClamp: Vector2 = Vector2(-90, 45)
 @export var mouse_Sensitivity: float = 0.1
 
+# Internal Variables
+var _timeSinceFirstFrame: float = 0.0
+
 func _ready() -> void:
 	$"CamOrigin/SpringArm3D".add_excluded_object(self)
-	CoyoteTimer = Timer.new()
-	CoyoteTimer.one_shot = true
-	CoyoteTimer.wait_time = CoyoteTime
-	CoyoteTimer.timeout.connect(func():
-		coyoteWindow = false
-	)
-	add_child(CoyoteTimer)
-	BufferJumpTimer = Timer.new()
-	BufferJumpTimer.one_shot = true
-	BufferJumpTimer.wait_time = JumpBuffer
-	BufferJumpTimer.timeout.connect(func():
-		bufferWindow = false
-	)
-	add_child(BufferJumpTimer)
+
+func _process(delta: float) -> void:
+	_timeSinceFirstFrame += delta
 
 func _input(event: InputEvent) -> void:
-	input_Direction = Vector3.ZERO
+	_inputDirection = Vector3.ZERO
 
 	if event is InputEventMouseMotion and Input.is_action_pressed("Player_Rotate"):
 		rotate_y(deg_to_rad(-event.relative.x * mouse_Sensitivity))
@@ -68,43 +65,43 @@ func _input(event: InputEvent) -> void:
 	
 	# Handle movement input
 	if Input.is_action_pressed("Player_Forward"):
-		input_Direction -= transform.basis.z
+		_inputDirection -= transform.basis.z
 	if Input.is_action_pressed("Player_Back"):
-		input_Direction += transform.basis.z
+		_inputDirection += transform.basis.z
 	if Input.is_action_pressed("Player_Left"):
-		input_Direction -= transform.basis.x
+		_inputDirection -= transform.basis.x
 	if Input.is_action_pressed("Player_Right"):
-		input_Direction += transform.basis.x
+		_inputDirection += transform.basis.x
 
 	if debug and Input.is_action_pressed("DEBUG_Quit"):
 			get_tree().quit()
 
 func _physics_process(delta: float) -> void:
-	var direction = input_Direction
+	var direction = _inputDirection
 	direction.y = 0
 	direction = direction.normalized()
 
 	if not is_on_floor():
 		# How Long in Air
-		air_time += delta
+		_airtime += delta
 
 		# Gravity
 		velocity.y += -ProjectSettings.get_setting("physics/3d/default_gravity") * delta
 
 		# Air Control
-		var t = clamp(air_time / AirControlFadeTime, 0, 1)
-		var air_control_factor = lerp(AirControlStart, AirControlEnd, t)
+		var t = clamp(_airtime / airControlFadeTime, 0, 1)
+		var air_control_factor = lerp(airControlStart, airControlEnd, t)
 
-		velocity.x += direction.x * Speed * air_control_factor * delta
-		velocity.z += direction.z * Speed * air_control_factor * delta
+		velocity.x += direction.x * speed * air_control_factor * delta
+		velocity.z += direction.z * speed * air_control_factor * delta
 	else:
 		velocity.y = 0
 
 	if is_on_floor():
-		velocity.x = direction.x * Speed
-		velocity.z = direction.z * Speed
+		velocity.x = direction.x * speed
+		velocity.z = direction.z * speed
 
 		if Input.is_action_just_pressed("Player_Jump"):
-			velocity.y = JumpVelocity
+			velocity.y = jumpVelocity
 
 	move_and_slide()
