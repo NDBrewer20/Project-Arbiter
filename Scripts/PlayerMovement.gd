@@ -2,13 +2,22 @@ extends CharacterBody3D
 
 @export var debug: bool = false
 
+# Player Events
+signal playerJumped
+signal playerLanded
+
 # Player movement parameters
-@export var speed: float = 5.0
+@export var runSpeed: float = 7.5
+@export var walkSpeed: float = 5.0
+@export var acceleration: float = 10.0
+@export var deceleration: float = 20.0
+var _speedActual: float = 0.0
 var _inputDirection: Vector3 = Vector3.ZERO
 
 
 # Player jumping parameters
 @export var jumpVelocity: float = 4.5
+var _lastOnFloor: bool # was the user on the ground in the last frame?
 var _isjumping: bool # is the user currently trying to jump?
 var _lastJumpPressed: float # how long since the user last tried to jump?
 var _lastTimeOnGround: float # how long since the user was last on the ground?
@@ -73,14 +82,42 @@ func _input(event: InputEvent) -> void:
 	if Input.is_action_pressed("Player_Right"):
 		_inputDirection += transform.basis.x
 
+	if Input.is_action_just_pressed("Player_Jump"):
+		_isjumping = true
+		_lastJumpPressed = _timeSinceFirstFrame
+
 	if debug and Input.is_action_pressed("DEBUG_Quit"):
 			get_tree().quit()
 
-func _physics_process(delta: float) -> void:
-	var direction = _inputDirection
-	direction.y = 0
-	direction = direction.normalized()
+	_inputDirection.y = 0
+	_inputDirection = _inputDirection.normalized()
 
+func HandleMove(delta: float) -> void:
+	if is_on_floor():
+		if _inputDirection == Vector3.ZERO:
+			_speedActual = lerp(_speedActual, walkSpeed, deceleration * delta)
+		else:
+			_speedActual = lerp(_speedActual, runSpeed, acceleration * delta)
+		velocity.x = _inputDirection.x * _speedActual
+		velocity.z = _inputDirection.z * _speedActual
+	else:
+		# Air Control
+		var t = clampf(_airtime / airControlFadeTime, 0, 1)
+		var air_control_factor = lerp(airControlStart, airControlEnd, t)
+
+		velocity.x += _inputDirection.x * walkSpeed * air_control_factor * delta
+		velocity.z += _inputDirection.z * walkSpeed * air_control_factor * delta
+
+func HandleJump() -> void:
+	if !_isjumping and !_canBufferJump:
+		return
+	
+	if is_on_floor() or _canCoyote:
+		Jump()
+
+	_isjumping = false
+
+func HandleFalling(delta: float) -> void:
 	if not is_on_floor():
 		# How Long in Air
 		_airtime += delta
@@ -88,20 +125,30 @@ func _physics_process(delta: float) -> void:
 		# Gravity
 		velocity.y += -ProjectSettings.get_setting("physics/3d/default_gravity") * delta
 
-		# Air Control
-		var t = clamp(_airtime / airControlFadeTime, 0, 1)
-		var air_control_factor = lerp(airControlStart, airControlEnd, t)
+func Jump() -> void:
+	_coyoteUsable = false
+	_bufferJumpUsable = false
+	_lastJumpPressed = 0
+	velocity.y = jumpVelocity
+	playerJumped.emit()
 
-		velocity.x += direction.x * speed * air_control_factor * delta
-		velocity.z += direction.z * speed * air_control_factor * delta
-	else:
-		velocity.y = 0
+func checkCollision() -> void:
+	# If last frame was not on the ground but this frame is, then the player has just landed
+	if !_lastOnFloor and is_on_floor():
+		_coyoteUsable = true
+		_bufferJumpUsable = true
+		_airtime = 0
+		playerLanded.emit()
+	# if last frame was on the ground but this frame is not, then the player has just started falling
+	elif _lastOnFloor and not is_on_floor():
+		_lastTimeOnGround = _timeSinceFirstFrame
+	
 
-	if is_on_floor():
-		velocity.x = direction.x * speed
-		velocity.z = direction.z * speed
+func _physics_process(delta: float) -> void:
+	checkCollision()
+	HandleJump()
+	HandleFalling(delta)
+	HandleMove(delta)
 
-		if Input.is_action_just_pressed("Player_Jump"):
-			velocity.y = jumpVelocity
-
+	_lastOnFloor = is_on_floor()
 	move_and_slide()
