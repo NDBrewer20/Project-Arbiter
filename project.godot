@@ -15,6 +15,12 @@ run/main_scene="uid://d061crxyxgd0h"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://Assets/Icons/Native/icon.svg"
 
+[autoload]
+
+LowLevelNetworkHandler="*res://Scripts/Networking/low_level_network_handler.gd"
+ServerNetworkGlobals="*res://Scripts/Networking/server_network_globals.gd"
+ClientNetworkGlobals="*res://Scripts/Networking/client_network_globals.gd"
+
 [input]
 
 DEBUG_Quit={

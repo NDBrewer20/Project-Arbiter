@@ -1,8 +1,9 @@
-[gd_scene load_steps=36 format=3 uid="uid://d061crxyxgd0h"]
+[gd_scene load_steps=33 format=3 uid="uid://d061crxyxgd0h"]
 
-[ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/PlayerMovement.gd" id="1_puwgh"]
 [ext_resource type="Material" uid="uid://ck362og30u040" path="res://Assets/Materials/Grass.tres" id="2_puwgh"]
 [ext_resource type="Texture2D" uid="uid://cbrp84fgowb5y" path="res://Assets/Icons/Native/icon.svg" id="3_106ev"]
+[ext_resource type="PackedScene" uid="uid://rvkkxqga2j5y" path="res://Scenes/UI/low_level_ui.tscn" id="3_cukpy"]
+[ext_resource type="PackedScene" uid="uid://ceao6bf0g4pnd" path="res://Scenes/Prefabs/LowLevelPlayerSpawner.tscn" id="4_omw7r"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fuxo2"]
 sky_top_color = Color(0.229075, 0.48228, 0.598202, 1)
@@ -19,17 +20,6 @@ sky = SubResource("Sky_puwgh")
 tonemap_mode = 2
 sdfgi_enabled = true
 glow_enabled = true
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_fuxo2"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fuxo2"]
-albedo_color = Color(0, 0, 0, 1)
-
-[sub_resource type="TorusMesh" id="TorusMesh_puwgh"]
-material = SubResource("StandardMaterial3D_fuxo2")
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_suiw6"]
-radius = 0.606938
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_suiw6"]
 material = ExtResource("2_puwgh")
@@ -114,49 +104,6 @@ environment = SubResource("Environment_106ev")
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
 shadow_enabled = true
 directional_shadow_max_distance = 800.0
-
-[node name="Player Manager" type="Node3D" parent="."]
-unique_name_in_owner = true
-
-[node name="Player Body" type="CharacterBody3D" parent="Player Manager"]
-transform = Transform3D(-0.603406, -0.000205233, -0.797435, 0.000620615, 1, -0.000726984, 0.797434, -0.000933567, -0.603405, -2.96346, 0, -3.40497)
-slide_on_ceiling = false
-script = ExtResource("1_puwgh")
-debug = true
-runSpeed = 8.0
-walkSpeed = 3.5
-acceleration = 4.5
-deceleration = 7.5
-coyoteTime = 0.16
-jumpBuffer = 0.21
-airControlStart = 1.5
-airControlEnd = 0.05
-airControlFadeTime = 0.6
-
-[node name="PlayerGFX" type="Node3D" parent="Player Manager/Player Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-
-[node name="Capsule" type="MeshInstance3D" parent="Player Manager/Player Body/PlayerGFX"]
-mesh = SubResource("CapsuleMesh_fuxo2")
-skeleton = NodePath("")
-
-[node name="Glasses" type="MeshInstance3D" parent="Player Manager/Player Body/PlayerGFX"]
-transform = Transform3D(0.5, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0.362, -0.144821)
-mesh = SubResource("TorusMesh_puwgh")
-skeleton = NodePath("")
-
-[node name="Player Collision" type="CollisionShape3D" parent="Player Manager/Player Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-shape = SubResource("CapsuleShape3D_suiw6")
-
-[node name="CamOrigin" type="Node3D" parent="Player Manager/Player Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.47274, 0)
-
-[node name="SpringArm3D" type="SpringArm3D" parent="Player Manager/Player Body/CamOrigin"]
-spring_length = 3.0
-margin = 0.5
-
-[node name="Camera3D" type="Camera3D" parent="Player Manager/Player Body/CamOrigin/SpringArm3D"]
 
 [node name="Floor" type="StaticBody3D" parent="."]
 
@@ -364,3 +311,7 @@ mesh = SubResource("BoxMesh_puwgh")
 [node name="CollisionShape3D9" type="CollisionShape3D" parent="Obstacles"]
 transform = Transform3D(-7.13144e-08, -0.866025, 5.96621, -7.13144e-08, 0.5, 10.3338, -2.30727, -3.08008e-09, -5.4983e-07, 6.75518, 3.79475, -9.05667)
 shape = SubResource("ConcavePolygonShape3D_y7vqc")
+
+[node name="LowLevelUi" parent="." instance=ExtResource("3_cukpy")]
+
+[node name="LowLevelPlayerSpawner" parent="." instance=ExtResource("4_omw7r")]
