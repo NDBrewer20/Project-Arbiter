@@ -1,6 +1,7 @@
 extends Node
 
 signal handle_player_position(peer_id: int, player_transform: PlayerTransform)
+signal handle_entity_position(e_id: int, entity_transform: EntityTransform)
 
 var peer_ids: Array[int]
 
@@ -25,6 +26,6 @@ func on_server_packet(peer_id: int, data: PackedByteArray) -> void:
 	match packet_type:
 		PacketInfo.PACKET_TYPE.PLAYER_TRANSFORM:
 			handle_player_position.emit(peer_id, PlayerTransform.create_from_data(data))
-		
+			
 		_:
 			push_error("Packet type with index ", data[0], " Unhandled!")

@@ -12,10 +12,13 @@ var _state: PlayerState = PlayerState.FLOOR
 
 
 # Networking parameters
+var owner_id: int:
+	get:
+		return (get_parent() as PlayerManager).owner_id
 var is_authority: bool:
 	get:
-		return owner_id == ClientNetworkGlobals.id
-var owner_id: int
+		return (get_parent() as PlayerManager).is_authority
+
 
 # Player Events
 signal playerJumped
@@ -190,6 +193,7 @@ func _physics_process(delta: float) -> void:
 			HandleFalling(delta)
 			
 		PlayerState.FALL:
+			HandleJump()
 			HandleFalling(delta)
 			if is_on_floor():
 				switchState(PlayerState.FLOOR)
@@ -233,4 +237,4 @@ func client_handle_player_position(player_transform: PlayerTransform) -> void:
 	if is_authority || owner_id != player_transform.id: return
 
 	global_position = player_transform.position 
-	global_rotation.y = player_transform.rotation.y
+	global_rotation.y = player_transform.rotation.y # packet only syncs y rotation.

@@ -1,5 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://dwuo45o1taqky"]
+[gd_scene load_steps=8 format=3 uid="uid://dwuo45o1taqky"]
 
+[ext_resource type="Script" uid="uid://im5s315hjahd" path="res://Scripts/Player/PlayerManager.gd" id="1_ajj0n"]
 [ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Player/PlayerMovement.gd" id="1_ar8ky"]
 [ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Player/player_cursor_control.gd" id="2_ajj0n"]
 
@@ -15,6 +16,7 @@ albedo_color = Color(0, 0, 0, 1)
 material = SubResource("StandardMaterial3D_fuxo2")
 
 [node name="Player Manager" type="Node3D"]
+script = ExtResource("1_ajj0n")
 
 [node name="Player Body" type="CharacterBody3D" parent="."]
 collision_layer = 2147483648

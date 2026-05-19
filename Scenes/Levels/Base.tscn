@@ -1,10 +1,11 @@
-[gd_scene load_steps=39 format=3 uid="uid://d061crxyxgd0h"]
+[gd_scene load_steps=40 format=3 uid="uid://d061crxyxgd0h"]
 
 [ext_resource type="Material" uid="uid://ck362og30u040" path="res://Assets/Materials/Grass.tres" id="2_puwgh"]
 [ext_resource type="Texture2D" uid="uid://cbrp84fgowb5y" path="res://Assets/Icons/Native/icon.svg" id="3_106ev"]
 [ext_resource type="PackedScene" uid="uid://rvkkxqga2j5y" path="res://Scenes/UI/low_level_ui.tscn" id="3_cukpy"]
 [ext_resource type="PackedScene" uid="uid://ceao6bf0g4pnd" path="res://Scenes/Prefabs/Network/LowLevelPlayerSpawner.tscn" id="4_omw7r"]
 [ext_resource type="Script" uid="uid://3b0j6vy8wdqy" path="res://Scripts/Entity/Enemy/EnemyMovement.gd" id="5_7ofq3"]
+[ext_resource type="Script" uid="uid://brpmyati16b6r" path="res://Scripts/Entity/Enemy/EnemyManager.gd" id="5_gx4w7"]
 [ext_resource type="Material" uid="uid://ctp1bg8fkyo8h" path="res://Assets/Materials/Enemy.tres" id="6_gx4w7"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fuxo2"]
@@ -329,9 +330,10 @@ shape = SubResource("ConcavePolygonShape3D_y7vqc")
 [node name="LowLevelPlayerSpawner" parent="." instance=ExtResource("4_omw7r")]
 
 [node name="Enemy Manager" type="Node3D" parent="."]
+script = ExtResource("5_gx4w7")
 
 [node name="Enemy Body" type="CharacterBody3D" parent="Enemy Manager"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -5.82097)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -4.145)
 script = ExtResource("5_7ofq3")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Enemy Manager/Enemy Body"]

@@ -18,7 +18,7 @@ static func create_from_data(data: PackedByteArray) -> PlayerTransform:
 	info.decode(data)
 	return info
 
-# [type, id, 
+# [packet_type, id, 
 # Pos.x, Pos.x, Pos.x, Pos.x, 
 # Pos.y, Pos.y, Pos.y, Pos.y, 
 # Pos.z, Pos.z, Pos.z, Pos.z,

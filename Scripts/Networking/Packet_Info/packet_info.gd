@@ -3,7 +3,8 @@ class_name PacketInfo
 enum PACKET_TYPE {
 	ID_ASSIGNMENT = 0,
 	PLAYER_TRANSFORM = 1,
-	ENTITY_TRANSFORM = 2,
+	ID_UNASSIGNMENT = 2,
+	ENTITY_TRANSFORM = 3,
 }
 
 var packet_type: PACKET_TYPE

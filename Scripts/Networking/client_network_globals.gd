@@ -3,6 +3,7 @@ extends Node
 signal handle_local_id_assignment(local_id: int)
 signal handle_remote_id_assignment(remote_id: int)
 signal handle_player_position(player_transform: PlayerTransform)
+signal handle_entity_position(entity_transform: EntityTransform)
 
 var id: int = -1
 var remote_ids: Array[int]
@@ -20,6 +21,9 @@ func on_client_packet(data: PackedByteArray) -> void:
 		PacketInfo.PACKET_TYPE.PLAYER_TRANSFORM:
 			handle_player_position.emit(PlayerTransform.create_from_data(data))
 
+		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM:
+			handle_entity_position.emit(EntityTransform.create_from_data(data))
+		
 		_:
 			push_error("Packet type with index ", data[0], " unhandled!")
 

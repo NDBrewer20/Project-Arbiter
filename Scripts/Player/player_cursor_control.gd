@@ -15,7 +15,8 @@ func _enter_tree() -> void:
 func _exit_tree() -> void:
 	switchState(CursorState.INTERACTING)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
+	if !($".." as PlayerManager).is_authority: return
 	match _cursorState:
 		CursorState.DEFAULT:
 			if Input.is_action_just_pressed("ui_cancel"):
@@ -28,6 +29,7 @@ func _process(delta: float) -> void:
 				switchState(CursorState.DEFAULT)
 
 func switchState(state: CursorState) -> void:
+	if !($".." as PlayerManager).is_authority: return
 	_cursorState = state
 	match _cursorState:
 		CursorState.DEFAULT:

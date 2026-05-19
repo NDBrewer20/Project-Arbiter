@@ -77,6 +77,7 @@ func start_host(ip_address: String="127.0.0.1", port: int = 27015) -> void:
 		return
 
 	is_host = true
+	is_server = true
 	host_peer_id = available_peer_ids.pop_back()
 	ClientNetworkGlobals.id = host_peer_id
 	ClientNetworkGlobals.handle_local_id_assignment.emit(host_peer_id)
@@ -114,7 +115,7 @@ func start_client(ip_address: String = "127.0.0.1", port: int = 27015) -> void:
 
 # This happens automatically when the client disconnects from the server, but can be called manually to force a clean disconnect.
 func disconnect_client() -> void:
-	if is_server:
+	if is_server and not is_host:
 		push_warning("Cannot disconnect client from server when running as a server!")
 		return
 	
