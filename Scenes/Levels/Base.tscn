@@ -331,7 +331,7 @@ shape = SubResource("ConcavePolygonShape3D_y7vqc")
 [node name="Enemy Manager" type="Node3D" parent="."]
 
 [node name="Enemy Body" type="CharacterBody3D" parent="Enemy Manager"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -8.82097)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -5.82097)
 script = ExtResource("5_7ofq3")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Enemy Manager/Enemy Body"]

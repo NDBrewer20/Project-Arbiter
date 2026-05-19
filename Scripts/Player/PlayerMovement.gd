@@ -113,7 +113,7 @@ func _input(event: InputEvent) -> void:
 	_inputDirection.z = playerInput.y
 	_inputDirection = global_transform.basis * _inputDirection
 
-	if Input.is_action_just_pressed("Player_Jump"):
+	if Input.is_action_just_pressed("Player_Jump") and _cursorStateMachine._cursorState != PlayerCursor.CursorState.PAUSE_ALL:
 		_isjumping = true
 		_lastJumpPressed = _timeSinceFirstFrame
 
@@ -188,16 +188,17 @@ func _physics_process(delta: float) -> void:
 
 		PlayerState.JUMP:
 			HandleFalling(delta)
-			if velocity.y >= 0:
-				switchState(PlayerState.FALL)
 			
 		PlayerState.FALL:
 			HandleFalling(delta)
 			if is_on_floor():
 				switchState(PlayerState.FLOOR)
 			
-
-	HandleMove(delta)
+	if _cursorStateMachine._cursorState != PlayerCursor.CursorState.PAUSE_ALL:
+		HandleMove(delta)
+	elif is_on_floor():
+		velocity.x = 0
+		velocity.z = 0
 
 	_lastOnFloor = is_on_floor()
 	move_and_slide()
@@ -215,6 +216,8 @@ func switchState(state: PlayerState) -> void:
 			pass
 		PlayerState.JUMP:
 			HandleJump()
+			if velocity.y >= 0:
+				switchState(PlayerState.FALL)
 		PlayerState.FALL:
 			pass
 
