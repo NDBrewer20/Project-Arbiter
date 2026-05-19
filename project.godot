@@ -21,6 +21,16 @@ LowLevelNetworkHandler="*res://Scripts/Networking/low_level_network_handler.gd"
 ServerNetworkGlobals="*res://Scripts/Networking/server_network_globals.gd"
 ClientNetworkGlobals="*res://Scripts/Networking/client_network_globals.gd"
 
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=true
+
 [input]
 
 DEBUG_Quit={

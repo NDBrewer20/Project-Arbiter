@@ -1,6 +1,6 @@
 extends Node
 
-const LOW_LEVEL_NETWORK_PLAYER = preload("res://Scenes/Prefabs/player_manager.tscn") 
+@export var LOW_LEVEL_NETWORK_PLAYER: PackedScene
 
 func _ready() -> void:
 	LowLevelNetworkHandler.on_peer_connected.connect(spawn_player)

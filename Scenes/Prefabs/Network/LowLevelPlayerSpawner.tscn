@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://ceao6bf0g4pnd"]
+
+[ext_resource type="Script" uid="uid://cws38c01m6uiq" path="res://Scripts/Networking/low_level_player_spawner.gd" id="1_t3a0g"]
+[ext_resource type="PackedScene" uid="uid://dwuo45o1taqky" path="res://Scenes/Prefabs/Player/player_manager.tscn" id="2_o304a"]
+
+[node name="LowLevelPlayerSpawner" type="Node"]
+script = ExtResource("1_t3a0g")
+LOW_LEVEL_NETWORK_PLAYER = ExtResource("2_o304a")

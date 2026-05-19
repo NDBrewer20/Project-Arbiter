@@ -123,10 +123,12 @@ func _input(event: InputEvent) -> void:
 
 func HandleMove(delta: float) -> void:
 	if is_on_floor():
-		if _inputDirection == Vector3.ZERO:
-			_speedActual = lerp(_speedActual, walkSpeed, deceleration * delta)
-		else:
+		var vel = velocity
+		vel.y = 0
+		if _inputDirection != Vector3.ZERO and vel.length() > 0.1:
 			_speedActual = lerp(_speedActual, runSpeed, acceleration * delta)
+		else:
+			_speedActual = lerp(_speedActual, walkSpeed, deceleration * delta)
 		velocity.x = _inputDirection.normalized().x * _speedActual
 		velocity.z = _inputDirection.normalized().z * _speedActual
 	else:

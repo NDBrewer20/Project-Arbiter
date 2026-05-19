@@ -17,7 +17,7 @@ func on_client_packet(data: PackedByteArray) -> void:
 		PacketInfo.PACKET_TYPE.ID_ASSIGNMENT:
 			manage_ids(IDAssignment.create_from_data(data))
 
-		PacketInfo.PACKET_TYPE.PLAYER_POSITION:
+		PacketInfo.PACKET_TYPE.PLAYER_TRANSFORM:
 			handle_player_position.emit(PlayerTransform.create_from_data(data))
 
 		_:

@@ -1,20 +1,20 @@
-class_name PlayerTransform extends PacketInfo
+class_name EntityTransform extends PacketInfo
 
 var id: int
 var position: Vector3
 var rotation: Vector3
 
-static func create(id: int, position: Vector3, rotation: Vector3) -> PlayerTransform:
-	var info: PlayerTransform = PlayerTransform.new()
-	info.packet_type = PACKET_TYPE.PLAYER_TRANSFORM
+static func create(id: int, position: Vector3, rotation: Vector3) -> EntityTransform:
+	var info: EntityTransform = EntityTransform.new()
+	info.packet_type = PACKET_TYPE.ENTITY_TRANSFORM
 	info.flag = ENetPacketPeer.FLAG_UNSEQUENCED
 	info.id = id
 	info.position = position
 	info.rotation = rotation
 	return info
 
-static func create_from_data(data: PackedByteArray) -> PlayerTransform:
-	var info: PlayerTransform = PlayerTransform.new()
+static func create_from_data(data: PackedByteArray) -> EntityTransform:
+	var info: EntityTransform = EntityTransform.new()
 	info.decode(data)
 	return info
 
