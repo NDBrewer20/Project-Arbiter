@@ -20,6 +20,8 @@ var server_peer: ENetPacketPeer
 # General Variables
 var connection: ENetConnection
 var is_server: bool = false
+var is_host: bool = false
+var host_peer_id: int = -1
 
 func _process(delta: float) -> void:
 	if connection == null:
@@ -68,6 +70,21 @@ func start_server(ip_address: String="127.0.0.1", port: int = 27015) -> void:
 		return
 	print("Server started on ", ip_address, ":", port)
 	is_server = true
+
+func start_host(ip_address: String="127.0.0.1", port: int = 27015) -> void:
+	start_server(ip_address, port)
+	if connection == null:
+		return
+
+	is_host = true
+	host_peer_id = available_peer_ids.pop_back()
+	ClientNetworkGlobals.id = host_peer_id
+	ClientNetworkGlobals.handle_local_id_assignment.emit(host_peer_id)
+
+	# Keep host in the server peer list so new clients learn about the host player.
+	ServerNetworkGlobals.peer_ids.append(host_peer_id)
+
+	print("Host started with local player id: ", host_peer_id)
 
 func peer_connected(peer: ENetPacketPeer) -> void:
 	var peer_id: int = available_peer_ids.pop_back()

@@ -7,3 +7,7 @@ func _on_server_pressed() -> void:
 func _on_client_pressed() -> void:
 	LowLevelNetworkHandler.start_client()
 	queue_free()
+
+func _on_host_pressed() -> void:
+	LowLevelNetworkHandler.start_host()
+	queue_free()

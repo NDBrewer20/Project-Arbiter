@@ -2,10 +2,19 @@ class_name PlayerMovement extends CharacterBody3D
 
 @export var debug: bool = false
 
+# Player State Machine
+enum PlayerState {
+	FLOOR = 0,
+	JUMP = 1,
+	FALL = 2,
+}
+var _state: PlayerState = PlayerState.FLOOR
+
+
 # Networking parameters
 var is_authority: bool:
 	get:
-		return !LowLevelNetworkHandler.is_server && owner_id == ClientNetworkGlobals.id
+		return owner_id == ClientNetworkGlobals.id
 var owner_id: int
 
 # Player Events
@@ -13,6 +22,7 @@ signal playerJumped
 signal playerLanded
 
 # Player movement parameters
+@export_category("Movement")
 @export var runSpeed: float = 7.5
 @export var walkSpeed: float = 5.0
 @export var acceleration: float = 10.0
@@ -20,8 +30,17 @@ signal playerLanded
 var _speedActual: float = 0.0
 var _inputDirection: Vector3 = Vector3.ZERO
 
+# Air control parameters
+@export_subgroup("Air Control")
+@export var airControlStart: float = 1.0
+@export var airControlEnd: float = 0.45
+@export var airControlFadeTime: float = 1.5
+var _airtime: float = 0.0
+
 
 # Player jumping parameters
+@export_category("Jumping")
+@export var gravity: float = 9.8
 @export var jumpVelocity: float = 4.5
 var _lastOnFloor: bool # was the user on the ground in the last frame?
 var _isjumping: bool = false # is the user currently trying to jump?
@@ -29,6 +48,7 @@ var _lastJumpPressed: float # how long since the user last tried to jump?
 var _lastTimeOnGround: float # how long since the user was last on the ground?
 
 # Player Coyote Time parameters
+@export_subgroup("Coyote Time")
 @export var coyoteTime: float = 0.15
 var _coyoteUsable: bool # can the user press jump and have it work after starting to fall?
 var _coyoteWindow: bool: # if the timer hasn't timed out (time since jump + coyote time > current time), the user can still jump
@@ -39,6 +59,7 @@ var _canCoyote: bool: # is the user within the window to use coyote time?
 		return _coyoteUsable and !is_on_floor() and _coyoteWindow
 
 # Player Jump Buffer parameters
+@export_subgroup("Jump Buffer")
 @export var jumpBuffer: float = 0.2
 var _bufferJumpUsable: bool # can the user press jump and have it work before landing?
 var _bufferWindow: bool: # if the timer hasn't timed out (time since jump + jump buffer time > current time), the user can still jump
@@ -49,17 +70,14 @@ var _canBufferJump: bool: # is the user within the window to use buffered jump?
 		return _bufferJumpUsable and _bufferWindow
 
 
-# Air control parameters
-@export var airControlStart: float = 1.0
-@export var airControlEnd: float = 0.45
-@export var airControlFadeTime: float = 1.5
-var _airtime: float = 0.0
-
-
 # Camera control parametera
+@export_category("Camera")
 @onready var camPivot: Node3D = $CamOrigin
 @export var camClamp: Vector2 = Vector2(-90, 45)
 @export var mouse_Sensitivity: float = 0.1
+
+# Player Cursor State Machine
+@onready var _cursorStateMachine: PlayerCursor = $"../Player Cursor Control" as PlayerCursor
 
 # Internal Variables
 var _timeSinceFirstFrame: float = 0.0
@@ -83,7 +101,7 @@ func _input(event: InputEvent) -> void:
 
 	_inputDirection = Vector3.ZERO
 
-	if event is InputEventMouseMotion and Input.is_action_pressed("Player_Rotate"):
+	if event is InputEventMouseMotion and _cursorStateMachine._cursorState == PlayerCursor.CursorState.DEFAULT:
 		rotate_y(deg_to_rad(-event.relative.x * mouse_Sensitivity))
 		camPivot.rotate_x(deg_to_rad(-event.relative.y * mouse_Sensitivity))
 		camPivot.rotation.x = clamp(camPivot.rotation.x, deg_to_rad(camClamp.x), deg_to_rad(camClamp.y))
@@ -129,12 +147,11 @@ func HandleJump() -> void:
 	_isjumping = false
 
 func HandleFalling(delta: float) -> void:
-	if not is_on_floor():
-		# How Long in Air
-		_airtime += delta
+	# How Long in Air
+	_airtime += delta
 
-		# Gravity
-		velocity.y += -ProjectSettings.get_setting("physics/3d/default_gravity") * delta
+	# Gravity
+	velocity.y += -gravity * delta
 
 func Jump() -> void:
 	_coyoteUsable = false
@@ -157,23 +174,56 @@ func checkCollision() -> void:
 
 func _physics_process(delta: float) -> void:
 	if !is_authority: return
+
 	checkCollision()
-	HandleJump()
-	HandleFalling(delta)
+
+	match _state:
+		PlayerState.FLOOR:
+			if Input.is_action_just_pressed("Player_Jump"):
+				switchState(PlayerState.JUMP)
+			elif !is_on_floor():
+				switchState(PlayerState.FALL)
+
+		PlayerState.JUMP:
+			HandleFalling(delta)
+			if velocity.y >= 0:
+				switchState(PlayerState.FALL)
+			
+		PlayerState.FALL:
+			HandleFalling(delta)
+			if is_on_floor():
+				switchState(PlayerState.FLOOR)
+			
+
 	HandleMove(delta)
 
 	_lastOnFloor = is_on_floor()
 	move_and_slide()
 
-	PlayerTransform.create(owner_id, global_position, global_rotation).send(LowLevelNetworkHandler.server_peer)
+	var packet = PlayerTransform.create(owner_id, global_position, global_rotation)
+	if LowLevelNetworkHandler.is_host:
+		packet.broadcast(LowLevelNetworkHandler.connection)
+	else:
+		packet.send(LowLevelNetworkHandler.server_peer)
 
+func switchState(state: PlayerState) -> void:
+	_state = state
+	match _state:
+		PlayerState.FLOOR:
+			pass
+		PlayerState.JUMP:
+			HandleJump()
+		PlayerState.FALL:
+			pass
 
+# Player (Owner Client) -> Server 
 func server_handle_player_position(peer_id: int, player_transform: PlayerTransform) -> void:
 	if owner_id != peer_id: return
 	global_position = player_transform.position
 	global_rotation = player_transform.rotation
 	PlayerTransform.create(owner_id, global_position, global_rotation).broadcast(LowLevelNetworkHandler.connection)
 
+# Server -> Player (External Clients)
 func client_handle_player_position(player_transform: PlayerTransform) -> void:
 	if is_authority || owner_id != player_transform.id: return
 

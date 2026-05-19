@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://dwuo45o1taqky"]
+[gd_scene load_steps=7 format=3 uid="uid://dwuo45o1taqky"]
 
 [ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Player/PlayerMovement.gd" id="1_ggkmr"]
+[ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Player/player_cursor_control.gd" id="2_jabop"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_fuxo2"]
 
@@ -16,19 +17,23 @@ radius = 0.606938
 [node name="Player Manager" type="Node3D"]
 
 [node name="Player Body" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+collision_layer = 2147483648
+collision_priority = 10.0
+axis_lock_angular_x = true
+axis_lock_angular_z = true
 slide_on_ceiling = false
 script = ExtResource("1_ggkmr")
 debug = true
-runSpeed = 8.0
-walkSpeed = 3.5
-acceleration = 4.5
-deceleration = 7.5
+runSpeed = 6.5
+walkSpeed = 1.5
+acceleration = 1.5
+deceleration = 2.5
+airControlStart = 1.2
+airControlEnd = 0.05
+airControlFadeTime = 0.35
+jumpVelocity = 3.54
 coyoteTime = 0.16
 jumpBuffer = 0.21
-airControlStart = 1.35
-airControlEnd = 0.0
-airControlFadeTime = 0.35
 
 [node name="PlayerGFX" type="Node3D" parent="Player Body"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -54,3 +59,6 @@ spring_length = 3.0
 margin = 0.5
 
 [node name="Camera3D" type="Camera3D" parent="Player Body/CamOrigin/SpringArm3D"]
+
+[node name="Player Cursor Control" type="Node" parent="."]
+script = ExtResource("2_jabop")
