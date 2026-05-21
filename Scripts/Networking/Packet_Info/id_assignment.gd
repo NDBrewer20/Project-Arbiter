@@ -1,8 +1,11 @@
 class_name IDAssignment extends PacketInfo
 
+## id of the player that has connected.
 var id: int
+## id of the players connected to the server.
 var remoted_ids: Array[int]
 
+## Factory method for creating a [IDAssignment] packet with the given parameters.
 static func create(id: int, remote_ids: Array[int]) -> IDAssignment:
 	var info: IDAssignment = IDAssignment.new()
 	info.packet_type = PACKET_TYPE.ID_ASSIGNMENT
@@ -11,12 +14,15 @@ static func create(id: int, remote_ids: Array[int]) -> IDAssignment:
 	info.remoted_ids = remote_ids
 	return info
 
+## Factory method for creating a [IDAssignment] packet from a PackedByteArray of data. [br]
+## This is used when receiving a packet to decode it into a [IDAssignment] instance.
 static func create_from_data(data: PackedByteArray) -> IDAssignment:
 	var info: IDAssignment = IDAssignment.new()
 	info.decode(data)
 	return info
 
-
+## Encodes the Packet data into a [PackedByteArray] for sending over the network. [br]
+## The data is encoded in the following order: packet_type, id
 func encode() -> PackedByteArray:
 	var data: PackedByteArray = super.encode()
 
@@ -28,6 +34,8 @@ func encode() -> PackedByteArray:
 
 	return data
 
+## Decodes the Packet data from a [PackedByteArray] received over the network. [br]
+## The data is decoded in the following order: packet_type, id
 func decode(data: PackedByteArray) -> void:
 	super.decode(data)
 	id = data.decode_u8(1)

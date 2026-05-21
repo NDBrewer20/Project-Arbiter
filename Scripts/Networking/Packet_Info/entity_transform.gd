@@ -1,23 +1,5 @@
 class_name EntityTransform extends PacketInfo
 
-var id: int
-var position: Vector3
-var rotation: Vector3
-
-static func create(id: int, position: Vector3, rotation: Vector3) -> EntityTransform:
-	var info: EntityTransform = EntityTransform.new()
-	info.packet_type = PACKET_TYPE.ENTITY_TRANSFORM
-	info.flag = ENetPacketPeer.FLAG_UNSEQUENCED
-	info.id = id
-	info.position = position
-	info.rotation = rotation
-	return info
-
-static func create_from_data(data: PackedByteArray) -> EntityTransform:
-	var info: EntityTransform = EntityTransform.new()
-	info.decode(data)
-	return info
-
 # [type, id, 
 # Pos.x, Pos.x, Pos.x, Pos.x, 
 # Pos.y, Pos.y, Pos.y, Pos.y, 
@@ -28,6 +10,32 @@ static func create_from_data(data: PackedByteArray) -> EntityTransform:
 # 6, 7, 8, 9, 
 # 10, 11, 12, 13,
 # 14, 15, 16, 17] => 18 bytes
+
+## id of the entity that this packet belongs to.
+var id: int
+## position of the entity.
+var position: Vector3
+## rotation of the entity.
+var rotation: Vector3
+
+## Factory method for creating a [EntityTransform] packet with the given parameters.
+static func create(id: int, position: Vector3, rotation: Vector3) -> EntityTransform:
+	var info: EntityTransform = EntityTransform.new()
+	info.packet_type = PACKET_TYPE.ENTITY_TRANSFORM
+	info.flag = ENetPacketPeer.FLAG_UNSEQUENCED
+	info.id = id
+	info.position = position
+	info.rotation = rotation
+	return info
+
+## Factory method for creating a [EntityTransform] packet from a PackedByteArray of data. [br]
+## This is used when receiving a packet to decode it into a [EntityTransform] instance.
+static func create_from_data(data: PackedByteArray) -> EntityTransform:
+	var info: EntityTransform = EntityTransform.new()
+	info.decode(data)
+	return info
+
+## The data is encoded in the following order: packet_type, id, position.x, position.y, position.z, rotation.y
 func encode() -> PackedByteArray:
 	var data: PackedByteArray = super.encode()
 
@@ -40,6 +48,7 @@ func encode() -> PackedByteArray:
 
 	return data
 
+## The data is decoded in the following order: packet_type, id, position.x, position.y, position.z, rotation.y
 func decode(data: PackedByteArray) -> void:
 	super.decode(data)
 	id = data.decode_u8(1)

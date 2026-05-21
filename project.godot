@@ -18,8 +18,9 @@ config/icon="res://Assets/Icons/Native/icon.svg"
 [autoload]
 
 LowLevelNetworkHandler="*res://Scripts/Networking/low_level_network_handler.gd"
-ServerNetworkGlobals="*res://Scripts/Networking/server_network_globals.gd"
-ClientNetworkGlobals="*res://Scripts/Networking/client_network_globals.gd"
+ServerNetworkGlobals="*res://Scripts/Networking/globals/server_network_globals.gd"
+ClientNetworkGlobals="*res://Scripts/Networking/globals/client_network_globals.gd"
+Debug="*res://Scripts/Utility/Debug.gd"
 
 [display]
 

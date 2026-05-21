@@ -1,12 +1,10 @@
-[gd_scene load_steps=40 format=3 uid="uid://d061crxyxgd0h"]
+[gd_scene load_steps=34 format=3 uid="uid://d061crxyxgd0h"]
 
 [ext_resource type="Material" uid="uid://ck362og30u040" path="res://Assets/Materials/Grass.tres" id="2_puwgh"]
 [ext_resource type="Texture2D" uid="uid://cbrp84fgowb5y" path="res://Assets/Icons/Native/icon.svg" id="3_106ev"]
 [ext_resource type="PackedScene" uid="uid://rvkkxqga2j5y" path="res://Scenes/UI/low_level_ui.tscn" id="3_cukpy"]
 [ext_resource type="PackedScene" uid="uid://ceao6bf0g4pnd" path="res://Scenes/Prefabs/Network/LowLevelPlayerSpawner.tscn" id="4_omw7r"]
-[ext_resource type="Script" uid="uid://3b0j6vy8wdqy" path="res://Scripts/Entity/Enemy/EnemyMovement.gd" id="5_7ofq3"]
-[ext_resource type="Script" uid="uid://brpmyati16b6r" path="res://Scripts/Entity/Enemy/EnemyManager.gd" id="5_gx4w7"]
-[ext_resource type="Material" uid="uid://ctp1bg8fkyo8h" path="res://Assets/Materials/Enemy.tres" id="6_gx4w7"]
+[ext_resource type="PackedScene" uid="uid://scl6pakak5ca" path="res://Scenes/Prefabs/Entities/Enemy/enemy_body.tscn" id="5_omw7r"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fuxo2"]
 sky_top_color = Color(0.229075, 0.48228, 0.598202, 1)
@@ -97,16 +95,6 @@ data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_y7vqc"]
 data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2l7tc"]
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_fuxo2"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fuxo2"]
-albedo_color = Color(0, 0, 0, 1)
-
-[sub_resource type="TorusMesh" id="TorusMesh_puwgh"]
-material = SubResource("StandardMaterial3D_fuxo2")
 
 [node name="Base" type="Node3D"]
 
@@ -329,24 +317,7 @@ shape = SubResource("ConcavePolygonShape3D_y7vqc")
 
 [node name="LowLevelPlayerSpawner" parent="." instance=ExtResource("4_omw7r")]
 
-[node name="Enemy Manager" type="Node3D" parent="."]
-script = ExtResource("5_gx4w7")
-
-[node name="Enemy Body" type="CharacterBody3D" parent="Enemy Manager"]
+[node name="Enemy Body" parent="." instance=ExtResource("5_omw7r")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -4.145)
-script = ExtResource("5_7ofq3")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Enemy Manager/Enemy Body"]
-shape = SubResource("CapsuleShape3D_2l7tc")
-
-[node name="EnemyGFX" type="Node3D" parent="Enemy Manager/Enemy Body"]
-
-[node name="Capsule" type="MeshInstance3D" parent="Enemy Manager/Enemy Body/EnemyGFX"]
-material_override = ExtResource("6_gx4w7")
-mesh = SubResource("CapsuleMesh_fuxo2")
-skeleton = NodePath("")
-
-[node name="Glasses" type="MeshInstance3D" parent="Enemy Manager/Enemy Body/EnemyGFX"]
-transform = Transform3D(0.5, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0.362, -0.144821)
-mesh = SubResource("TorusMesh_puwgh")
-skeleton = NodePath("")
+[editable path="Enemy Body"]
