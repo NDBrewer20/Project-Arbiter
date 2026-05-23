@@ -1,8 +1,8 @@
 [gd_scene load_steps=8 format=3 uid="uid://dwuo45o1taqky"]
 
-[ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Player/ThirdPersonPlayer.gd" id="1_gcovj"]
+[ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Entity/Player/ThirdPersonPlayer.gd" id="1_gcovj"]
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="2_gcovj"]
-[ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Player/player_cursor_control.gd" id="3_pfjur"]
+[ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Entity/Player/player_cursor_control.gd" id="3_pfjur"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_suiw6"]
 radius = 0.606938
@@ -15,7 +15,7 @@ albedo_color = Color(0, 0, 0, 1)
 [sub_resource type="TorusMesh" id="TorusMesh_puwgh"]
 material = SubResource("StandardMaterial3D_fuxo2")
 
-[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("_manager", "_camPivot", "_cursorStateMachine")]
+[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("_manager", "_camPivot", "_cursorStateMachine") groups=["player"]]
 collision_layer = 2147483648
 collision_mask = 1073741825
 collision_priority = 10.0

@@ -147,20 +147,19 @@ func start_host(ip_address: String="127.0.0.1", port: int = 27015) -> void:
 
 ## disconnects the host
 func disconnect_host() -> void:
-	disconnect_server()
 	if not is_host:
 		push_warning("Cannot disconnect host when not running as host!")
 		return
 
 	# Inform server globals and clients that the host id is being unassigned.
 	on_peer_disconnected.emit(host_peer_id)
-	on_disconnected_from_server.emit(host_peer_id)
 
 	# Reset host/server flags and id.
 	is_host = false
 	host_peer_id = -1
 
 	print("Host disconnected and server closed")
+	disconnect_server()
 
 ## when a peer is connected to the server.
 func peer_connected(peer: ENetPacketPeer) -> void:

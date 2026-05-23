@@ -1,9 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://scl6pakak5ca"]
+[gd_scene load_steps=12 format=3 uid="uid://scl6pakak5ca"]
 
-[ext_resource type="Script" uid="uid://3b0j6vy8wdqy" path="res://Scripts/Entity/Enemy/EnemyMovement.gd" id="1_17ern"]
+[ext_resource type="Script" uid="uid://3b0j6vy8wdqy" path="res://Scripts/Entity/Enemy/BasicEnemy.gd" id="1_17ern"]
 [ext_resource type="Material" uid="uid://ctp1bg8fkyo8h" path="res://Assets/Materials/Enemy.tres" id="2_me5p2"]
+[ext_resource type="PackedScene" uid="uid://stfl5k4vnh1g" path="res://Scenes/Prefabs/Entities/Component/pathfind_component.tscn" id="3_7nani"]
 [ext_resource type="PackedScene" uid="uid://1xmbdq4bkn5n" path="res://Scenes/Prefabs/Entities/entity_transform_sync.tscn" id="4_17ern"]
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="4_me5p2"]
+[ext_resource type="Script" uid="uid://yrg0uyvv2r2t" path="res://Scripts/Entity/Components/VelocityComponent.gd" id="5_me5p2"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2l7tc"]
 
@@ -15,9 +17,15 @@ albedo_color = Color(0, 0, 0, 1)
 [sub_resource type="TorusMesh" id="TorusMesh_puwgh"]
 material = SubResource("StandardMaterial3D_fuxo2")
 
-[node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("_manager")]
+[sub_resource type="SphereShape3D" id="SphereShape3D_me5p2"]
+
+[node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "pathfindComponent", "detectionComponent", "_manager")]
 collision_layer = 1073741824
+collision_mask = 2147483649
 script = ExtResource("1_17ern")
+velocityComponent = NodePath("Velocity Component")
+pathfindComponent = NodePath("PathfindComponent")
+detectionComponent = NodePath("Detection Radius")
 _manager = NodePath("Network Manager")
 
 [node name="Enemy Movement Collider" type="CollisionShape3D" parent="."]
@@ -35,8 +43,31 @@ transform = Transform3D(0.5, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0.362, -0.144821)
 mesh = SubResource("TorusMesh_puwgh")
 skeleton = NodePath("")
 
-[node name="Entity Transform Sync" parent="." node_paths=PackedStringArray("_body", "_manager") instance=ExtResource("4_17ern")]
+[node name="Detection Radius" type="Area3D" parent="."]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0)
+collision_layer = 1073741824
+collision_mask = 2147483648
+
+[node name="Detection Shape" type="CollisionShape3D" parent="Detection Radius"]
+shape = SubResource("SphereShape3D_me5p2")
+
+[node name="PathfindComponent" parent="." node_paths=PackedStringArray("velocityComponent") instance=ExtResource("3_7nani")]
+velocityComponent = NodePath("../Velocity Component")
+
+[node name="NavigationAgent3D" parent="PathfindComponent" index="1"]
+path_desired_distance = 1.0
+target_desired_distance = 1.35
+path_height_offset = -0.55
+
+[node name="Transform Sync Component" parent="." node_paths=PackedStringArray("_body", "_manager") instance=ExtResource("4_17ern")]
 _body = NodePath("..")
 _manager = NodePath("../Network Manager")
 
 [node name="Network Manager" parent="." instance=ExtResource("4_me5p2")]
+
+[node name="Velocity Component" type="Node" parent="."]
+script = ExtResource("5_me5p2")
+maxSpeed = 5.0
+metadata/_custom_type_script = "uid://yrg0uyvv2r2t"
+
+[editable path="PathfindComponent"]

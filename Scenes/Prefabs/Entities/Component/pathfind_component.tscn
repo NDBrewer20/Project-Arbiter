@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://stfl5k4vnh1g"]
+
+[ext_resource type="Script" uid="uid://dgy22h1a3lnov" path="res://Scripts/Entity/Components/PathfindComponent.gd" id="1_ld56m"]
+
+[node name="PathfindComponent" type="Node3D"]
+script = ExtResource("1_ld56m")
+metadata/_custom_type_script = "uid://dgy22h1a3lnov"
+
+[node name="Interval Timer" type="Timer" parent="."]
+wait_time = 0.2
+one_shot = true
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.5
+debug_enabled = true
+debug_path_custom_color = Color(1, 0, 0, 1)

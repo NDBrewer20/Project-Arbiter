@@ -13,6 +13,7 @@ func _ready() -> void:
 
 	# removing players
 	LowLevelNetworkHandler.on_disconnected_from_server.connect(remove_player)
+	LowLevelNetworkHandler.on_peer_disconnected.connect(remove_player)
 	ClientNetworkGlobals.handle_local_id_unassignment.connect(remove_player)
 	ClientNetworkGlobals.handle_remote_id_unassignment.connect(remove_player)
 
