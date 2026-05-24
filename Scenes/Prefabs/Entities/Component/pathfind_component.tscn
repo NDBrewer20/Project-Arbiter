@@ -10,6 +10,10 @@ metadata/_custom_type_script = "uid://dgy22h1a3lnov"
 wait_time = 0.2
 one_shot = true
 
+[node name="NavLink Timer" type="Timer" parent="."]
+wait_time = 1.5
+one_shot = true
+
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 path_desired_distance = 0.5
 debug_enabled = true

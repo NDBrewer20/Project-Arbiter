@@ -1,11 +1,14 @@
-[gd_scene load_steps=12 format=3 uid="uid://scl6pakak5ca"]
+[gd_scene load_steps=15 format=3 uid="uid://scl6pakak5ca"]
 
 [ext_resource type="Script" uid="uid://3b0j6vy8wdqy" path="res://Scripts/Entity/Enemy/BasicEnemy.gd" id="1_17ern"]
 [ext_resource type="Material" uid="uid://ctp1bg8fkyo8h" path="res://Assets/Materials/Enemy.tres" id="2_me5p2"]
 [ext_resource type="PackedScene" uid="uid://stfl5k4vnh1g" path="res://Scenes/Prefabs/Entities/Component/pathfind_component.tscn" id="3_7nani"]
-[ext_resource type="PackedScene" uid="uid://1xmbdq4bkn5n" path="res://Scenes/Prefabs/Entities/entity_transform_sync.tscn" id="4_17ern"]
+[ext_resource type="PackedScene" uid="uid://baexhy3bvlqrp" path="res://Scenes/Prefabs/Entities/entity_transform_sync.tscn" id="4_17ern"]
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="4_me5p2"]
 [ext_resource type="Script" uid="uid://yrg0uyvv2r2t" path="res://Scripts/Entity/Components/VelocityComponent.gd" id="5_me5p2"]
+[ext_resource type="Script" uid="uid://mdyxlfjbunwd" path="res://Scripts/Entity/State Machine/stateMachine.gd" id="7_00uo8"]
+[ext_resource type="Script" uid="uid://dfjpeflxlcixk" path="res://Scripts/Entity/State Machine/States/EnemyIdle.gd" id="8_6k4rf"]
+[ext_resource type="Script" uid="uid://cbjl5le1xorp" path="res://Scripts/Entity/State Machine/States/EnemyFollow.gd" id="9_6k4rf"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2l7tc"]
 
@@ -19,7 +22,7 @@ material = SubResource("StandardMaterial3D_fuxo2")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_me5p2"]
 
-[node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "pathfindComponent", "detectionComponent", "_manager")]
+[node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "pathfindComponent", "detectionComponent", "_manager") groups=["enemy"]]
 collision_layer = 1073741824
 collision_mask = 2147483649
 script = ExtResource("1_17ern")
@@ -54,14 +57,18 @@ shape = SubResource("SphereShape3D_me5p2")
 [node name="PathfindComponent" parent="." node_paths=PackedStringArray("velocityComponent") instance=ExtResource("3_7nani")]
 velocityComponent = NodePath("../Velocity Component")
 
-[node name="NavigationAgent3D" parent="PathfindComponent" index="1"]
+[node name="NavLink Timer" parent="PathfindComponent" index="1"]
+wait_time = 0.6
+
+[node name="NavigationAgent3D" parent="PathfindComponent" index="2"]
 path_desired_distance = 1.0
 target_desired_distance = 1.35
-path_height_offset = -0.55
+path_height_offset = -0.45
+avoidance_enabled = true
+radius = 1.0
 
-[node name="Transform Sync Component" parent="." node_paths=PackedStringArray("_body", "_manager") instance=ExtResource("4_17ern")]
+[node name="Transform Sync Component" parent="." node_paths=PackedStringArray("_body") instance=ExtResource("4_17ern")]
 _body = NodePath("..")
-_manager = NodePath("../Network Manager")
 
 [node name="Network Manager" parent="." instance=ExtResource("4_me5p2")]
 
@@ -69,5 +76,26 @@ _manager = NodePath("../Network Manager")
 script = ExtResource("5_me5p2")
 maxSpeed = 5.0
 metadata/_custom_type_script = "uid://yrg0uyvv2r2t"
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("7_00uo8")
+initial_state = NodePath("EnemyIdle")
+metadata/_custom_type_script = "uid://mdyxlfjbunwd"
+
+[node name="EnemyIdle" type="Node" parent="StateMachine" node_paths=PackedStringArray("enemy")]
+script = ExtResource("8_6k4rf")
+enemy = NodePath("../..")
+wanderTimeClamp = Vector2(4, 10)
+metadata/_custom_type_script = "uid://dfjpeflxlcixk"
+
+[node name="EnemyFollow" type="Node" parent="StateMachine" node_paths=PackedStringArray("enemy", "interestTimer")]
+script = ExtResource("9_6k4rf")
+enemy = NodePath("../..")
+interestTimer = NodePath("Interest Timer")
+metadata/_custom_type_script = "uid://cbjl5le1xorp"
+
+[node name="Interest Timer" type="Timer" parent="StateMachine/EnemyFollow"]
+wait_time = 6.9
+one_shot = true
 
 [editable path="PathfindComponent"]
