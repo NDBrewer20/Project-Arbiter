@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://3b0j6vy8wdqy" path="res://Scripts/Entity/Enemy/BasicEnemy.gd" id="1_17ern"]
 [ext_resource type="Material" uid="uid://ctp1bg8fkyo8h" path="res://Assets/Materials/Enemy.tres" id="2_me5p2"]
 [ext_resource type="PackedScene" uid="uid://stfl5k4vnh1g" path="res://Scenes/Prefabs/Entities/Component/pathfind_component.tscn" id="3_7nani"]
-[ext_resource type="PackedScene" uid="uid://baexhy3bvlqrp" path="res://Scenes/Prefabs/Entities/entity_transform_sync.tscn" id="4_17ern"]
+[ext_resource type="PackedScene" uid="uid://baexhy3bvlqrp" path="res://Scenes/Prefabs/Entities/Component/entity_transform_sync.tscn" id="4_17ern"]
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="4_me5p2"]
 [ext_resource type="Script" uid="uid://yrg0uyvv2r2t" path="res://Scripts/Entity/Components/VelocityComponent.gd" id="5_me5p2"]
 [ext_resource type="Script" uid="uid://mdyxlfjbunwd" path="res://Scripts/Entity/State Machine/stateMachine.gd" id="7_00uo8"]
@@ -22,13 +22,14 @@ material = SubResource("StandardMaterial3D_fuxo2")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_me5p2"]
 
-[node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "pathfindComponent", "detectionComponent", "_manager") groups=["enemy"]]
+[node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "pathfindComponent", "detectionComponent", "stateMachine", "_manager") groups=["enemy"]]
 collision_layer = 1073741824
 collision_mask = 2147483649
 script = ExtResource("1_17ern")
 velocityComponent = NodePath("Velocity Component")
 pathfindComponent = NodePath("PathfindComponent")
 detectionComponent = NodePath("Detection Radius")
+stateMachine = NodePath("StateMachine")
 _manager = NodePath("Network Manager")
 
 [node name="Enemy Movement Collider" type="CollisionShape3D" parent="."]
@@ -58,7 +59,7 @@ shape = SubResource("SphereShape3D_me5p2")
 velocityComponent = NodePath("../Velocity Component")
 
 [node name="NavLink Timer" parent="PathfindComponent" index="1"]
-wait_time = 0.6
+wait_time = 0.45
 
 [node name="NavigationAgent3D" parent="PathfindComponent" index="2"]
 path_desired_distance = 1.0

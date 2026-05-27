@@ -6,6 +6,7 @@ enum PACKET_TYPE {
 	PLAYER_TRANSFORM = 1,
 	ID_UNASSIGNMENT = 2,
 	ENTITY_TRANSFORM = 3,
+	ENTITY_ID_ASSIGNMENT = 4,
 }
 
 ## Controls what type of packet is being sent.

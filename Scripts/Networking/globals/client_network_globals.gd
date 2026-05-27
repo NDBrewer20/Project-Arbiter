@@ -8,8 +8,6 @@ signal handle_remote_id_assignment(remote_id: int)
 signal handle_remote_id_unassignment(remote_id: int)
 ## signal called when PlayerTransform packet is recieved.
 signal handle_player_position(player_transform: PlayerTransform)
-## signal called when EntityTransform packet is recieved.
-signal handle_entity_position(entity_transform: EntityTransform)
 
 ## assigned peer id from server.
 var id: int = -1
@@ -42,10 +40,9 @@ func on_client_packet(data: PackedByteArray) -> void:
 			# emit a signal to have client handle the new packet for the specific client.
 			handle_player_position.emit(PlayerTransform.create_from_data(data))
 
-		# when the packet is related to an entity's transform
-		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM:
-			# emit a signal to have client handle the new packet for the specific entity.
-			handle_entity_position.emit(EntityTransform.create_from_data(data))
+		# packets unrelated to Player/client manipulation
+		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT:
+			pass
 		
 		# unknown packet was sent to client.
 		_:

@@ -8,6 +8,14 @@ enum CursorState {
 ## Current state of the player cursor.
 var _cursorState: CursorState = CursorState.DEFAULT
 
+func _ready() -> void:
+	LowLevelNetworkHandler.on_disconnected_from_server.connect(_on_disconnected_from_server)
+
+## When client disconnects from the server and its for this instance then free the cursor.
+func _on_disconnected_from_server(peer_id: int):
+	if peer_id == owner._manager.assigned_id: # this players cursor
+		switchState(CursorState.PAUSE_ALL)
+
 func _process(_delta: float) -> void:
 	match _cursorState:
 		# Default state the cursor is contained to the game window.

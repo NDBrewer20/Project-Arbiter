@@ -5,6 +5,8 @@ extends Node
 signal on_peer_connected(peer_id: int)
 ## when a peer is disconnected from the server.
 signal on_peer_disconnected(peer_id: int)
+## when the server is closing.
+signal on_server_disconnect()
 ## when the server recieves a packet.
 signal on_server_packet(peer_id: int, data: PackedByteArray)
 
@@ -66,7 +68,7 @@ func handleEvents() -> void:
 		match event_type:
 			# Packet Event Error
 			ENetConnection.EVENT_ERROR:
-				push_warning("ENet Connection Event Error occurred: Package resulted in an unkown error!")
+				push_warning("ENet Connection Event Error occurred: Package resulted in an unknown error!")
 				return
 			# A peer has connected
 			ENetConnection.EVENT_CONNECT:
@@ -109,6 +111,8 @@ func start_server(ip_address: String="127.0.0.1", port: int = 27015) -> void:
 func disconnect_server() -> void:
 	if !is_server:
 		push_warning("cannot disconnect server when not running as server.")
+
+	on_server_disconnect.emit()
 
 	# Disconnect all connected remote peers cleanly.
 	if client_peers:
@@ -154,12 +158,14 @@ func disconnect_host() -> void:
 	# Inform server globals and clients that the host id is being unassigned.
 	on_peer_disconnected.emit(host_peer_id)
 
+	# Disconnect the server.
+	disconnect_server()
+
 	# Reset host/server flags and id.
 	is_host = false
 	host_peer_id = -1
 
 	print("Host disconnected and server closed")
-	disconnect_server()
 
 ## when a peer is connected to the server.
 func peer_connected(peer: ENetPacketPeer) -> void:
@@ -202,23 +208,24 @@ func start_client(ip_address: String = "127.0.0.1", port: int = 27015) -> void:
 	print("Client started")
 	server_peer = connection.connect_to_host(ip_address, port)
 
-# This happens automatically when the client disconnects from the server, but can be called manually to force a clean disconnect.
+## manually to force a clean disconnect.
 func disconnect_client() -> void:
-	if is_server and not is_host:
+	if is_server and not is_host: # Don't let the server or host run this command.
 		push_warning("Cannot disconnect client from server when running as a server!")
 		return
 	
+	# This happens automatically when the client disconnects from the server
 	# disconnect from the server cleanly.
 	server_peer.peer_disconnect()
 
 ## when the client is connected to the server.
 func connected_to_server() -> void:
-	print("Connected to server")
+	PA_Debug.log("client_id (%s): connected to server" % [ClientNetworkGlobals.id])
 	on_connected_to_server.emit()
 
 ## when the client is disconnected from the server.
 func disconnected_from_server() -> void:
-	print("Disconnected from server")
+	PA_Debug.log("client_id (%s): Disconnected from server" % [ClientNetworkGlobals.id])
 	on_disconnected_from_server.emit(ClientNetworkGlobals.id)
 	# null connection when disconnected.
 	connection = null

@@ -8,17 +8,19 @@ class_name EntityTransformSync extends Node
 ## smooths out the position updates of the transform at the cost of introducing slight positional and rotational latency
 @export var smooth: bool = true
 ## How agressive smoothing will be. [br]
-@export var smoothValue: float = 10
-var _cachedPosition: Vector3
-var _cachedRotation: Vector3
+## how many steps will be remembered from entity position.
+@export var smoothStep: int = 3
+@export var smoothValue: float = 75
+var _cachedPosition: Array[Vector3]
+var _cachedRotation: Array[Vector3]
 
 func _enter_tree() -> void:
 	# Connect to the signal that is emitted when an EntityTransform packet is received from the server.
-	ClientNetworkGlobals.handle_entity_position.connect(client_handle_entity_position)
+	EntityNetworkGlobals.handle_entity_position.connect(client_handle_entity_position)
 
 func _exit_tree() -> void:
 	# Disconnect from the signal when this node is removed from the scene tree to prevent errors.
-	ClientNetworkGlobals.handle_entity_position.disconnect(client_handle_entity_position)
+	EntityNetworkGlobals.handle_entity_position.disconnect(client_handle_entity_position)
 
 func _physics_process(_delta: float) -> void:
 	# After every physics process has run broadcast entity position/rotation.
@@ -34,16 +36,25 @@ func client_handle_entity_position(entity_transform: EntityTransform) -> void:
 
 	if smooth:
 		# smooth out the position of the entity based on last cached position and Packet position.
-		var finalPosition :Vector3 = _cachedPosition.slerp(entity_transform.position,1-exp(get_physics_process_delta_time()*-smoothValue))
-		var finalRotation :Vector3 = _cachedRotation.slerp(entity_transform.rotation,1-exp(get_physics_process_delta_time()*-smoothValue))
+		var finalPosition :Vector3 = entity_transform.position 
+		var finalRotation :Vector3  = entity_transform.rotation 
+		for pos in _cachedPosition:
+			finalPosition = pos.lerp(finalPosition,1-exp(get_physics_process_delta_time()*-smoothValue))
+		for rot in _cachedRotation:
+			finalRotation = rot.lerp(finalRotation,1-exp(get_physics_process_delta_time()*-smoothValue))
 
 		# Update the entity's position and rotation based on the data received from the server.
 		_body.global_position = finalPosition
 		_body.global_rotation.y = finalRotation.y # packet only syncs y rotation.
 
 		# Cache entity position and rotation for next iteration to use for smoothing.
-		_cachedPosition = _body.global_position
-		_cachedRotation = entity_transform.rotation
+		_cachedPosition.push_front(_body.global_position)
+		_cachedRotation.push_front(entity_transform.rotation)
+		# if cached values become too big.
+		if _cachedPosition.size() > smoothStep:
+			_cachedPosition.pop_back()
+		if _cachedRotation.size() > smoothStep:
+			_cachedRotation.pop_back()
 	else:
 		_body.global_position = entity_transform.position
 		_body.global_rotation.y = entity_transform.rotation.y

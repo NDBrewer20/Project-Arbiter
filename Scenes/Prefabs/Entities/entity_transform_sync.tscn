@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://baexhy3bvlqrp"]
-
-[ext_resource type="Script" uid="uid://ckrxn4wa6vg1j" path="res://Scripts/Entity/Components/TransformSyncComponent.gd" id="1_iumeo"]
-
-[node name="Entity Transform Sync" type="Node"]
-script = ExtResource("1_iumeo")
