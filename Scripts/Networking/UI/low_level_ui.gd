@@ -2,10 +2,13 @@ extends Control
 
 ## the UI for connecting to a server.
 @export var UI_connect: Container
+@export var UI_ip_address: LineEdit
+@export var UI_port: LineEdit
 ## The UI for disconnecting from a server.
 @export var UI_connected: Container
 @export var UI_server: Container
 @export var spawnAmt: LineEdit
+@export var removeAmt: LineEdit
 
 func _ready() -> void:
 	UI_connect.visible = true
@@ -20,22 +23,32 @@ func _on_disconnected_from_server(peer_id: int):
 		UI_connected.visible = false		
 		UI_server.visible = false
 
+func retrieve_connection_details() -> Array:
+	var ip: String = "127.0.0.1"
+	var port: int = 27015
+	if !UI_ip_address.text.is_empty(): ip = UI_ip_address.text
+	if !UI_port.text.is_empty(): port = UI_port.text.to_int()
+	return [ip,port]
+
 ## when server button is pressed start the server and disable corresponding UI
 func _on_server_pressed() -> void:
-	LowLevelNetworkHandler.start_server()
+	var details := retrieve_connection_details()
+	LowLevelNetworkHandler.start_server(details[0],details[1])
 	UI_connect.visible = false
 	UI_connected.visible = true
 	UI_server.visible = true
 
 ## when client button is pressed start the client and disable/enable corresponding UI
 func _on_client_pressed() -> void:
-	LowLevelNetworkHandler.start_client()
+	var details := retrieve_connection_details()
+	LowLevelNetworkHandler.start_client(details[0],details[1])
 	UI_connect.visible = false
 	UI_connected.visible = true
 
 ## when host button is pressed start the host (client + server) and disable/enable corresponding UI
 func _on_host_pressed() -> void:
-	LowLevelNetworkHandler.start_host()
+	var details := retrieve_connection_details()
+	LowLevelNetworkHandler.start_host(details[0],details[1])
 	UI_connect.visible = false
 	UI_connected.visible = true
 	UI_server.visible = true
@@ -55,7 +68,17 @@ func _on_disconnect_pressed() -> void:
 
 func _on_spawn_enemy_pressed() -> void:
 	var val := 1
+	var spawner := (get_tree().get_first_node_in_group("entity spawner") as LowLevelEntitySpawner)
 	if !spawnAmt.text.is_empty():
 		val = spawnAmt.text.to_int()
 	for i in range(val):
-		get_tree().get_first_node_in_group("entity spawner").server_spawn_entity(Vector3.UP)
+		spawner.server_spawn_entity(randi_range(0,LowLevelEntitySpawner.SPAWNABLE.size()-1), Vector3.UP)
+
+func _on_remove_enemy_pressed() -> void:
+	var val := 1
+	var spawner := (get_tree().get_first_node_in_group("entity spawner") as LowLevelEntitySpawner)
+	if !removeAmt.text.is_empty():
+		val = clamp(removeAmt.text.to_int(), 1, spawner._activeEntities.size())
+	for i in range(val):
+		if !spawner._activeEntities.is_empty():
+			spawner.server_remove_entity(spawner._activeEntities.keys().pick_random())

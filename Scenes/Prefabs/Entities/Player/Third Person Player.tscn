@@ -42,12 +42,10 @@ script = ExtResource("2_dahrh")
 
 [node name="Network Manager" parent="." instance=ExtResource("3_pfsti")]
 
-[node name="Player Movement Collider" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+[node name="Player Body Collider" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_suiw6")
 
 [node name="PlayerGFX" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="Capsule" type="MeshInstance3D" parent="PlayerGFX"]
 mesh = SubResource("CapsuleMesh_fuxo2")
@@ -59,7 +57,7 @@ mesh = SubResource("TorusMesh_puwgh")
 skeleton = NodePath("")
 
 [node name="CamOrigin" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.47274, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0.5, 0.5)
 
 [node name="SpringArm3D" type="SpringArm3D" parent="CamOrigin"]
 spring_length = 3.0
@@ -68,5 +66,5 @@ margin = 0.5
 [node name="Camera3D" type="Camera3D" parent="CamOrigin/SpringArm3D"]
 
 [node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
-radius = 2.0
+radius = 0.75
 height = 0.0

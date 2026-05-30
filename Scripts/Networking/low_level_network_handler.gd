@@ -20,7 +20,7 @@ signal on_client_packet(data: PackedByteArray)
 
 # Server Variables
 ## possible peer IDs that can be used on the server.
-var available_peer_ids: Array = range(255, -1, -1) # List of available peer IDs (255 down to 0)
+#var available_peer_ids: Array = range(255, -1, -1) # List of available peer IDs (255 down to 0)
 ## client peers connected to the server.
 var client_peers: Dictionary[int, ENetPacketPeer]
 
@@ -121,7 +121,7 @@ func disconnect_server() -> void:
 			if peer:
 				peer.peer_disconnect()
 				on_peer_disconnected.emit(peer_id)
-			available_peer_ids.push_back(peer_id)
+			EntityNetworkGlobals.reclaim_entity_id(peer_id)
 		client_peers.clear()
 
 	# Try to destroy the ENet host, then null the connection.
@@ -140,7 +140,7 @@ func start_host(ip_address: String="127.0.0.1", port: int = 27015) -> void:
 
 	is_host = true
 	# reserve host peer id and force a local id assignment.
-	host_peer_id = available_peer_ids.pop_back()
+	host_peer_id = EntityNetworkGlobals.provision_entity_id()
 	ClientNetworkGlobals.id = host_peer_id
 	ClientNetworkGlobals.handle_local_id_assignment.emit(host_peer_id)
 
@@ -155,6 +155,8 @@ func disconnect_host() -> void:
 		push_warning("Cannot disconnect host when not running as host!")
 		return
 
+	# push peer id back into available pool
+	EntityNetworkGlobals.reclaim_entity_id(host_peer_id)
 	# Inform server globals and clients that the host id is being unassigned.
 	on_peer_disconnected.emit(host_peer_id)
 
@@ -170,7 +172,7 @@ func disconnect_host() -> void:
 ## when a peer is connected to the server.
 func peer_connected(peer: ENetPacketPeer) -> void:
 	# reserve a peer id
-	var peer_id: int = available_peer_ids.pop_back()
+	var peer_id: int = EntityNetworkGlobals.provision_entity_id()
 	# add metadata to peer using reserved peer id
 	peer.set_meta("peer_id", peer_id)
 	# add peer it list of managed clients
@@ -185,7 +187,7 @@ func peer_disconnected(peer: ENetPacketPeer) -> void:
 	# fetch peer id
 	var peer_id: int = peer.get_meta("peer_id")
 	# push peer id back into available pool
-	available_peer_ids.push_back(peer_id)
+	EntityNetworkGlobals.reclaim_entity_id(peer_id)
 	# remove peer from list of managed clients.
 	client_peers.erase(peer_id)
 

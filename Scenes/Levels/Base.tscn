@@ -1,10 +1,9 @@
-[gd_scene load_steps=28 format=3 uid="uid://d061crxyxgd0h"]
+[gd_scene load_steps=27 format=3 uid="uid://d061crxyxgd0h"]
 
 [ext_resource type="Material" uid="uid://ck362og30u040" path="res://Assets/Materials/Grass.tres" id="2_puwgh"]
 [ext_resource type="Texture2D" uid="uid://cbrp84fgowb5y" path="res://Assets/Icons/Native/icon.svg" id="3_106ev"]
 [ext_resource type="PackedScene" uid="uid://rvkkxqga2j5y" path="res://Scenes/UI/low_level_ui.tscn" id="3_cukpy"]
 [ext_resource type="PackedScene" uid="uid://ceao6bf0g4pnd" path="res://Scenes/Prefabs/Network/LowLevelPlayerSpawner.tscn" id="4_omw7r"]
-[ext_resource type="PackedScene" uid="uid://scl6pakak5ca" path="res://Scenes/Prefabs/Entities/Enemy/enemy_body.tscn" id="5_omw7r"]
 [ext_resource type="Script" uid="uid://dyj3bpmtmecyt" path="res://Scripts/Networking/low_level_entity_spawner.gd" id="6_ovum4"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fuxo2"]
@@ -278,8 +277,8 @@ start_position = Vector3(-7.50053, -9.90766, -0.0551068)
 spawnPosition = NodePath("Spawn Position")
 
 [node name="Spawn Position" type="Node3D" parent="LowLevelPlayerSpawner"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.110378, 3.87591, 16.6264)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11, 4, 16.626)
 
 [node name="LowLevelEntitySpawner" type="Node" parent="." groups=["entity spawner"]]
 script = ExtResource("6_ovum4")
-LOW_LEVEL_NETWORK_ENTITY = ExtResource("5_omw7r")
+metadata/_custom_type_script = "uid://dyj3bpmtmecyt"

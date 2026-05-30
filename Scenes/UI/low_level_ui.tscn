@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dtpk41lefnkur" path="res://Scripts/Networking/UI/low_level_ui.gd" id="1_hhcwa"]
 
-[node name="LowLevelUi" type="Control" node_paths=PackedStringArray("UI_connect", "UI_connected", "UI_server", "spawnAmt")]
+[node name="LowLevelUi" type="Control" node_paths=PackedStringArray("UI_connect", "UI_ip_address", "UI_port", "UI_connected", "UI_server", "spawnAmt", "removeAmt")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,14 +11,33 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_hhcwa")
 UI_connect = NodePath("Connect")
+UI_ip_address = NodePath("Connect/HBoxContainer/IP Address")
+UI_port = NodePath("Connect/HBoxContainer/Port")
 UI_connected = NodePath("Connected")
 UI_server = NodePath("Connected/Server Control")
 spawnAmt = NodePath("Connected/Server Control/Enemy Control/Spawn Enemy Amt")
+removeAmt = NodePath("Connected/Server Control/Enemy Control 2/Remove Enemy Amt")
 
 [node name="Connect" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Connect"]
+layout_mode = 2
+
+[node name="IP Address" type="LineEdit" parent="Connect/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "127.0.0.1"
+placeholder_text = "127.0.0.1"
+
+[node name="Port" type="LineEdit" parent="Connect/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "27015"
+placeholder_text = "27015"
+alignment = 2
 
 [node name="Host" type="Button" parent="Connect"]
 layout_mode = 2
@@ -56,10 +75,26 @@ layout_mode = 2
 
 [node name="Spawn Enemy" type="Button" parent="Connected/Server Control/Enemy Control"]
 layout_mode = 2
+focus_mode = 1
 text = "Spawn Enemies
 "
 
 [node name="Spawn Enemy Amt" type="LineEdit" parent="Connected/Server Control/Enemy Control"]
+layout_mode = 2
+placeholder_text = "# enemies"
+expand_to_text_length = true
+emoji_menu_enabled = false
+
+[node name="Enemy Control 2" type="HBoxContainer" parent="Connected/Server Control"]
+layout_mode = 2
+
+[node name="Remove Enemy" type="Button" parent="Connected/Server Control/Enemy Control 2"]
+layout_mode = 2
+focus_mode = 1
+text = "Remove Enemies
+"
+
+[node name="Remove Enemy Amt" type="LineEdit" parent="Connected/Server Control/Enemy Control 2"]
 layout_mode = 2
 placeholder_text = "# enemies"
 expand_to_text_length = true
@@ -70,3 +105,4 @@ emoji_menu_enabled = false
 [connection signal="pressed" from="Connect/Client" to="." method="_on_client_pressed"]
 [connection signal="pressed" from="Connected/Player Disconnect/Disconnect" to="." method="_on_disconnect_pressed"]
 [connection signal="pressed" from="Connected/Server Control/Enemy Control/Spawn Enemy" to="." method="_on_spawn_enemy_pressed"]
+[connection signal="pressed" from="Connected/Server Control/Enemy Control 2/Remove Enemy" to="." method="_on_remove_enemy_pressed"]

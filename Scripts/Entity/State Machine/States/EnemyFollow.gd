@@ -11,6 +11,8 @@ var _target: Node3D
 
 func _enter():
 	super._enter()
+	if !enemy._manager.is_server: return
+	PA_Debug.log("server: entity (%s)(%s) EnemyFollow state has been entered." % [enemy._manager.assigned_id,enemy])
 
 	interestTimer.timeout.connect(_on_interest_timeout)
 	enemy.OnNearbyBodyExited.connect(_on_nearby_body_exited)
@@ -20,6 +22,8 @@ func _enter():
 
 func _exit():
 	super._exit()
+	if !enemy._manager.is_server: return
+	PA_Debug.log("server: entity (%s)(%s) EnemyFollow state has been exited." % [enemy._manager.assigned_id,enemy])
 
 	interestTimer.timeout.disconnect(_on_interest_timeout)
 	enemy.OnNearbyBodyExited.disconnect(_on_nearby_body_exited)
@@ -37,9 +41,13 @@ func _physics_update(delta:float):
 		enemy.pathfindComponent.SetTargetPosition(_target.global_position)
 		enemy.pathfindComponent.FollowPath()
 		enemy.velocityComponent.Move(enemy)
+	elif !enemy._nearbyBodies.is_empty():
+		_target = enemy._nearbyBodies.pick_random()
+	else:
+		_on_interest_timeout()
 
 func _on_nearby_body_exited(body: Node3D):
-	if _target == body:
+	if _target == body and interestTimer.is_inside_tree():
 		interestTimer.start()
 
 func _on_nearby_body_entered(body: Node3D):
@@ -47,5 +55,8 @@ func _on_nearby_body_entered(body: Node3D):
 		interestTimer.stop()
 
 func _on_interest_timeout():
-	_target = null
-	Transitioned.emit(self, EnemyIdle.stateName)
+	if enemy._nearbyBodies.is_empty():
+		_target = null
+		Transitioned.emit(self, EnemyIdle.stateName)
+		return
+	_target = enemy._nearbyBodies.pick_random()

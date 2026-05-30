@@ -1,5 +1,9 @@
 class_name BasicEnemy extends Entity
 
+@export_category("Enemy Stats")
+@export var stats: Stats
+
+@export_category("Enemy Components")
 @export var velocityComponent: VelocityComponent
 @export var pathfindComponent: PathfindComponent
 @export var detectionComponent: Area3D
@@ -30,7 +34,7 @@ func _on_disconnect_from_server(_peerID: int) -> void:
 
 func _physics_process(_delta: float) -> void:	
 	if !_manager.is_server: return # Don't let a client control enemy movement.
-
+	
 	var lookdir :Vector3 = velocity.normalized()
 	lookdir.y = 0
 	if global_position + lookdir != global_position:

@@ -41,7 +41,7 @@ func on_client_packet(data: PackedByteArray) -> void:
 			handle_player_position.emit(PlayerTransform.create_from_data(data))
 
 		# packets unrelated to Player/client manipulation
-		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT:
+		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_ID_UNASSIGNMENT:
 			pass
 		
 		# unknown packet was sent to client.

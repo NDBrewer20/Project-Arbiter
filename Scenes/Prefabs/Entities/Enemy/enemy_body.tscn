@@ -1,7 +1,8 @@
-[gd_scene load_steps=15 format=3 uid="uid://scl6pakak5ca"]
+[gd_scene load_steps=16 format=3 uid="uid://scl6pakak5ca"]
 
 [ext_resource type="Script" uid="uid://3b0j6vy8wdqy" path="res://Scripts/Entity/Enemy/BasicEnemy.gd" id="1_17ern"]
 [ext_resource type="Material" uid="uid://ctp1bg8fkyo8h" path="res://Assets/Materials/Enemy.tres" id="2_me5p2"]
+[ext_resource type="Resource" uid="uid://7ds61s5w6rr7" path="res://Resources/Enemy Stats/enemy_body.tres" id="2_ssga2"]
 [ext_resource type="PackedScene" uid="uid://stfl5k4vnh1g" path="res://Scenes/Prefabs/Entities/Component/pathfind_component.tscn" id="3_7nani"]
 [ext_resource type="PackedScene" uid="uid://baexhy3bvlqrp" path="res://Scenes/Prefabs/Entities/Component/entity_transform_sync.tscn" id="4_17ern"]
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="4_me5p2"]
@@ -10,9 +11,11 @@
 [ext_resource type="Script" uid="uid://dfjpeflxlcixk" path="res://Scripts/Entity/State Machine/States/EnemyIdle.gd" id="8_6k4rf"]
 [ext_resource type="Script" uid="uid://cbjl5le1xorp" path="res://Scripts/Entity/State Machine/States/EnemyFollow.gd" id="9_6k4rf"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2l7tc"]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ssga2"]
+radius = 0.55
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_fuxo2"]
+material = ExtResource("2_me5p2")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fuxo2"]
 albedo_color = Color(0, 0, 0, 1)
@@ -26,14 +29,15 @@ material = SubResource("StandardMaterial3D_fuxo2")
 collision_layer = 1073741824
 collision_mask = 2147483649
 script = ExtResource("1_17ern")
+stats = ExtResource("2_ssga2")
 velocityComponent = NodePath("Velocity Component")
 pathfindComponent = NodePath("PathfindComponent")
 detectionComponent = NodePath("Detection Radius")
 stateMachine = NodePath("StateMachine")
 _manager = NodePath("Network Manager")
 
-[node name="Enemy Movement Collider" type="CollisionShape3D" parent="."]
-shape = SubResource("CapsuleShape3D_2l7tc")
+[node name="Enemy Body Collider" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_ssga2")
 
 [node name="EnemyGFX" type="Node3D" parent="."]
 
@@ -63,7 +67,7 @@ wait_time = 0.45
 
 [node name="NavigationAgent3D" parent="PathfindComponent" index="2"]
 path_desired_distance = 1.0
-target_desired_distance = 1.35
+target_desired_distance = 1.5
 path_height_offset = -0.45
 avoidance_enabled = true
 radius = 1.0

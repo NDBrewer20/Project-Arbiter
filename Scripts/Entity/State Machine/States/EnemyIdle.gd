@@ -24,6 +24,7 @@ func randomize_wander():
 
 func _enter():
 	super._enter()
+	if !enemy._manager.is_server: return
 
 	enemy.OnNearbyBodyEntered.connect(_on_nearby_body_entered)
 
@@ -33,6 +34,7 @@ func _enter():
 	randomize_wander()
 
 func _exit():
+	if !enemy._manager.is_server: return
 	enemy.OnNearbyBodyEntered.disconnect(_on_nearby_body_entered)
 
 func _update(delta: float):

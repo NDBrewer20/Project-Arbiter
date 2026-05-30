@@ -3,7 +3,7 @@ extends Node
 ## signal called when EntityTransform packet is recieved.
 signal handle_entity_position(entity_transform: EntityTransform)
 signal handle_entity_id_assignment(entity_id_assignment: EntityIDAssignment)
-signal handle_entity_id_unassignment(entity_id: int)
+signal handle_entity_id_unassignment(entity_id: EntityIDUnassignment)
 
 var available_entity_ids: Array = range((2 ** 16)-1,-1,-1) 
 var entity_ids: Array[int]
@@ -28,6 +28,9 @@ func on_client_packet(data: PackedByteArray) -> void:
 		
 		PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT:
 			handle_entity_id_assignment.emit(EntityIDAssignment.create_from_data(data))
+
+		PacketInfo.PACKET_TYPE.ENTITY_ID_UNASSIGNMENT:
+			handle_entity_id_unassignment.emit(EntityIDUnassignment.create_from_data(data))
 
 		# unknown packet was sent to client.
 		_:

@@ -1,15 +1,15 @@
 class_name EntityTransform extends PacketInfo
 
-# [type, id, 
+# [type, id, id,
 # Pos.x, Pos.x, Pos.x, Pos.x, 
 # Pos.y, Pos.y, Pos.y, Pos.y, 
 # Pos.z, Pos.z, Pos.z, Pos.z,
 # Rot.y, Rot.y, Rot.y, Rot.y]
-# [0, 1, 
-# 2, 3, 4, 5, 
-# 6, 7, 8, 9, 
-# 10, 11, 12, 13,
-# 14, 15, 16, 17] => 18 bytes
+# [0, 1, 2, 
+# 3, 4, 5, 6, 
+# 7, 8, 9, 10 
+# 11, 12, 13, 14,
+# 15, 16, 17, 18] => 19 bytes
 
 ## id of the entity that this packet belongs to.
 var id: int
@@ -39,18 +39,18 @@ static func create_from_data(data: PackedByteArray) -> EntityTransform:
 func encode() -> PackedByteArray:
 	var data: PackedByteArray = super.encode()
 
-	data.resize(18)
-	data.encode_u8(1, id)
-	data.encode_float(2, position.x)
-	data.encode_float(6, position.y)
-	data.encode_float(10, position.z)
-	data.encode_float(14, rotation.y)
+	data.resize(19)
+	data.encode_u16(1, id)
+	data.encode_float(3, position.x)
+	data.encode_float(7, position.y)
+	data.encode_float(11, position.z)
+	data.encode_float(15, rotation.y)
 
 	return data
 
 ## The data is decoded in the following order: packet_type, id, position.x, position.y, position.z, rotation.y
 func decode(data: PackedByteArray) -> void:
 	super.decode(data)
-	id = data.decode_u8(1)
-	position = Vector3(data.decode_float(2), data.decode_float(6), data.decode_float(10))
-	rotation = Vector3(0,data.decode_float(14),0)
+	id = data.decode_u16(1)
+	position = Vector3(data.decode_float(3), data.decode_float(7), data.decode_float(11))
+	rotation = Vector3(0,data.decode_float(15),0)

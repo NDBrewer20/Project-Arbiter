@@ -1,0 +1,103 @@
+extends Resource
+class_name Stats
+
+const MAX_LEVEL = 7
+enum buffableStats {
+	MAX_HEALTH,
+	RESOURCE,
+	DEFENSE,
+	ATTACK,
+}
+@export var STAT_CURVES: Dictionary[buffableStats, Curve]
+
+signal health_depleted
+signal health_changed(cur_health: float, max_health: float)
+signal resource_depleted
+signal resource_changed(cur_resource:int, max_resource:int)
+
+
+@export var base_max_health: float = 100
+@export var base_max_resource: int = 100
+@export var base_defense: float = 10
+@export var base_attack: float = 10
+
+@export_range(1,MAX_LEVEL) var level: int = 1
+
+var current_max_health: float = 100
+var current_max_resource: int = 100
+var current_defense: float = 10
+var current_attack: float = 10
+
+var health : float = 0 : set = _on_health_set
+var resource: int = 0 : set = _on_resource_set
+
+var stat_buffs: Array[StatBuff]
+
+func _init() -> void:
+	setup_stats.call_deferred()
+
+func setup_stats() -> void:
+	recalculate_stats()
+	health = current_max_health
+
+func add_buff(buff: StatBuff) -> void:
+	stat_buffs.append(buff)
+	if !is_recalculate_delayed: delayed_recalculate_stats.call_deferred()
+
+func remove_buff(buff: StatBuff) -> StatBuff:
+	var _buff = stat_buffs[buff]
+	stat_buffs.erase(buff)
+	if !is_recalculate_delayed: delayed_recalculate_stats.call_deferred()
+	return _buff
+
+var is_recalculate_delayed: bool = false
+func delayed_recalculate_stats()->void:
+	is_recalculate_delayed = false
+	recalculate_stats()
+	
+func _on_health_set(new_value: float) -> void:
+	health = clampf(new_value, 0, current_max_health)
+	health_changed.emit(health, current_max_health)
+	if health <= 0:
+		health_depleted.emit()
+
+func damageHealth(base_damage: float, attack: float) -> void:
+	health -= base_damage * (attack / (attack + current_defense))
+
+func _on_resource_set(new_value: int) -> void:
+	resource = clampi(new_value, 0, current_max_resource)
+	resource_changed.emit(resource, current_max_resource)
+	if resource <= 0:
+		resource_depleted.emit()
+
+func recalculate_stats() -> void:
+	var stat_multipliers: Dictionary = {}
+	var stat_addends: Dictionary = {}
+	for buff in stat_buffs:
+		var stat_name : String = buffableStats.keys()[buff.stat].to_lower()
+		match buff.buff_type:
+			StatBuff.BuffType.ADD:
+				if not stat_addends.has(stat_name):
+					stat_addends[stat_name] = 0.0
+				stat_addends[stat_name] += buff.buff_amount
+
+			StatBuff.BuffType.MULTIPLY:
+				if !stat_multipliers.has(stat_name):
+					stat_multipliers[stat_name] = 1.0
+				stat_multipliers[stat_name] += buff.buff_amount
+
+				if stat_multipliers[stat_name] < 0:
+					stat_multipliers[stat_name] = 0
+
+	var stat_sample_pos: float = (float(level)/MAX_LEVEL) - 0.01
+	current_max_health = base_max_health * STAT_CURVES[buffableStats.MAX_HEALTH].sample(stat_sample_pos)
+	current_max_resource = base_max_resource * round(STAT_CURVES[buffableStats.RESOURCE].sample(stat_sample_pos))
+	current_defense = base_defense * STAT_CURVES[buffableStats.DEFENSE].sample(stat_sample_pos)
+	current_attack = base_attack * STAT_CURVES[buffableStats.ATTACK].sample(stat_sample_pos)
+
+	for stat_name in stat_multipliers:
+		var cur_property_name: String = str("current_" + stat_name)
+		set(cur_property_name, get(cur_property_name) * stat_multipliers[stat_name])
+	for stat_name in stat_addends:
+		var cur_property_name: String = str("current_" + stat_name)
+		set(cur_property_name, get(cur_property_name) + stat_addends[stat_name])

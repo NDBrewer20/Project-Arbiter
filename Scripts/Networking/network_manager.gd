@@ -2,7 +2,7 @@
 ## and providing utility functions for checking network authority and ownership.
 class_name NetworkManager extends Node
 
-## check if this instance is the server (host) or a client.
+## if this instance is the server (host)
 var is_server: bool:
 	get:
 		return LowLevelNetworkHandler.is_server

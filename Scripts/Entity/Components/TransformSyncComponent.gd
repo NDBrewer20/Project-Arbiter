@@ -24,13 +24,47 @@ func _exit_tree() -> void:
 
 func _physics_process(_delta: float) -> void:
 	# After every physics process has run broadcast entity position/rotation.
-	server_broadcast_entity_position.call_deferred()
+	communicate_entity_position.call_deferred()
 
-func server_broadcast_entity_position() -> void:
-	if !_body._manager.is_server: return
+func communicate_entity_position() -> void:
+	if _body._manager.is_server:
+		# send out the enemy position data to clients.
+		EntityTransform.create(_body._manager.assigned_id, _body.global_position, _body.global_rotation).broadcast(LowLevelNetworkHandler.connection)
+	elif _body._manager.is_authority:
+		EntityTransform.create(_body._manager.assigned_id, _body.global_position, _body.global_rotation).send(LowLevelNetworkHandler.server_peer)
+
+## if a client has authority over the movement of a entity then move the servers copy of the entity.
+func server_handle_entity_position(entity_id: int, entity_transform: EntityTransform) -> void:
+	if entity_id != entity_transform.id: return # Not for this entity.
+
+	if smooth:
+		# smooth out the position of the entity based on last cached position and Packet position.
+		var finalPosition :Vector3 = entity_transform.position 
+		var finalRotation :Vector3  = entity_transform.rotation 
+		for pos in _cachedPosition:
+			finalPosition = pos.lerp(finalPosition,1-exp(get_physics_process_delta_time()*-smoothValue))
+		for rot in _cachedRotation:
+			finalRotation = rot.lerp(finalRotation,1-exp(get_physics_process_delta_time()*-smoothValue))
+
+		# Update the entity's position and rotation based on the data received from the server.
+		_body.global_position = finalPosition
+		_body.global_rotation.y = finalRotation.y # packet only syncs y rotation.
+
+		# Cache entity position and rotation for next iteration to use for smoothing.
+		_cachedPosition.push_front(_body.global_position)
+		_cachedRotation.push_front(entity_transform.rotation)
+		# if cached values become too big.
+		if _cachedPosition.size() > smoothStep:
+			_cachedPosition.pop_back()
+		if _cachedRotation.size() > smoothStep:
+			_cachedRotation.pop_back()
+	else:
+		_body.global_position = entity_transform.position
+		_body.global_rotation.y = entity_transform.rotation.y
+	
 	# send out the enemy position data to clients.
 	EntityTransform.create(_body._manager.assigned_id, _body.global_position, _body.global_rotation).broadcast(LowLevelNetworkHandler.connection)
-
+	
 func client_handle_entity_position(entity_transform: EntityTransform) -> void:
 	if _body._manager.assigned_id != entity_transform.id: return # Not for this entity.
 
