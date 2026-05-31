@@ -63,7 +63,7 @@ func on_client_packet(data: PackedByteArray) -> void:
 
 func provision_entity_id() -> int:
 	var id = available_entity_ids.pop_back()
-	if !id:
+	if id is not int:
 		return -1
 	entity_ids.append(id)
 	return id

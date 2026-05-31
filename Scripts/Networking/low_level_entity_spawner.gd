@@ -22,8 +22,9 @@ func _ready() -> void:
 func remove_entity(entity_id_unassignment: Packet_EntityIDUnassignment) -> void:
 	# fetch entity from connected entity
 	var id := entity_id_unassignment.id
-	var entity: Entity = _activeEntities.get(id)[0]
-	if entity:
+	var entityDetails = _activeEntities.get(id)
+	if entityDetails:
+		var entity : Entity = entityDetails[0]
 		PA_Debug.log("client_id (%s): removing entity (%s):(%s)" % [ClientNetworkGlobals.id,id,entity])
 		# remove from connected entities and free entity.
 		_activeEntities.erase(id)
@@ -56,6 +57,7 @@ func remove_entities(_peer_id: int = -1) -> void:
 ## when a client joins send them all the active entities
 func _on_peer_connected(peer_id: int) -> void:
 	if !LowLevelNetworkHandler.is_server: return
+	await get_tree().physics_frame
 	PA_Debug.log("server: telling client_id (%s) to spawn entities" % [peer_id])
 	for entity_id in _activeEntities:
 		var entity :Entity = _activeEntities[entity_id][0]

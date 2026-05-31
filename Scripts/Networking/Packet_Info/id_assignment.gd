@@ -26,11 +26,13 @@ static func create_from_data(data: PackedByteArray) -> Packet_IDAssignment:
 func encode() -> PackedByteArray:
 	var data: PackedByteArray = super.encode()
 
-	data.resize(2 + remoted_ids.size())
-	data.encode_u8(1, id)
+	data.resize(3 + remoted_ids.size())
+	data.encode_u16(1, id)
+	var offset := 0
 	for i in remoted_ids.size():
 		var id: int = remoted_ids[i]
-		data.encode_u8(2+i, id)
+		data.encode_u16(3+offset, id)
+		offset += 2
 
 	return data
 
@@ -38,6 +40,8 @@ func encode() -> PackedByteArray:
 ## The data is decoded in the following order: packet_type, id
 func decode(data: PackedByteArray) -> void:
 	super.decode(data)
-	id = data.decode_u8(1)
-	for i in range(2, data.size()):
-		remoted_ids.append(data.decode_u8(i))
+	id = data.decode_u16(1)
+	var offset := 3
+	for i in range(3, data.size()):
+		remoted_ids.append(data.decode_u16(offset))
+		offset += 2
