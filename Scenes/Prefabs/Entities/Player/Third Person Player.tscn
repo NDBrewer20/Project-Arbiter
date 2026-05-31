@@ -1,8 +1,12 @@
-[gd_scene load_steps=8 format=3 uid="uid://dwuo45o1taqky"]
+[gd_scene load_steps=12 format=3 uid="uid://dwuo45o1taqky"]
 
 [ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Entity/Player/ThirdPersonPlayer.gd" id="1_gsdtt"]
 [ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Entity/Player/player_cursor_control.gd" id="2_dahrh"]
+[ext_resource type="Script" uid="uid://yrg0uyvv2r2t" path="res://Scripts/Entity/Components/VelocityComponent.gd" id="2_xrskp"]
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="3_pfsti"]
+[ext_resource type="PackedScene" uid="uid://baexhy3bvlqrp" path="res://Scenes/Prefabs/Entities/Component/entity_transform_sync.tscn" id="4_dahrh"]
+[ext_resource type="Script" uid="uid://mdyxlfjbunwd" path="res://Scripts/Entity/State Machine/stateMachine.gd" id="5_pfsti"]
+[ext_resource type="Script" uid="uid://c6mk1vsqj5vh8" path="res://Scripts/Entity/State Machine/States/Player/PlayerIdle.gd" id="7_xia3x"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_suiw6"]
 radius = 0.606938
@@ -15,7 +19,7 @@ albedo_color = Color(0, 0, 0, 1)
 [sub_resource type="TorusMesh" id="TorusMesh_puwgh"]
 material = SubResource("StandardMaterial3D_fuxo2")
 
-[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("_manager", "_camPivot", "_cursorStateMachine") groups=["player"]]
+[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("_camPivot", "_cursorStateMachine", "_manager") groups=["player"]]
 collision_layer = 2147483648
 collision_mask = 1073741825
 collision_priority = 10.0
@@ -23,7 +27,6 @@ axis_lock_angular_x = true
 axis_lock_angular_z = true
 slide_on_ceiling = false
 script = ExtResource("1_gsdtt")
-_manager = NodePath("Network Manager")
 runSpeed = 6.5
 walkSpeed = 1.5
 acceleration = 1.5
@@ -36,11 +39,7 @@ coyoteTime = 0.16
 jumpBuffer = 0.21
 _camPivot = NodePath("CamOrigin")
 _cursorStateMachine = NodePath("Player Cursor Control")
-
-[node name="Player Cursor Control" type="Node" parent="."]
-script = ExtResource("2_dahrh")
-
-[node name="Network Manager" parent="." instance=ExtResource("3_pfsti")]
+_manager = NodePath("Network Manager")
 
 [node name="Player Body Collider" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_suiw6")
@@ -66,5 +65,27 @@ margin = 0.5
 [node name="Camera3D" type="Camera3D" parent="CamOrigin/SpringArm3D"]
 
 [node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
-radius = 0.75
+radius = 0.1
 height = 0.0
+
+[node name="VelocityComponent" type="Node" parent="."]
+script = ExtResource("2_xrskp")
+metadata/_custom_type_script = "uid://yrg0uyvv2r2t"
+
+[node name="Player Cursor Control" type="Node" parent="."]
+script = ExtResource("2_dahrh")
+
+[node name="Network Manager" parent="." instance=ExtResource("3_pfsti")]
+
+[node name="Entity Transform Sync" parent="." node_paths=PackedStringArray("_body") instance=ExtResource("4_dahrh")]
+_body = NodePath("..")
+smooth = false
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("5_pfsti")
+initial_state = NodePath("PlayerIdle")
+metadata/_custom_type_script = "uid://mdyxlfjbunwd"
+
+[node name="PlayerIdle" type="Node" parent="StateMachine"]
+script = ExtResource("7_xia3x")
+metadata/_custom_type_script = "uid://c6mk1vsqj5vh8"

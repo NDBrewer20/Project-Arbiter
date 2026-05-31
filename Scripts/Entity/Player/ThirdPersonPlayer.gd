@@ -1,4 +1,4 @@
-class_name ThirdPersonPlayer extends CharacterBody3D
+class_name ThirdPersonPlayer extends Entity
 
 # Player State Machine
 ## The state of the player, which determines how the player's movement is handled.
@@ -9,10 +9,6 @@ enum PlayerState {
 }
 ## The current state of the player, which is used to determine how to handle movement and jumping.
 var _state: PlayerState = PlayerState.FLOOR
-
-# Player Manager
-## A reference to the NetworkManager that manages this player instance.
-@export var _manager: NetworkManager
 
 
 # Player Events
@@ -117,14 +113,16 @@ func cleanClientChildren() -> void:
 func _enter_tree() -> void:
 	# Connect the player position packet handling functions to the appropriate signals for both the server and client. 
 	# This allows the player to receive updates about their position from the server and send their position to the server when it changes.
-	ServerNetworkGlobals.handle_player_position.connect(server_handle_player_position)
-	ClientNetworkGlobals.handle_player_position.connect(client_handle_player_position)
+	#ServerNetworkGlobals.handle_player_position.connect(server_handle_player_position)
+	#ClientNetworkGlobals.handle_player_position.connect(client_handle_player_position)
+	pass
 
 func _exit_tree() -> void:
 	# Disconnect the player position packet handling functions from the signals when the player instance is removed from the scene tree 
 	# to prevent errors from trying to access a deleted instance.
-	ServerNetworkGlobals.handle_player_position.disconnect(server_handle_player_position)
-	ClientNetworkGlobals.handle_player_position.disconnect(client_handle_player_position)
+	#ServerNetworkGlobals.handle_player_position.disconnect(server_handle_player_position)
+	#ClientNetworkGlobals.handle_player_position.disconnect(client_handle_player_position)
+	pass
 
 func _process(delta: float) -> void:
 	if !_manager.is_authority: return # only the authority (owner) of this player instance should handle processing for it.
@@ -264,14 +262,6 @@ func _physics_process(delta: float) -> void:
 	_lastOnFloor = is_on_floor()
 	move_and_slide()
 
-	# After moving the player, send the new position to the server to be broadcasted to all clients. 
-	# This keeps the player's position in sync across the network.
-	var packet = PlayerTransform.create(_manager.assigned_id, _state, global_position, global_rotation)
-	if LowLevelNetworkHandler.is_host: # if this client is the host, broadcast the new position to all clients.
-		packet.broadcast(LowLevelNetworkHandler.connection)
-	else: # if this client is not the host, send the new position to the server to be processed.
-		packet.send(LowLevelNetworkHandler.server_peer)
-
 ## Switches the player's state and handles any necessary logic for entering that state.
 func switchState(state: PlayerState) -> void:
 	_state = state
@@ -298,33 +288,27 @@ func handleStateEffects() -> void:
 ## Server Position Packet Handling. sets the transform of the player on the server.[br]
 ## uses the [PlayerTransform] to sync the position of the player [br]
 ## [b]on the server from the client (Client -> Server)[/b], and then broadcasts the new position to all clients.
-func server_handle_player_position(peer_id: int, player_transform: PlayerTransform) -> void:
+func server_handle_player_position(peer_id: int, EntityState: Packet_EntityState) -> void:
 	if _manager.assigned_id != peer_id: return # if the owner of this player doesn't match the peer that sent the packet, ignore.
 
 	# Set the player's state to match the state sent in the packet. 
 	# This ensures that the server has the correct state for the player, 
 	# 	which is important for handling vfx, sfx, and other events related to the player's movement state on the server and clients.
-	switchState(player_transform.player_state)
-	# Set the transform of the player on the server.
-	global_position = player_transform.position
-	global_rotation.y = player_transform.rotation.y # packet only syncs y rotation.
+	#switchState(EntityState.state)
 
 	# Broadcast the player's new server transform to all clients, (including owner).
 	# 	(Optional) Could have server override client authority here to check if the player position is valid for a given player.
 	#	and if the position is invalid then overwrite the position sent from client and broadcast the new position.
-	PlayerTransform.create(_manager.assigned_id, _state, global_position, global_rotation).broadcast(LowLevelNetworkHandler.connection)
+	#Packet_EntityState.create(_manager.assigned_id, _state,).broadcast(LowLevelNetworkHandler.connection)
 
 ## Client Position Packet Handling. sets the transform of the player on the client.[br]
 ## uses the [PlayerTransform] to sync the position of the player [br]
 ## [b]on the client from the server (Server -> Client)[/b].
-func client_handle_player_position(player_transform: PlayerTransform) -> void:
+func client_handle_player_position(player_transform: Packet_EntityState) -> void:
 	if _manager.is_authority || _manager.assigned_id != player_transform.id: return # if this client is the owner, or if the packet is not for this player instance, ignore.
 
 	# If this client is not the authority (owner) of this player instance, update the player's state to match the state sent in the packet.
 	# This ensures that the client instance has the correct state for the player, 
 	# 	which is important for handling vfx, sfx, and other events related to the player's movement state
-	if !_manager.is_authority:
-		switchState(player_transform.player_state)
-	# Set the transform of the player on the client to match the server's version of the player's transform.
-	global_position = player_transform.position 
-	global_rotation.y = player_transform.rotation.y # packet only syncs y rotation.
+	#if !_manager.is_authority:
+		#switchState(player_transform.state)

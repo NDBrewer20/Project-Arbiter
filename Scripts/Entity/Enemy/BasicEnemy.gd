@@ -23,13 +23,11 @@ func _on_connected_to_server() -> void:
 	if !_manager.is_server:
 		NodeTools.manageNode(velocityComponent, false)
 		NodeTools.manageNode(pathfindComponent, false)
-		NodeTools.manageNode(stateMachine, false)
 		NodeTools.manageNode(detectionComponent, false)
 
 func _on_disconnect_from_server(_peerID: int) -> void:
 	NodeTools.manageNode(velocityComponent, true)
 	NodeTools.manageNode(pathfindComponent, true)
-	NodeTools.manageNode(stateMachine, true)
 	NodeTools.manageNode(detectionComponent, true)
 
 func _physics_process(_delta: float) -> void:	

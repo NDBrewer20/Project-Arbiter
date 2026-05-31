@@ -59,5 +59,5 @@ func _on_link_timeout()-> void:
 
 
 func _on_velocity_computed(velocity: Vector3) -> void:
-	var newDirection := velocity.normalized()
-	velocityComponent.velocity = newDirection * velocityComponent.velocity.length()
+	#var newDirection := velocity.normalized()
+	velocityComponent.velocity = velocity #newDirection * velocityComponent.velocity.length()

@@ -3,7 +3,7 @@ class_name PacketInfo
 ## What type of packets can be sent.
 enum PACKET_TYPE {
 	ID_ASSIGNMENT = 0,
-	PLAYER_TRANSFORM = 1,
+	ENTITY_STATE = 1,
 	ID_UNASSIGNMENT = 2,
 	ENTITY_TRANSFORM = 3,
 	ENTITY_ID_ASSIGNMENT = 4,

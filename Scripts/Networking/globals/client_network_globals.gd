@@ -6,8 +6,8 @@ signal handle_local_id_unassignment(local_id: int)
 ## signal called when remote id's are assigned.
 signal handle_remote_id_assignment(remote_id: int)
 signal handle_remote_id_unassignment(remote_id: int)
-## signal called when PlayerTransform packet is recieved.
-signal handle_player_position(player_transform: PlayerTransform)
+## signal called when PlayerState packet is recieved.
+signal handle_player_position(player_transform: Packet_EntityState)
 
 ## assigned peer id from server.
 var id: int = -1
@@ -26,22 +26,17 @@ func on_client_packet(data: PackedByteArray) -> void:
 	match packet_type:
 		# when an id gets assigned to a new client.
 		PacketInfo.PACKET_TYPE.ID_ASSIGNMENT:
-			PA_Debug.log("client_id (%s): Recieved IDAssignment" % [id])
+			PA_Debug.log("client_id (%s): Recieved Packet_IDAssignment" % [id])
 			# if were not already assigned an id then take the id from this packet, otherwise add it to the remote ids.
-			manage_ids(IDAssignment.create_from_data(data))
+			manage_ids(Packet_IDAssignment.create_from_data(data))
 
 		# when id needs to be removed from a disconnecting client.
 		PacketInfo.PACKET_TYPE.ID_UNASSIGNMENT:
-			PA_Debug.log("client_id (%s): Recieved IDUnassignment" % [id])
-			remove_ids(IDUnassignment.create_from_data(data))
-
-		# when the packet is related to player transform.
-		PacketInfo.PACKET_TYPE.PLAYER_TRANSFORM:
-			# emit a signal to have client handle the new packet for the specific client.
-			handle_player_position.emit(PlayerTransform.create_from_data(data))
+			PA_Debug.log("client_id (%s): Recieved Packet_IDUnassignment" % [id])
+			remove_ids(Packet_IDUnassignment.create_from_data(data))
 
 		# packets unrelated to Player/client manipulation
-		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_ID_UNASSIGNMENT:
+		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_ID_UNASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_STATE:
 			pass
 		
 		# unknown packet was sent to client.
@@ -50,7 +45,7 @@ func on_client_packet(data: PackedByteArray) -> void:
 
 ## manage client ids [br]
 ## if current clients [id] is unassigned then take the passed [id] otherwise, add id to [remote_ids] for tracking.
-func manage_ids(id_assignment: IDAssignment) -> void:
+func manage_ids(id_assignment: Packet_IDAssignment) -> void:
 	if id == -1: # we haven't been assigned an id already
 		# take the id and emit id assignment signal
 		id = id_assignment.id
@@ -73,7 +68,7 @@ func manage_ids(id_assignment: IDAssignment) -> void:
 
 ## remove client ids [br]
 ## if the unassigned id belongs to this client then reset everything and clear [remote_ids] otherwise, remove id from [remote_ids]
-func remove_ids(id_unassignment: IDUnassignment) -> void:
+func remove_ids(id_unassignment: Packet_IDUnassignment) -> void:
 	if id == id_unassignment.id: # if we are disconnecting
 		# emit a signal that we are unassigning every known client and clear our remote_ids 
 		for remote_id in remote_ids:

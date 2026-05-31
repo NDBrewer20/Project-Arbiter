@@ -8,8 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="4_me5p2"]
 [ext_resource type="Script" uid="uid://yrg0uyvv2r2t" path="res://Scripts/Entity/Components/VelocityComponent.gd" id="5_me5p2"]
 [ext_resource type="Script" uid="uid://mdyxlfjbunwd" path="res://Scripts/Entity/State Machine/stateMachine.gd" id="7_00uo8"]
-[ext_resource type="Script" uid="uid://dfjpeflxlcixk" path="res://Scripts/Entity/State Machine/States/EnemyIdle.gd" id="8_6k4rf"]
-[ext_resource type="Script" uid="uid://cbjl5le1xorp" path="res://Scripts/Entity/State Machine/States/EnemyFollow.gd" id="9_6k4rf"]
+[ext_resource type="Script" uid="uid://dfjpeflxlcixk" path="res://Scripts/Entity/State Machine/States/Enemy/EnemyIdle.gd" id="8_6k4rf"]
+[ext_resource type="Script" uid="uid://cbjl5le1xorp" path="res://Scripts/Entity/State Machine/States/Enemy/EnemyFollow.gd" id="9_6k4rf"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ssga2"]
 radius = 0.55
@@ -66,9 +66,8 @@ velocityComponent = NodePath("../Velocity Component")
 wait_time = 0.45
 
 [node name="NavigationAgent3D" parent="PathfindComponent" index="2"]
-path_desired_distance = 1.0
+path_desired_distance = 0.75
 target_desired_distance = 1.5
-path_height_offset = -0.45
 avoidance_enabled = true
 radius = 1.0
 

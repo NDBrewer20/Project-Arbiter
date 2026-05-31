@@ -1,5 +1,5 @@
 extends PacketInfo
-class_name EntityIDAssignment
+class_name Packet_EntityIDAssignment
 
 # [packet_type, id, id,
 # pos.x, pos.x, pos.x, pos.x,
@@ -19,9 +19,9 @@ var position: Vector3
 ## what entity was spawned
 var spawn: LowLevelEntitySpawner.SPAWNABLE
 
-## Factory method for creating a [EntityIDAssignment] packet with the given parameters.
-static func create(id: int, spawn: LowLevelEntitySpawner.SPAWNABLE, position: Vector3) -> EntityIDAssignment:
-	var info: EntityIDAssignment = EntityIDAssignment.new()
+## Factory method for creating a [Packet_EntityIDAssignment] packet with the given parameters.
+static func create(id: int, spawn: LowLevelEntitySpawner.SPAWNABLE, position: Vector3) -> Packet_EntityIDAssignment:
+	var info: Packet_EntityIDAssignment = Packet_EntityIDAssignment.new()
 	info.packet_type = PACKET_TYPE.ENTITY_ID_ASSIGNMENT
 	info.flag = ENetPacketPeer.FLAG_RELIABLE
 	info.id = id
@@ -29,10 +29,10 @@ static func create(id: int, spawn: LowLevelEntitySpawner.SPAWNABLE, position: Ve
 	info.position = position
 	return info
 
-## Factory method for creating a [EntityIDAssignment] packet from a PackedByteArray of data. [br]
-## This is used when receiving a packet to decode it into a [EntityIDAssignment] instance.
-static func create_from_data(data: PackedByteArray) -> EntityIDAssignment:
-	var info: EntityIDAssignment = EntityIDAssignment.new()
+## Factory method for creating a [Packet_EntityIDAssignment] packet from a PackedByteArray of data. [br]
+## This is used when receiving a packet to decode it into a [Packet_EntityIDAssignment] instance.
+static func create_from_data(data: PackedByteArray) -> Packet_EntityIDAssignment:
+	var info: Packet_EntityIDAssignment = Packet_EntityIDAssignment.new()
 	info.decode(data)
 	return info
 

@@ -19,7 +19,7 @@ func _ready() -> void:
 	EntityNetworkGlobals.handle_entity_id_unassignment.connect(remove_entity)
 
 ## removes a entity from the game.
-func remove_entity(entity_id_unassignment: EntityIDUnassignment) -> void:
+func remove_entity(entity_id_unassignment: Packet_EntityIDUnassignment) -> void:
 	# fetch entity from connected entity
 	var id := entity_id_unassignment.id
 	var entity: Entity = _activeEntities.get(id)[0]
@@ -42,7 +42,7 @@ func server_remove_entity(id: int):
 		EntityNetworkGlobals.reclaim_entity_id(id)
 		entity.queue_free()
 
-		EntityIDUnassignment.create(id).broadcast(LowLevelNetworkHandler.connection)
+		Packet_EntityIDUnassignment.create(id).broadcast(LowLevelNetworkHandler.connection)
 
 ## removes all entities spawned by this spawner.
 func remove_entities(_peer_id: int = -1) -> void:
@@ -60,10 +60,10 @@ func _on_peer_connected(peer_id: int) -> void:
 	for entity_id in _activeEntities:
 		var entity :Entity = _activeEntities[entity_id][0]
 		var spawn :SPAWNABLE= _activeEntities[entity_id][1]
-		EntityIDAssignment.create(entity_id, spawn, entity.global_position).send(LowLevelNetworkHandler.client_peers[peer_id])
+		Packet_EntityIDAssignment.create(entity_id, spawn, entity.global_position).send(LowLevelNetworkHandler.client_peers[peer_id])
 
 ## spawn a client entity and add to list of connected entities.
-func client_spawn_entity(entity_id_assignment: EntityIDAssignment) -> void:
+func client_spawn_entity(entity_id_assignment: Packet_EntityIDAssignment) -> void:
 	if LowLevelNetworkHandler.is_server: return # server should not spawn another entity since it handles the original copy.
 	var id  = entity_id_assignment.id
 	var claimed := EntityNetworkGlobals.claim_entity_id(id)
@@ -94,4 +94,4 @@ func server_spawn_entity(spawn: SPAWNABLE = SPAWNABLE.ENEMY_DEBUG, position: Vec
 	PA_Debug.log("server: adding entity (%s)-(%s):(%s)" % [id,spawn,entity])
 
 	# send entity spawned packet
-	EntityIDAssignment.create(id, spawn, entity.global_position).broadcast(LowLevelNetworkHandler.connection)
+	Packet_EntityIDAssignment.create(id, spawn, entity.global_position).broadcast(LowLevelNetworkHandler.connection)

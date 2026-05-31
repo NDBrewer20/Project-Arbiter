@@ -1,6 +1,6 @@
 class_name State extends Node
 
-signal Transitioned
+signal transitioned
 
 func _enter():
 	pass

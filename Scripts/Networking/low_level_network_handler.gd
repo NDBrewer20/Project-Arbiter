@@ -173,6 +173,13 @@ func disconnect_host() -> void:
 func peer_connected(peer: ENetPacketPeer) -> void:
 	# reserve a peer id
 	var peer_id: int = EntityNetworkGlobals.provision_entity_id()
+	if peer_id == -1:
+		var entityToRemove: int = EntityNetworkGlobals.entity_ids.pick_random()
+		while client_peers.has(entityToRemove):
+			entityToRemove = EntityNetworkGlobals.entity_ids.pick_random()
+		Packet_EntityIDUnassignment.create(entityToRemove).broadcast(connection)
+		EntityNetworkGlobals.reclaim_entity_id(entityToRemove)
+		peer_id = EntityNetworkGlobals.provision_entity_id()
 	# add metadata to peer using reserved peer id
 	peer.set_meta("peer_id", peer_id)
 	# add peer it list of managed clients

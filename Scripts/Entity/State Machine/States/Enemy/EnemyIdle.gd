@@ -55,4 +55,4 @@ func _physics_update(delta: float):
 	enemy.velocityComponent.Move(enemy)
 
 func _on_nearby_body_entered(_body: Node3D):
-	Transitioned.emit(self, EnemyFollow.stateName)
+	transitioned.emit(self, EnemyFollow.stateName)

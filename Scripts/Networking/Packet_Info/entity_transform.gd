@@ -1,4 +1,4 @@
-class_name EntityTransform extends PacketInfo
+class_name Packet_EntityTransform extends PacketInfo
 
 # [type, id, id,
 # Pos.x, Pos.x, Pos.x, Pos.x, 
@@ -18,9 +18,9 @@ var position: Vector3
 ## rotation of the entity.
 var rotation: Vector3
 
-## Factory method for creating a [EntityTransform] packet with the given parameters.
-static func create(id: int, position: Vector3, rotation: Vector3) -> EntityTransform:
-	var info: EntityTransform = EntityTransform.new()
+## Factory method for creating a [Packet_EntityTransform] packet with the given parameters.
+static func create(id: int, position: Vector3, rotation: Vector3) -> Packet_EntityTransform:
+	var info: Packet_EntityTransform = Packet_EntityTransform.new()
 	info.packet_type = PACKET_TYPE.ENTITY_TRANSFORM
 	info.flag = ENetPacketPeer.FLAG_UNSEQUENCED
 	info.id = id
@@ -28,10 +28,10 @@ static func create(id: int, position: Vector3, rotation: Vector3) -> EntityTrans
 	info.rotation = rotation
 	return info
 
-## Factory method for creating a [EntityTransform] packet from a PackedByteArray of data. [br]
-## This is used when receiving a packet to decode it into a [EntityTransform] instance.
-static func create_from_data(data: PackedByteArray) -> EntityTransform:
-	var info: EntityTransform = EntityTransform.new()
+## Factory method for creating a [Packet_EntityTransform] packet from a PackedByteArray of data. [br]
+## This is used when receiving a packet to decode it into a [Packet_EntityTransform] instance.
+static func create_from_data(data: PackedByteArray) -> Packet_EntityTransform:
+	var info: Packet_EntityTransform = Packet_EntityTransform.new()
 	info.decode(data)
 	return info
 
