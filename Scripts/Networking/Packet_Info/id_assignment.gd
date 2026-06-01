@@ -30,8 +30,8 @@ func encode() -> PackedByteArray:
 	data.encode_u16(1, id)
 	var offset := 0
 	for i in remoted_ids.size():
-		var id: int = remoted_ids[i]
-		data.encode_u16(3+offset, id)
+		var remote_id: int = remoted_ids[i]
+		data.encode_u16(3+offset, remote_id)
 		offset += 2
 
 	return data
@@ -41,7 +41,5 @@ func encode() -> PackedByteArray:
 func decode(data: PackedByteArray) -> void:
 	super.decode(data)
 	id = data.decode_u16(1)
-	var offset := 3
-	for i in range(3, data.size()):
-		remoted_ids.append(data.decode_u16(offset))
-		offset += 2
+	for i in range(3, data.size(),2):
+		remoted_ids.append(data.decode_u16(i))

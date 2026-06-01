@@ -179,7 +179,7 @@ func peer_connected(peer: ENetPacketPeer) -> void:
 		while client_peers.has(entityToRemove) || host_peer_id == entityToRemove:
 			entityToRemove = EntityNetworkGlobals.entity_ids.pick_random()
 			PA_Debug.log("server: attempting to assign peer id (%s)" % [entityToRemove])
-		(get_tree().get_first_node_in_group("entity spawner") as LowLevelEntitySpawner).server_remove_entity(entityToRemove)
+		LowLevelEntitySpawner.instance.server_remove_entity(entityToRemove)
 		peer_id = EntityNetworkGlobals.provision_entity_id()
 	# add metadata to peer using reserved peer id
 	peer.set_meta("peer_id", peer_id)

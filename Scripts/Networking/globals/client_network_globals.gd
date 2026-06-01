@@ -6,8 +6,6 @@ signal handle_local_id_unassignment(local_id: int)
 ## signal called when remote id's are assigned.
 signal handle_remote_id_assignment(remote_id: int)
 signal handle_remote_id_unassignment(remote_id: int)
-## signal called when PlayerState packet is recieved.
-signal handle_player_position(player_transform: Packet_EntityState)
 
 ## assigned peer id from server.
 var id: int = -1
@@ -49,8 +47,8 @@ func manage_ids(id_assignment: Packet_IDAssignment) -> void:
 	if id == -1: # we haven't been assigned an id already
 		# take the id and emit id assignment signal
 		id = id_assignment.id
-		handle_local_id_assignment.emit(id_assignment.id)
 		PA_Debug.log("client_id (%s): Set ID to %s" % [id, id])
+		handle_local_id_assignment.emit(id_assignment.id)
 
 		# update remoted ids to include what is already connected to the server.
 		remote_ids = id_assignment.remoted_ids

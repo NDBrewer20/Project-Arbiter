@@ -30,7 +30,7 @@ static func create_from_data(data: PackedByteArray) -> Packet_EntityState:
 func encode() -> PackedByteArray:
 	var data: PackedByteArray = super.encode()
 	
-	var state_byte_array := var_to_bytes(state)
+	var state_byte_array := var_to_bytes_with_objects(state)
 
 	# Size of the packet data.
 	data.resize(2 + state_byte_array.size())
@@ -46,4 +46,4 @@ func encode() -> PackedByteArray:
 func decode(data: PackedByteArray) -> void:
 	super.decode(data)
 	id = data.decode_u8(1)
-	state = data.decode_var(2)
+	state = data.decode_var(2,true)

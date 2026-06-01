@@ -10,13 +10,21 @@ const SPAWNABLE_NETWORK_ENTITIES: Dictionary[SPAWNABLE,PackedScene] = {
 ## Stores the reference to the node (id)(0) and it's spawn type (id)(1) by it's [assigned_id]
 var _activeEntities: Dictionary[int,Array]
 
+static var instance: LowLevelEntitySpawner
+
 func _ready() -> void:
-	# cleanup all entities that were spawned by the server on this client.
+	if instance:
+		queue_free()
+		return
+	instance = self
+	# cleanup entities when disconnecting from server or when the server disconnects.
 	LowLevelNetworkHandler.on_disconnected_from_server.connect(remove_entities)
 	LowLevelNetworkHandler.on_server_disconnect.connect(remove_entities)
-	LowLevelNetworkHandler.on_peer_connected.connect(_on_peer_connected)
-	EntityNetworkGlobals.handle_entity_id_assignment.connect(client_spawn_entity)
 	EntityNetworkGlobals.handle_entity_id_unassignment.connect(remove_entity)
+	# when a new peer connects to the server send them all the active entities so they can spawn them on their end.
+	LowLevelNetworkHandler.on_peer_connected.connect(_on_peer_connected)
+	# when the server assigns an entity id to spawn an entity on the client.
+	EntityNetworkGlobals.handle_entity_id_assignment.connect(client_spawn_entity)
 
 ## removes a entity from the game.
 func remove_entity(entity_id_unassignment: Packet_EntityIDUnassignment) -> void:

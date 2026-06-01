@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dwuo45o1taqky"]
+[gd_scene load_steps=14 format=3 uid="uid://dwuo45o1taqky"]
 
 [ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Entity/Player/ThirdPersonPlayer.gd" id="1_gsdtt"]
 [ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Entity/Player/player_cursor_control.gd" id="2_dahrh"]
@@ -6,7 +6,9 @@
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="3_pfsti"]
 [ext_resource type="PackedScene" uid="uid://baexhy3bvlqrp" path="res://Scenes/Prefabs/Entities/Component/entity_transform_sync.tscn" id="4_dahrh"]
 [ext_resource type="Script" uid="uid://mdyxlfjbunwd" path="res://Scripts/Entity/State Machine/stateMachine.gd" id="5_pfsti"]
-[ext_resource type="Script" uid="uid://c6mk1vsqj5vh8" path="res://Scripts/Entity/State Machine/States/Player/PlayerIdle.gd" id="7_xia3x"]
+[ext_resource type="Script" uid="uid://b7ydmi7mwsfwa" path="res://Scripts/Entity/State Machine/States/Player/PlayerFalling.gd" id="8_ls38o"]
+[ext_resource type="Script" uid="uid://pe7md7qk1aqv" path="res://Scripts/Entity/State Machine/States/Player/PlayerFloor.gd" id="8_xia3x"]
+[ext_resource type="Script" uid="uid://co64v0lspaom6" path="res://Scripts/Entity/State Machine/States/Player/PlayerJump.gd" id="9_125pf"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_suiw6"]
 radius = 0.606938
@@ -79,13 +81,20 @@ script = ExtResource("2_dahrh")
 
 [node name="Entity Transform Sync" parent="." node_paths=PackedStringArray("_body") instance=ExtResource("4_dahrh")]
 _body = NodePath("..")
-smooth = false
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 script = ExtResource("5_pfsti")
-initial_state = NodePath("PlayerIdle")
+initial_state = NodePath("PlayerFloor")
 metadata/_custom_type_script = "uid://mdyxlfjbunwd"
 
-[node name="PlayerIdle" type="Node" parent="StateMachine"]
-script = ExtResource("7_xia3x")
-metadata/_custom_type_script = "uid://c6mk1vsqj5vh8"
+[node name="PlayerFloor" type="Node" parent="StateMachine"]
+script = ExtResource("8_xia3x")
+metadata/_custom_type_script = "uid://pe7md7qk1aqv"
+
+[node name="PlayerFalling" type="Node" parent="StateMachine"]
+script = ExtResource("8_ls38o")
+metadata/_custom_type_script = "uid://b7ydmi7mwsfwa"
+
+[node name="PlayerJump" type="Node" parent="StateMachine"]
+script = ExtResource("9_125pf")
+metadata/_custom_type_script = "uid://co64v0lspaom6"

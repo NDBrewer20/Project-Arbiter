@@ -11,10 +11,6 @@ enum PlayerState {
 var _state: PlayerState = PlayerState.FLOOR
 
 
-# Player Events
-signal playerJumped
-signal playerLanded
-
 # Player movement parameters
 @export_category("Movement")
 ## The max speed the player can move at.
@@ -111,17 +107,9 @@ func cleanClientChildren() -> void:
 	_cursorStateMachine.queue_free()
 
 func _enter_tree() -> void:
-	# Connect the player position packet handling functions to the appropriate signals for both the server and client. 
-	# This allows the player to receive updates about their position from the server and send their position to the server when it changes.
-	#ServerNetworkGlobals.handle_player_position.connect(server_handle_player_position)
-	#ClientNetworkGlobals.handle_player_position.connect(client_handle_player_position)
 	pass
 
 func _exit_tree() -> void:
-	# Disconnect the player position packet handling functions from the signals when the player instance is removed from the scene tree 
-	# to prevent errors from trying to access a deleted instance.
-	#ServerNetworkGlobals.handle_player_position.disconnect(server_handle_player_position)
-	#ClientNetworkGlobals.handle_player_position.disconnect(client_handle_player_position)
 	pass
 
 func _process(delta: float) -> void:
@@ -139,11 +127,14 @@ func _input(event: InputEvent) -> void:
 		_camPivot.rotation.x = clamp(_camPivot.rotation.x, deg_to_rad(camClamp.x), deg_to_rad(camClamp.y)) # Clamp Camera Pitch
 	
 	# Handle movement input
-	var playerInput = Input.get_vector("Player_Left", "Player_Right", "Player_Forward", "Player_Back")
-	_inputDirection.x = playerInput.x
-	_inputDirection.y = 0
-	_inputDirection.z = playerInput.y
-	_inputDirection = global_transform.basis * _inputDirection # convert input to use the player's forward and right directions
+	if _cursorStateMachine._cursorState != PlayerCursor.CursorState.PAUSE_ALL: # if the cursor is not in the pause state, allow movement input. This is to prevent the player from moving while trying to interact with the UI.
+		var playerInput = Input.get_vector("Player_Left", "Player_Right", "Player_Forward", "Player_Back")
+		_inputDirection.x = playerInput.x
+		_inputDirection.y = 0
+		_inputDirection.z = playerInput.y
+		_inputDirection = global_transform.basis * _inputDirection # convert input to use the player's forward and right directions
+	else:
+		_inputDirection = Vector3.ZERO # if the cursor isn't in the default state, ignore movement input to prevent the player from moving while trying to interact with the UI.
 
 	# Handle jump input. (Prevent player form jumping in PAUSE_ALL cursor state) 
 	if Input.is_action_just_pressed("Player_Jump") and _cursorStateMachine._cursorState != PlayerCursor.CursorState.PAUSE_ALL:
@@ -157,8 +148,6 @@ func HandleMove(delta: float) -> void:
 		if is_on_floor(): # if the player is on the floor then we can cancel all velocity
 			velocity.x = 0
 			velocity.z = 0
-		else: # otherwise we need to continue falling in the same direction.
-			_inputDirection = Vector3.ZERO
 		return
 	
 	if is_on_floor(): # Ground Movement
@@ -208,7 +197,6 @@ func Jump() -> void:
 	_bufferJumpUsable = false
 	_lastJumpPressed = 0
 	velocity.y = jumpVelocity
-	playerJumped.emit()
 
 ## Checks if the player has just landed or just started falling.
 func checkCollision() -> void:
@@ -217,7 +205,6 @@ func checkCollision() -> void:
 		_coyoteUsable = true
 		_bufferJumpUsable = true
 		_airtime = 0
-		playerLanded.emit()
 	# if last frame was on the ground but this frame is not, then the player has just started falling
 	elif _lastOnFloor and not is_on_floor():
 		_lastTimeOnGround = _timeSinceFirstFrame
@@ -284,31 +271,3 @@ func handleStateEffects() -> void:
 			pass
 		PlayerState.FALL:
 			pass
-
-## Server Position Packet Handling. sets the transform of the player on the server.[br]
-## uses the [PlayerTransform] to sync the position of the player [br]
-## [b]on the server from the client (Client -> Server)[/b], and then broadcasts the new position to all clients.
-func server_handle_player_position(peer_id: int, EntityState: Packet_EntityState) -> void:
-	if _manager.assigned_id != peer_id: return # if the owner of this player doesn't match the peer that sent the packet, ignore.
-
-	# Set the player's state to match the state sent in the packet. 
-	# This ensures that the server has the correct state for the player, 
-	# 	which is important for handling vfx, sfx, and other events related to the player's movement state on the server and clients.
-	#switchState(EntityState.state)
-
-	# Broadcast the player's new server transform to all clients, (including owner).
-	# 	(Optional) Could have server override client authority here to check if the player position is valid for a given player.
-	#	and if the position is invalid then overwrite the position sent from client and broadcast the new position.
-	#Packet_EntityState.create(_manager.assigned_id, _state,).broadcast(LowLevelNetworkHandler.connection)
-
-## Client Position Packet Handling. sets the transform of the player on the client.[br]
-## uses the [PlayerTransform] to sync the position of the player [br]
-## [b]on the client from the server (Server -> Client)[/b].
-func client_handle_player_position(player_transform: Packet_EntityState) -> void:
-	if _manager.is_authority || _manager.assigned_id != player_transform.id: return # if this client is the owner, or if the packet is not for this player instance, ignore.
-
-	# If this client is not the authority (owner) of this player instance, update the player's state to match the state sent in the packet.
-	# This ensures that the client instance has the correct state for the player, 
-	# 	which is important for handling vfx, sfx, and other events related to the player's movement state
-	#if !_manager.is_authority:
-		#switchState(player_transform.state)

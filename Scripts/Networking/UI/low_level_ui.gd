@@ -68,7 +68,7 @@ func _on_disconnect_pressed() -> void:
 
 func _on_spawn_enemy_pressed() -> void:
 	var val := 1
-	var spawner := (get_tree().get_first_node_in_group("entity spawner") as LowLevelEntitySpawner)
+	var spawner := LowLevelEntitySpawner.instance
 	if !spawnAmt.text.is_empty():
 		val = spawnAmt.text.to_int()
 	for i in range(val):
@@ -76,7 +76,7 @@ func _on_spawn_enemy_pressed() -> void:
 
 func _on_remove_enemy_pressed() -> void:
 	var val := 1
-	var spawner := (get_tree().get_first_node_in_group("entity spawner") as LowLevelEntitySpawner)
+	var spawner := LowLevelEntitySpawner.instance
 	if !removeAmt.text.is_empty():
 		val = clamp(removeAmt.text.to_int(), 1, spawner._activeEntities.size())
 	for i in range(val):

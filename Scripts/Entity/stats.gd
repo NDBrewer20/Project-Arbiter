@@ -21,7 +21,7 @@ signal resource_changed(cur_resource:int, max_resource:int)
 @export var base_defense: float = 10
 @export var base_attack: float = 10
 
-@export_range(1,MAX_LEVEL) var level: int = 1
+@export_range(1,MAX_LEVEL) var level: int = 1: set = _on_level_set
 
 var current_max_health: float = 100
 var current_max_resource: int = 100
@@ -40,14 +40,22 @@ func setup_stats() -> void:
 	recalculate_stats()
 	health = current_max_health
 
+func _on_level_set(new_value: int) -> void:
+	level = clampi(new_value, 1, MAX_LEVEL)
+	recalculate_stats()
+
 func add_buff(buff: StatBuff) -> void:
 	stat_buffs.append(buff)
-	if !is_recalculate_delayed: delayed_recalculate_stats.call_deferred()
+	if !is_recalculate_delayed:
+		is_recalculate_delayed = true
+		delayed_recalculate_stats.call_deferred()
 
 func remove_buff(buff: StatBuff) -> StatBuff:
 	var _buff = stat_buffs[buff]
 	stat_buffs.erase(buff)
-	if !is_recalculate_delayed: delayed_recalculate_stats.call_deferred()
+	if !is_recalculate_delayed: 
+		is_recalculate_delayed = true
+		delayed_recalculate_stats.call_deferred()
 	return _buff
 
 var is_recalculate_delayed: bool = false

@@ -1,7 +1,7 @@
 extends State
-class_name PlayerIdle
+class_name PlayerFloor
 
-const stateName := "PlayerIdle"
+const stateName := "PlayerFloor"
 
 @export var player: ThirdPersonPlayer
 

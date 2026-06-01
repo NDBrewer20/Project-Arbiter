@@ -35,6 +35,9 @@ func _physics_update(delta:float):
 	super._physics_update(delta)
 	if !enemy._manager.is_server: return
 	
+	if !enemy.is_on_floor():
+		enemy.velocityComponent.AddForce(Vector3.DOWN * 9.84)
+
 	if _target:
 		enemy.pathfindComponent.SetTargetPosition(_target.global_position)
 		enemy.pathfindComponent.FollowPath()
