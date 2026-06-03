@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://scl6pakak5ca"]
+[gd_scene load_steps=18 format=3 uid="uid://scl6pakak5ca"]
 
 [ext_resource type="Script" uid="uid://3b0j6vy8wdqy" path="res://Scripts/Entity/Enemy/BasicEnemy.gd" id="1_17ern"]
 [ext_resource type="Material" uid="uid://ctp1bg8fkyo8h" path="res://Assets/Materials/Enemy.tres" id="2_me5p2"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://mdyxlfjbunwd" path="res://Scripts/Entity/State Machine/stateMachine.gd" id="7_00uo8"]
 [ext_resource type="Script" uid="uid://dfjpeflxlcixk" path="res://Scripts/Entity/State Machine/States/Enemy/EnemyIdle.gd" id="8_6k4rf"]
 [ext_resource type="Script" uid="uid://cbjl5le1xorp" path="res://Scripts/Entity/State Machine/States/Enemy/EnemyFollow.gd" id="9_6k4rf"]
+[ext_resource type="Script" uid="uid://c8pv7q66r7io3" path="res://Scripts/Entity/Components/Hitbox System/hurtbox.gd" id="11_42wx6"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ssga2"]
 radius = 0.55
@@ -24,6 +25,8 @@ albedo_color = Color(0, 0, 0, 1)
 material = SubResource("StandardMaterial3D_fuxo2")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_me5p2"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2l4mg"]
 
 [node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "pathfindComponent", "detectionComponent", "stateMachine", "_manager") groups=["enemy"]]
 collision_layer = 1073741824
@@ -58,6 +61,14 @@ collision_mask = 2147483648
 
 [node name="Detection Shape" type="CollisionShape3D" parent="Detection Radius"]
 shape = SubResource("SphereShape3D_me5p2")
+
+[node name="HurtboxComponent" type="Area3D" parent="."]
+collision_layer = 1073741824
+script = ExtResource("11_42wx6")
+metadata/_custom_type_script = "uid://c8pv7q66r7io3"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HurtboxComponent"]
+shape = SubResource("CapsuleShape3D_2l4mg")
 
 [node name="PathfindComponent" parent="." node_paths=PackedStringArray("velocityComponent") instance=ExtResource("3_7nani")]
 velocityComponent = NodePath("../Velocity Component")

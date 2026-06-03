@@ -16,6 +16,14 @@ func _on_disconnected_from_server(peer_id: int):
 	if peer_id == owner._manager.assigned_id: # this players cursor
 		switchState(CursorState.PAUSE_ALL)
 
+## if the cursor state is not currently on [enum CursorState.PAUSE_ALL].
+func Movement_Allowed() -> bool:
+	return _cursorState != CursorState.PAUSE_ALL
+
+## if the cursor is currently captured and locked to the screen.
+func Cursor_Locked() -> bool:
+	return _cursorState == CursorState.DEFAULT
+
 func _process(_delta: float) -> void:
 	match _cursorState:
 		# Default state the cursor is contained to the game window.

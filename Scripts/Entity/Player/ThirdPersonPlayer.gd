@@ -1,5 +1,26 @@
 class_name ThirdPersonPlayer extends Entity
 
+# Player stats
+@export_category("Stats")
+@export var stats: Stats
+
+
+@export_category("State Machine")
+@export var stateMachine: StateMachine
+
+
+# Player Combat
+@export_category("Combat")
+@export var attackOrigin: Node3D
+## where the player is in their attack combo, this is used to determine which attack to use next in the combo sequence. 
+## Resets after a certain amount of time or if the player uses a different attack.
+var comboPosition: int = 0 : set = _on_combo_position_set
+var comboTimer: Timer
+func _on_combo_position_set(new_value: int) -> void:
+	comboPosition = new_value
+	comboTimer.start()
+
+
 # Player movement parameters
 @export_category("Movement")
 @export var velocityComponent: VelocityComponent
@@ -53,6 +74,7 @@ var _canBufferJump: bool: # is the user within the window to use buffered jump?
 @export_category("Camera")
 ## The pivot point for the camera, which is used to rotate the camera around the player. This should be a child node of the player that is positioned at the player's head or where you want the camera to rotate around.
 @export var _camPivot: Node3D
+@export var _camGimbal: Node3D
 ## The minimum and maximum angles the camera can pitch up and down, in degrees. [br]
 ## Example setup: X is minimum (looking down [-90]), Y is maximum (looking up [45]).
 @export var camClamp: Vector2 = Vector2(-90, 45)
@@ -71,6 +93,11 @@ func _ready() -> void:
 	if !_manager.is_authority: # if the instance isn't the auth player remove unneccessary nodes for other players on this client. 
 		cleanClientChildren()
 		return
+
+	comboTimer = Timer.new()
+	add_child(comboTimer)
+	comboTimer.one_shot = true
+	comboTimer.timeout.connect(func() -> void: comboPosition = 0)
 
 	# Initialize the Player Cursor.
 	_cursorStateMachine.switchState(PlayerCursor.CursorState.DEFAULT)
@@ -95,13 +122,13 @@ func _input(event: InputEvent) -> void:
 
 	# Handle mouse input for camera rotation, but only if the cursor is in the default state. 
 	# 	This is to prevent the player from rotating the camera while trying to interact with the UI.
-	if event is InputEventMouseMotion and _cursorStateMachine._cursorState == PlayerCursor.CursorState.DEFAULT:
-		rotate_y(deg_to_rad(-event.relative.x * mouse_Sensitivity)) # Rotate Player
+	if event is InputEventMouseMotion and _cursorStateMachine.Cursor_Locked():
+		_camGimbal.rotate_y(deg_to_rad(-event.relative.x * mouse_Sensitivity)) # Rotate Player camera
 		_camPivot.rotate_x(deg_to_rad(-event.relative.y * mouse_Sensitivity)) # Rotate Camera Pivot (Camera Pitch)
 		_camPivot.rotation.x = clamp(_camPivot.rotation.x, deg_to_rad(camClamp.x), deg_to_rad(camClamp.y)) # Clamp Camera Pitch
-	
+
 	# Handle movement input
-	if _cursorStateMachine._cursorState != PlayerCursor.CursorState.PAUSE_ALL: # if the cursor is not in the pause state, allow movement input. This is to prevent the player from moving while trying to interact with the UI.
+	if _cursorStateMachine.Movement_Allowed(): # if the cursor is not in the pause state, allow movement input. This is to prevent the player from moving while trying to interact with the UI.
 		var playerInput = Input.get_vector("Player_Left", "Player_Right", "Player_Forward", "Player_Back")
 		_inputDirection.x = playerInput.x
 		_inputDirection.y = 0
@@ -111,7 +138,7 @@ func _input(event: InputEvent) -> void:
 		_inputDirection = Vector3.ZERO # if the cursor isn't in the default state, ignore movement input to prevent the player from moving while trying to interact with the UI.
 
 	# Handle jump input. (Prevent player form jumping in PAUSE_ALL cursor state) 
-	if Input.is_action_just_pressed("Player_Jump") and _cursorStateMachine._cursorState != PlayerCursor.CursorState.PAUSE_ALL:
+	if Input.is_action_just_pressed("Player_Jump") and _cursorStateMachine.Movement_Allowed():
 		_isjumping = true
 		_lastJumpPressed = _timeSinceFirstFrame
 
@@ -130,5 +157,14 @@ func checkCollision() -> void:
 func _physics_process(_delta: float) -> void:
 	# only the authority (owner) of this player instance should handle physics for it.
 	if !_manager.is_authority: return 
-
+	try_rotate_player()
 	checkCollision()
+
+func try_rotate_player():
+	var pressingValidButton: bool = Input.is_anything_pressed() and !Input.is_action_pressed("ui_cancel")
+	var animLocked: bool = stateMachine.currentState.name == PlayerMeleeAttack.stateName
+	if pressingValidButton and !animLocked:
+		global_rotation.y = _camGimbal.global_rotation.y # rotate the player to match the camera's y rotation when the player is providing input. This makes movement relative to the camera direction.
+
+func force_rotate_player():
+	global_rotation.y = _camGimbal.global_rotation.y # force rotate the player to match the camera's y rotation regardless of input. This is used in certain attack states to ensure the player is facing the correct direction for the attack animation.

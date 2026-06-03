@@ -15,6 +15,11 @@ signal health_changed(cur_health: float, max_health: float)
 signal resource_depleted
 signal resource_changed(cur_resource:int, max_resource:int)
 
+enum FACTION {
+	ENEMY,
+	PLAYER,
+}
+@export var faction: FACTION
 
 @export var base_max_health: float = 100
 @export var base_max_resource: int = 100
@@ -69,7 +74,15 @@ func _on_health_set(new_value: float) -> void:
 	if health <= 0:
 		health_depleted.emit()
 
-func calculate_damage(base_damage: float, attack: float, defense: float) -> float:
+func calculate_incoming_damage(incoming_damage: float, attack_power: float) -> float:
+	var dam = incoming_damage * (attack_power / (attack_power + base_defense))
+	return dam
+func apply_incoming_damage(incoming_damage: float, attack_power: float):
+	var dam = calculate_incoming_damage(incoming_damage,attack_power)
+	health -= dam
+	PA_Debug.log("entity: took %s damage" % [dam])
+
+static func calculate_damage(base_damage: float, attack: float, defense: float) -> float:
 	var dam = base_damage * (attack / (attack + defense))
 	return dam
 

@@ -21,7 +21,15 @@ func _physics_update(delta: float):
 	super._physics_update(delta)
 	if !player._manager.is_authority: return # Only run this code if this client has authority over the player.
 	
-	if Input.is_action_just_pressed("Player_Jump"):
+	# Temporary solution to test hitbox/hurtbox components. 
+	# later to be replaced with a call to a specific weapon resource 
+	# that will determine which state to transition to (melee, ranged) 
+	if Input.is_action_just_pressed("Player_Primary_Fire") and player._cursorStateMachine.Movement_Allowed():
+		transitioned.emit(self, PlayerMeleeAttack.stateName)
+	elif Input.is_action_just_pressed("Player_Alternative_Fire") and player._cursorStateMachine.Movement_Allowed():
+		pass
+
+	if Input.is_action_just_pressed("Player_Jump") and player._cursorStateMachine.Movement_Allowed():
 		transitioned.emit(self, PlayerJump.stateName)
 	elif !player.is_on_floor():
 		transitioned.emit(self, PlayerFalling.stateName)

@@ -1,8 +1,8 @@
-[gd_scene load_steps=25 format=3 uid="uid://dwuo45o1taqky"]
+[gd_scene load_steps=22 format=3 uid="uid://dwuo45o1taqky"]
 
 [ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Entity/Player/ThirdPersonPlayer.gd" id="1_gsdtt"]
 [ext_resource type="Curve" uid="uid://drbruev4kahgc" path="res://Resources/Enemy Curves/maxHealth_statCurve.tres" id="2_0ml5q"]
-[ext_resource type="Script" uid="uid://cbchfh5tfrsr4" path="res://Scripts/Entity/Components/Stats/stats.gd" id="2_125pf"]
+[ext_resource type="Script" uid="uid://cbchfh5tfrsr4" path="res://Scripts/Entity/stats.gd" id="2_125pf"]
 [ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Entity/Player/player_cursor_control.gd" id="2_dahrh"]
 [ext_resource type="Script" uid="uid://yrg0uyvv2r2t" path="res://Scripts/Entity/Components/VelocityComponent.gd" id="2_xrskp"]
 [ext_resource type="Curve" uid="uid://cx41nw2psf5h4" path="res://Resources/Enemy Curves/maxResource_statCurve.tres" id="3_mneri"]
@@ -11,12 +11,10 @@
 [ext_resource type="Curve" uid="uid://dw0fy1llyo1pr" path="res://Resources/Enemy Curves/defense_statCurve.tres" id="4_q1rm7"]
 [ext_resource type="Script" uid="uid://mdyxlfjbunwd" path="res://Scripts/Entity/State Machine/stateMachine.gd" id="5_pfsti"]
 [ext_resource type="Curve" uid="uid://dsvmt7wpd03pm" path="res://Resources/Enemy Curves/attack_statCurve.tres" id="5_s33wf"]
-[ext_resource type="Script" uid="uid://d1t3jumv1iwuf" path="res://Scripts/Entity/Player/CameraBehavior.gd" id="7_mneri"]
 [ext_resource type="Script" uid="uid://b7ydmi7mwsfwa" path="res://Scripts/Entity/State Machine/States/Player/PlayerFalling.gd" id="8_ls38o"]
 [ext_resource type="Script" uid="uid://pe7md7qk1aqv" path="res://Scripts/Entity/State Machine/States/Player/PlayerFloor.gd" id="8_xia3x"]
 [ext_resource type="Script" uid="uid://co64v0lspaom6" path="res://Scripts/Entity/State Machine/States/Player/PlayerJump.gd" id="9_125pf"]
 [ext_resource type="Script" uid="uid://sq5x44u01csm" path="res://Scripts/Entity/State Machine/States/Player/PlayerMeleeAttack.gd" id="11_jagjn"]
-[ext_resource type="Script" uid="uid://c8pv7q66r7io3" path="res://Scripts/Entity/Components/Hitbox System/hurtbox.gd" id="12_q1rm7"]
 
 [sub_resource type="Resource" id="Resource_jagjn"]
 resource_local_to_scene = true
@@ -46,12 +44,10 @@ albedo_color = Color(0, 0, 0, 1)
 [sub_resource type="TorusMesh" id="TorusMesh_puwgh"]
 material = SubResource("StandardMaterial3D_fuxo2")
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_s33wf"]
-
 [sub_resource type="SphereShape3D" id="SphereShape3D_ff52u"]
 radius = 1.0
 
-[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("stateMachine", "attackOrigin", "velocityComponent", "_camPivot", "_camGimbal", "_cursorStateMachine", "_manager") groups=["player"]]
+[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "_camPivot", "_cursorStateMachine", "_manager") groups=["player"]]
 collision_layer = 2147483648
 collision_mask = 1073741825
 collision_priority = 10.0
@@ -60,14 +56,11 @@ axis_lock_angular_z = true
 slide_on_ceiling = false
 script = ExtResource("1_gsdtt")
 stats = SubResource("Resource_jagjn")
-stateMachine = NodePath("StateMachine")
-attackOrigin = NodePath("Attack Origin")
 velocityComponent = NodePath("VelocityComponent")
 airControlStart = 1.2
 airControlEnd = 0.05
 airControlFadeTime = 0.35
-_camPivot = NodePath("Cam Gimbal/Cam Pivot")
-_camGimbal = NodePath("Cam Gimbal")
+_camPivot = NodePath("CamOrigin")
 _cursorStateMachine = NodePath("Player Cursor Control")
 _manager = NodePath("Network Manager")
 
@@ -85,19 +78,14 @@ transform = Transform3D(0.5, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0.362, -0.144821)
 mesh = SubResource("TorusMesh_puwgh")
 skeleton = NodePath("")
 
-[node name="Cam Gimbal" type="Node3D" parent="."]
+[node name="CamOrigin" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0.5, 0.5)
-top_level = true
-script = ExtResource("7_mneri")
-followCoefficient = 50.0
 
-[node name="Cam Pivot" type="Node3D" parent="Cam Gimbal"]
-
-[node name="SpringArm3D" type="SpringArm3D" parent="Cam Gimbal/Cam Pivot"]
+[node name="SpringArm3D" type="SpringArm3D" parent="CamOrigin"]
 spring_length = 3.0
 margin = 0.5
 
-[node name="Camera3D" type="Camera3D" parent="Cam Gimbal/Cam Pivot/SpringArm3D"]
+[node name="Camera3D" type="Camera3D" parent="CamOrigin/SpringArm3D"]
 
 [node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
 radius = 0.1
@@ -118,14 +106,6 @@ _body = NodePath("..")
 
 [node name="Attack Origin" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
-
-[node name="HurtboxComponent" type="Area3D" parent="."]
-collision_layer = 2147483648
-script = ExtResource("12_q1rm7")
-metadata/_custom_type_script = "uid://c8pv7q66r7io3"
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HurtboxComponent"]
-shape = SubResource("CapsuleShape3D_s33wf")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 script = ExtResource("5_pfsti")
@@ -156,8 +136,6 @@ send_attack_delay = NodePath("Attack Delay")
 metadata/_custom_type_script = "uid://sq5x44u01csm"
 
 [node name="Recovery Window" type="Timer" parent="StateMachine/PlayerMeleeAttack"]
-one_shot = true
 
 [node name="Attack Delay" type="Timer" parent="StateMachine/PlayerMeleeAttack"]
 wait_time = 0.5
-one_shot = true

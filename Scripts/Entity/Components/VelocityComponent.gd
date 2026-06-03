@@ -37,7 +37,7 @@ func AccelerateToVelocity(target_velocity: Vector3) -> void:
 	var delta: float = get_physics_process_delta_time()
 	var blend: float = 1.0 - exp(-accelerationCoefficient * accelerationCoefficientMultiplier * delta)
 	blend = clamp(blend, 0.0, 1.0)
-	velocity = velocity.lerp(_apply_speed_modifiers(target_velocity), blend)
+	velocity = _apply_speed_modifiers(velocity.lerp(target_velocity, blend))
 
 func AddForce(force: Vector3) -> void:
 	velocity += force

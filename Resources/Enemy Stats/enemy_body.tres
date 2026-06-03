@@ -4,7 +4,7 @@
 [ext_resource type="Curve" uid="uid://cx41nw2psf5h4" path="res://Resources/Enemy Curves/maxResource_statCurve.tres" id="2_e2ayg"]
 [ext_resource type="Curve" uid="uid://dw0fy1llyo1pr" path="res://Resources/Enemy Curves/defense_statCurve.tres" id="2_i1oj7"]
 [ext_resource type="Curve" uid="uid://dsvmt7wpd03pm" path="res://Resources/Enemy Curves/attack_statCurve.tres" id="3_8ykqo"]
-[ext_resource type="Script" uid="uid://cbchfh5tfrsr4" path="res://Scripts/Entity/stats.gd" id="4_7oapf"]
+[ext_resource type="Script" uid="uid://cbchfh5tfrsr4" path="res://Scripts/Entity/Components/Stats/stats.gd" id="4_7oapf"]
 
 [resource]
 resource_local_to_scene = true
@@ -15,6 +15,7 @@ STAT_CURVES = Dictionary[int, Curve]({
 2: ExtResource("2_i1oj7"),
 3: ExtResource("3_8ykqo")
 })
+faction = 0
 base_max_health = 100.0
 base_max_resource = 100
 base_defense = 10.0
