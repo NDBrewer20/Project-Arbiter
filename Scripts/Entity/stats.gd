@@ -69,8 +69,9 @@ func _on_health_set(new_value: float) -> void:
 	if health <= 0:
 		health_depleted.emit()
 
-func damageHealth(base_damage: float, attack: float) -> void:
-	health -= base_damage * (attack / (attack + current_defense))
+func calculate_damage(base_damage: float, attack: float, defense: float) -> float:
+	var dam = base_damage * (attack / (attack + defense))
+	return dam
 
 func _on_resource_set(new_value: int) -> void:
 	resource = clampi(new_value, 0, current_max_resource)

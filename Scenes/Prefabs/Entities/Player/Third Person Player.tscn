@@ -21,7 +21,7 @@ albedo_color = Color(0, 0, 0, 1)
 [sub_resource type="TorusMesh" id="TorusMesh_puwgh"]
 material = SubResource("StandardMaterial3D_fuxo2")
 
-[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("_camPivot", "_cursorStateMachine", "_manager") groups=["player"]]
+[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "_camPivot", "_cursorStateMachine", "_manager") groups=["player"]]
 collision_layer = 2147483648
 collision_mask = 1073741825
 collision_priority = 10.0
@@ -29,16 +29,10 @@ axis_lock_angular_x = true
 axis_lock_angular_z = true
 slide_on_ceiling = false
 script = ExtResource("1_gsdtt")
-runSpeed = 6.5
-walkSpeed = 1.5
-acceleration = 1.5
-deceleration = 2.5
+velocityComponent = NodePath("VelocityComponent")
 airControlStart = 1.2
 airControlEnd = 0.05
 airControlFadeTime = 0.35
-jumpVelocity = 3.54
-coyoteTime = 0.16
-jumpBuffer = 0.21
 _camPivot = NodePath("CamOrigin")
 _cursorStateMachine = NodePath("Player Cursor Control")
 _manager = NodePath("Network Manager")
@@ -72,6 +66,7 @@ height = 0.0
 
 [node name="VelocityComponent" type="Node" parent="."]
 script = ExtResource("2_xrskp")
+maxSpeed = 5.5
 metadata/_custom_type_script = "uid://yrg0uyvv2r2t"
 
 [node name="Player Cursor Control" type="Node" parent="."]
@@ -87,14 +82,17 @@ script = ExtResource("5_pfsti")
 initial_state = NodePath("PlayerFloor")
 metadata/_custom_type_script = "uid://mdyxlfjbunwd"
 
-[node name="PlayerFloor" type="Node" parent="StateMachine"]
+[node name="PlayerFloor" type="Node" parent="StateMachine" node_paths=PackedStringArray("player")]
 script = ExtResource("8_xia3x")
+player = NodePath("../..")
 metadata/_custom_type_script = "uid://pe7md7qk1aqv"
 
-[node name="PlayerFalling" type="Node" parent="StateMachine"]
+[node name="PlayerFalling" type="Node" parent="StateMachine" node_paths=PackedStringArray("player")]
 script = ExtResource("8_ls38o")
+player = NodePath("../..")
 metadata/_custom_type_script = "uid://b7ydmi7mwsfwa"
 
-[node name="PlayerJump" type="Node" parent="StateMachine"]
+[node name="PlayerJump" type="Node" parent="StateMachine" node_paths=PackedStringArray("player")]
 script = ExtResource("9_125pf")
+player = NodePath("../..")
 metadata/_custom_type_script = "uid://co64v0lspaom6"

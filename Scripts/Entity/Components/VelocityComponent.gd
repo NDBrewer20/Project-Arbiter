@@ -3,8 +3,7 @@ class_name VelocityComponent extends Node
 @export var maxSpeed: float = 100
 @export var accelerationCoefficient: float = 10
 
-var _velocity: Vector3 = Vector3.ZERO
-var velocity: Vector3 : set = set_velocity, get = get_velocity
+var velocity: Vector3
 var velocityOverride: Vector3 = Vector3.ZERO
 var speedMultiplier: float = 1
 var speedPercentModifier: float:
@@ -25,12 +24,6 @@ var calculatedMaxSpeed: float:
 
 var speedPercentModifiers: Dictionary[String,float] = {}
 
-func set_velocity(value: Vector3) -> void:
-	_velocity = _apply_speed_modifiers(value)
-
-func get_velocity() -> Vector3:
-	return _velocity
-
 func _apply_speed_modifiers(value: Vector3) -> Vector3:
 	if value == Vector3.ZERO:
 		return Vector3.ZERO
@@ -44,7 +37,7 @@ func AccelerateToVelocity(target_velocity: Vector3) -> void:
 	var delta: float = get_physics_process_delta_time()
 	var blend: float = 1.0 - exp(-accelerationCoefficient * accelerationCoefficientMultiplier * delta)
 	blend = clamp(blend, 0.0, 1.0)
-	velocity = velocity.lerp(target_velocity, blend)
+	velocity = velocity.lerp(_apply_speed_modifiers(target_velocity), blend)
 
 func AddForce(force: Vector3) -> void:
 	velocity += force

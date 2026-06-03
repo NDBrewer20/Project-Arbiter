@@ -1,27 +1,8 @@
 class_name ThirdPersonPlayer extends Entity
 
-# Player State Machine
-## The state of the player, which determines how the player's movement is handled.
-enum PlayerState {
-	FLOOR = 0,
-	JUMP = 1,
-	FALL = 2,
-}
-## The current state of the player, which is used to determine how to handle movement and jumping.
-var _state: PlayerState = PlayerState.FLOOR
-
-
 # Player movement parameters
 @export_category("Movement")
-## The max speed the player can move at.
-@export var runSpeed: float = 7.5
-## the minimum speed the player can move at.
-@export var walkSpeed: float = 5.0
-## The rate at which the player accelerates to their max speed.
-@export var acceleration: float = 10.0
-## The rate at which the player decelerates to their min speed.
-@export var deceleration: float = 20.0
-var _speedActual: float = 0.0
+@export var velocityComponent: VelocityComponent
 var _inputDirection: Vector3 = Vector3.ZERO
 
 # Air control parameters
@@ -34,7 +15,6 @@ var _inputDirection: Vector3 = Vector3.ZERO
 @export var airControlEnd: float = 0.45
 ## How long it takes for the player to go from full air control to no air control in seconds.
 @export var airControlFadeTime: float = 1.5
-var _airtime: float = 0.0
 
 
 # Player jumping parameters
@@ -48,7 +28,7 @@ var _lastTimeOnGround: float # how long since the user was last on the ground?
 
 # Player Coyote Time parameters
 @export_subgroup("Coyote Time")
-@export var coyoteTime: float = 0.15
+@export var coyoteTime: float = 0.16
 var _coyoteUsable: bool # can the user press jump and have it work after starting to fall?
 var _coyoteWindow: bool: # if the timer hasn't timed out (time since jump + coyote time > current time), the user can still jump
 	get:
@@ -59,7 +39,7 @@ var _canCoyote: bool: # is the user within the window to use coyote time?
 
 # Player Jump Buffer parameters
 @export_subgroup("Jump Buffer")
-@export var jumpBuffer: float = 0.2
+@export var jumpBuffer: float = 0.21
 var _bufferJumpUsable: bool # can the user press jump and have it work before landing?
 var _bufferWindow: bool: # if the timer hasn't timed out (time since jump + jump buffer time > current time), the user can still jump
 	get:
@@ -106,12 +86,6 @@ func cleanClientChildren() -> void:
 	_camPivot.queue_free()
 	_cursorStateMachine.queue_free()
 
-func _enter_tree() -> void:
-	pass
-
-func _exit_tree() -> void:
-	pass
-
 func _process(delta: float) -> void:
 	if !_manager.is_authority: return # only the authority (owner) of this player instance should handle processing for it.
 	_timeSinceFirstFrame += delta
@@ -141,62 +115,6 @@ func _input(event: InputEvent) -> void:
 		_isjumping = true
 		_lastJumpPressed = _timeSinceFirstFrame
 
-## Handles player movement when on the ground and in the air, including acceleration, deceleration, and air control.
-func HandleMove(delta: float) -> void:
-	# if the cursor is in the pause state, don't allow the player to move. This is to prevent the player from moving while trying to interact with the UI.
-	if _cursorStateMachine._cursorState == PlayerCursor.CursorState.PAUSE_ALL:
-		if is_on_floor(): # if the player is on the floor then we can cancel all velocity
-			velocity.x = 0
-			velocity.z = 0
-		return
-	
-	if is_on_floor(): # Ground Movement
-		var vel = velocity
-		vel.y = 0
-		if _inputDirection != Vector3.ZERO and vel.length() > 0.1: # if the player is trying to move and is currently moving
-			_speedActual = lerp(_speedActual, runSpeed, acceleration * delta) # accelerate to run speed
-		else: # if the player is not trying to move or is moving very slowly, decelerate to walk speed
-			_speedActual = lerp(_speedActual, walkSpeed, deceleration * delta) # decelerate to walk speed
-
-		# Set the velocity in the x and z direction based on the input direction and the actual speed.
-		velocity.x = _inputDirection.normalized().x * _speedActual
-		velocity.z = _inputDirection.normalized().z * _speedActual
-	else: # Air Control
-		# The air control factor is a value between airControlStart and airControlEnd that decreases over time based on how long the player has been in the air. 
-		# This creates a feeling of losing control the longer the player is in the air.
-		var t = clampf(_airtime / airControlFadeTime, 0, 1)
-		var air_control_factor = lerp(airControlStart, airControlEnd, t)
-
-		# Add to the velocity in the x and z direction based on the input direction, walk speed, and air control factor. 
-		# This allows the player to have some control over their movement in the air, but not as much as on the ground.
-		velocity.x += _inputDirection.normalized().x * walkSpeed * air_control_factor * delta
-		velocity.z += _inputDirection.normalized().z * walkSpeed * air_control_factor * delta
-
-## Checks if the player can jump.
-func HandleJump() -> void:
-	# if the player wants to jump and can queue a jump.
-	if !_isjumping and !_canBufferJump:
-		return
-	
-	# if they player is on the floor OR can initiate a "Wile. E. Coyote" jump
-	if is_on_floor() or _canCoyote:
-		Jump()
-
-	# After jumping the player should no longer be able wanting to jump.
-	_isjumping = false
-
-func HandleFalling(delta: float) -> void:
-	# How Long in Air
-	_airtime += delta
-
-	# Gravity
-	velocity.y += -gravity * delta
-
-func Jump() -> void:
-	_coyoteUsable = false
-	_bufferJumpUsable = false
-	_lastJumpPressed = 0
-	velocity.y = jumpVelocity
 
 ## Checks if the player has just landed or just started falling.
 func checkCollision() -> void:
@@ -204,70 +122,13 @@ func checkCollision() -> void:
 	if !_lastOnFloor and is_on_floor():
 		_coyoteUsable = true
 		_bufferJumpUsable = true
-		_airtime = 0
 	# if last frame was on the ground but this frame is not, then the player has just started falling
 	elif _lastOnFloor and not is_on_floor():
 		_lastTimeOnGround = _timeSinceFirstFrame
 	
 
-func _physics_process(delta: float) -> void:
-	# State Machine for handling player vfx, sfx, and other events related to the player's movement state.
-	handleStateEffects()
-	
+func _physics_process(_delta: float) -> void:
 	# only the authority (owner) of this player instance should handle physics for it.
 	if !_manager.is_authority: return 
 
 	checkCollision()
-
-	# State Machine for handling player movement.
-	match _state:
-		# if the player is on the ground, check if they are trying to jump or if they have walked off a ledge and should start falling.
-		PlayerState.FLOOR: 
-			HandleMove(delta)
-			if Input.is_action_just_pressed("Player_Jump"):
-				switchState(PlayerState.JUMP)
-			elif !is_on_floor():
-				switchState(PlayerState.FALL)
-		# if the player is in the jump state, apply gravity
-		# if the player's vertical velocity is less than or equal to 0, they have reached (or passed) the peak of their jump and should start falling.
-		PlayerState.JUMP:
-			HandleMove(delta)
-			HandleFalling(delta)
-			if velocity.y <= 0:
-				switchState(PlayerState.FALL)
-		# if the player is in the fall state, apply gravity and check if they have landed on the ground to switch back to the floor state.
-		PlayerState.FALL:
-			HandleMove(delta)
-			# Coyote Time and Jump Buffer handling is done in the HandleJump function, 
-			# 	which is called every frame while in the air to check if the player can jump.
-			HandleJump() 
-			HandleFalling(delta)
-			if is_on_floor():
-				switchState(PlayerState.FLOOR)
-
-	# Cache the floor state for next frame.
-	_lastOnFloor = is_on_floor()
-	move_and_slide()
-
-## Switches the player's state and handles any necessary logic for entering that state.
-func switchState(state: PlayerState) -> void:
-	_state = state
-	match _state:
-		PlayerState.FLOOR:
-			pass
-		# if the player has just entered the jump state, call the HandleJump function to make them jump.
-		PlayerState.JUMP:
-			HandleJump()
-		PlayerState.FALL:
-			pass
-
-## Handles any effects related to the [enum PlayerState], such as playing landing or jumping vfx/sfx. 
-## This is called every frame in the physics process to ensure that effects are triggered correctly based on the player's current state.
-func handleStateEffects() -> void:
-	match _state:
-		PlayerState.FLOOR:
-			pass
-		PlayerState.JUMP:
-			pass
-		PlayerState.FALL:
-			pass

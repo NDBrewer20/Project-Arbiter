@@ -26,7 +26,7 @@ static func create_from_data(data: PackedByteArray) -> Packet_IDAssignment:
 func encode() -> PackedByteArray:
 	var data: PackedByteArray = super.encode()
 
-	data.resize(3 + remoted_ids.size())
+	data.resize(3 + remoted_ids.size()*2)
 	data.encode_u16(1, id)
 	var offset := 0
 	for i in remoted_ids.size():

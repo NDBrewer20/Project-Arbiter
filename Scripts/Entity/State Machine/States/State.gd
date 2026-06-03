@@ -2,6 +2,9 @@ class_name State extends Node
 
 signal transitioned
 
+func _ready() -> void:
+	name = self.get("stateName")
+
 func _enter():
 	pass
 

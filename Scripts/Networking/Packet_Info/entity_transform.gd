@@ -1,9 +1,9 @@
 class_name Packet_EntityTransform extends PacketInfo
 
 # [type, id, id,
-# vel.x, vel.x, vel.x, vel.x, 
-# vel.y, vel.y, vel.y, vel.y, 
-# vel.z, vel.z, vel.z, vel.z,
+# pos.x, pos.x, pos.x, pos.x, 
+# pos.y, pos.y, pos.y, pos.y, 
+# pos.z, pos.z, pos.z, pos.z,
 # Rot.y, Rot.y, Rot.y, Rot.y]
 # [0, 1, 2, 
 # 3, 4, 5, 6, 
@@ -13,8 +13,7 @@ class_name Packet_EntityTransform extends PacketInfo
 
 ## id of the entity that this packet belongs to.
 var id: int
-## velocity of the entity (client -> server).[br]
-## position of the entity (server -> client).
+## position of the entity.
 var movement: Vector3
 ## rotation of the entity.
 var rotation: Vector3
