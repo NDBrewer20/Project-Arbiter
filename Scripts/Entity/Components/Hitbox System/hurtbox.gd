@@ -15,4 +15,5 @@ func _ready() -> void:
 			set_collision_layer_value(31, true)
 
 func receive_hit(damage: int, attacker_stats: Stats) -> void:
-	owner_stats.apply_incoming_damage(damage, attacker_stats.current_attack)
+	owner_stats.apply_incoming_damage(damage, attacker_stats)
+	Packet_EntityDamaged.create(damage, attacker_stats.owner._manager.assigned_id, owner._manager.assigned_id).send(LowLevelNetworkHandler.server_peer)

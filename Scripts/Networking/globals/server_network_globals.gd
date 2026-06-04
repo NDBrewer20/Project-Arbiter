@@ -32,7 +32,7 @@ func on_server_packet(peer_id: int, data: PackedByteArray) -> void:
 
 	match packet_type:
 		# Enity related packets.
-		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_STATE:
+		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_STATE, PacketInfo.PACKET_TYPE.ENTITY_DAMAGED:
 			pass
 
 		# unknown packet was sent to server.

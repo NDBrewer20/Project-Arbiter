@@ -68,11 +68,10 @@ func _on_disconnect_pressed() -> void:
 
 func _on_spawn_enemy_pressed() -> void:
 	var val := 1
-	var spawner := LowLevelEntitySpawner.instance
 	if !spawnAmt.text.is_empty():
 		val = spawnAmt.text.to_int()
 	for i in range(val):
-		spawner.server_spawn_entity(randi_range(0,LowLevelEntitySpawner.SPAWNABLE.size()-1), Vector3.UP)
+		LowLevelEntitySpawner.server_spawn_entity(randi_range(0,LowLevelEntitySpawner.SPAWNABLE.size()-1), Vector3.UP)
 
 func _on_remove_enemy_pressed() -> void:
 	var val := 1

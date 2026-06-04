@@ -12,6 +12,8 @@ var _activeEntities: Dictionary[int,Array]
 
 static var instance: LowLevelEntitySpawner
 
+@export var spawnParent: Node3D
+
 func _ready() -> void:
 	if instance:
 		queue_free()
@@ -76,31 +78,35 @@ func _on_peer_connected(peer_id: int) -> void:
 func client_spawn_entity(entity_id_assignment: Packet_EntityIDAssignment) -> void:
 	if LowLevelNetworkHandler.is_server: return # server should not spawn another entity since it handles the original copy.
 	var id  = entity_id_assignment.id
-	var claimed := EntityNetworkGlobals.claim_entity_id(id)
-	if !claimed: return # if you can't claim this entity id then don't spawn it.
 
 	var entity: Entity = SPAWNABLE_NETWORK_ENTITIES[entity_id_assignment.spawn].instantiate()
-
+	var claimed := EntityNetworkGlobals.claim_entity_id(id,entity)
+	if !claimed:
+		entity.queue_free()
+		EntityNetworkGlobals.reclaim_entity_id(id)
+		PA_Debug.log("client_id (%s): failed to claim entity id (%s) for entity (%s)" % [ClientNetworkGlobals.id, id, entity])
+		return
+	
 	entity._manager.assigned_id = id
 	entity.name = "Entity " + str(id) # Optional
-	add_child(entity)
+	spawnParent.add_child(entity)
 	entity.global_position = entity_id_assignment.position
 
 	_activeEntities[id] = [entity, entity_id_assignment.spawn]
 	PA_Debug.log("client_id (%s): spawned entity (%s)-(%s) at (%s)" % [ClientNetworkGlobals.id, id, entity_id_assignment.spawn, entity.global_position])
 
-func server_spawn_entity(spawn: SPAWNABLE = SPAWNABLE.ENEMY_DEBUG, position: Vector3 = Vector3.ZERO) -> void:
+static func server_spawn_entity(spawn: SPAWNABLE = SPAWNABLE.ENEMY_DEBUG, position: Vector3 = Vector3.ZERO) -> void:
 	if !LowLevelNetworkHandler.is_server: return # if not the server then exit.
 
 	var entity: Entity = SPAWNABLE_NETWORK_ENTITIES[spawn].instantiate()
-	var id = EntityNetworkGlobals.provision_entity_id()
+	var id = EntityNetworkGlobals.provision_entity_id(entity)
 
 	entity._manager.assigned_id = id
 	entity.name = "Entity " + str(id) # Optional
-	get_tree().get_first_node_in_group("entity spawner").add_child(entity)
+	instance.spawnParent.add_child(entity)
 	entity.global_position = position
 
-	_activeEntities[id] = [entity, spawn]
+	instance._activeEntities[id] = [entity, spawn]
 	PA_Debug.log("server: adding entity (%s)-(%s):(%s)" % [id,spawn,entity])
 
 	# send entity spawned packet

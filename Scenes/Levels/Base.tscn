@@ -279,6 +279,9 @@ spawnPosition = NodePath("Spawn Position")
 [node name="Spawn Position" type="Node3D" parent="LowLevelPlayerSpawner"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11, 4, 16.626)
 
-[node name="LowLevelEntitySpawner" type="Node" parent="." groups=["entity spawner"]]
+[node name="LowLevelEntitySpawner" type="Node" parent="." node_paths=PackedStringArray("spawnParent") groups=["entity spawner"]]
 script = ExtResource("6_ovum4")
+spawnParent = NodePath("Spawn parent")
 metadata/_custom_type_script = "uid://dyj3bpmtmecyt"
+
+[node name="Spawn parent" type="Node3D" parent="LowLevelEntitySpawner"]

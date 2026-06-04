@@ -7,7 +7,55 @@ signal handle_entity_id_assignment(entity_id_assignment: Packet_EntityIDAssignme
 signal handle_entity_id_unassignment(entity_id: Packet_EntityIDUnassignment)
 
 var available_entity_ids: Array = range((2 ** 16)-1,-1,-1) 
-var entity_ids: Array[int]
+var entity_ids: Dictionary[int, Entity] = {}
+
+## This function is used to provision an entity id and fill in the specific entity in the list of entity ids. [br]
+## This function is used in cases where you need to know the entity id at the time of instantiating the entity.
+func provision_entity_id(entity: Entity) -> int:
+	var id = available_entity_ids.pop_back()
+	if id is not int:
+		return -1
+	entity_ids[id] = entity
+	return id
+## This function is used to provision an entity id but will not fill in the specific entity in the list of entity ids. [br]
+## this function ASSUMES THAT YOU WILL FILL THIS ENTITY ID IN LATER. Failure to do so will cause problems with the entity id management system. [br]
+## This function is used in cases where you need to know the entity id before you have the entity ready to be assigned to that id. 
+func preprovision_entity_id() -> int:
+	var id = available_entity_ids.pop_back()
+	if id is not int:
+		return -1
+	entity_ids[id] = null
+	return id
+## This function is used to assign an entity id to an entity that has already been provisioned. [br]
+## This function is used in cases where you have preprovisioned an entity id and now need to assign it to a specific entity.
+func assign_entity_id(id: int, entity: Entity) -> bool:
+	if !entity_ids.has(id) or entity_ids[id] != null:
+		return false
+	entity_ids[id] = entity
+	return true
+## Forcefully assign a entity id to an entity. if the entity id is already taken then this will fail and return false. [br]
+## This function is used in cases where you need to assign a specific entity id to an entity such as when a client receives a packet to spawn an entity with a specific entity id.
+func claim_entity_id(id: int, entity: Entity) -> bool:
+	if available_entity_ids.has(id):
+		available_entity_ids.erase(id)
+		entity_ids[id] = entity
+		return true
+	return false
+## Forcefully assign a entity id to an entity. if the entity id is already taken then this will fail and return false. [br]
+## This function is used in cases where you need to assign a specific entity id to an entity such as when a client receives a packet to spawn an entity with a specific entity id but you don't
+## have the entity ready at the time of claiming the entity id so you just want to reserve the entity id and fill in the entity later.
+## Failure to fill in the entity later will cause problems with the entity id management system.
+func preclaim_entity_id(id: int) -> bool:
+	if available_entity_ids.has(id):
+		available_entity_ids.erase(id)
+		entity_ids[id] = null
+		return true
+	return false
+## When done with an entity id, you can reclaim it so that it can be used for future entities. [br]
+## This function is used in cases where an entity is removed from the game and its entity id can be reused for future entities.
+func reclaim_entity_id(id: int) -> void:
+	entity_ids.erase(id)
+	available_entity_ids.push_back(id)
 
 func _ready() -> void:
 	LowLevelNetworkHandler.on_client_packet.connect(on_client_packet)
@@ -24,6 +72,9 @@ func on_server_packet(peer_id: int, data: PackedByteArray) -> void:
 			# TODO: manage the state of client authority entities.
 			pass
 		
+		PacketInfo.PACKET_TYPE.ENTITY_DAMAGED:
+			server_handle_entity_damaged(Packet_EntityDamaged.create_from_data(data))
+
 		# Enity related packets.
 		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM:
 			server_handle_entity_position.emit(peer_id, Packet_EntityTransform.create_from_data(data))
@@ -57,24 +108,28 @@ func on_client_packet(data: PackedByteArray) -> void:
 			# TODO: give the client a signal to manage the state of the different server managed statemachines.
 			pass
 
+		PacketInfo.PACKET_TYPE.ENTITY_DAMAGED:
+			client_handle_entity_damaged(Packet_EntityDamaged.create_from_data(data))
+
 		# unknown packet was sent to client.
 		_:
 			push_error("Packet type with index ", data[0], " unhandled!")
 
-func provision_entity_id() -> int:
-	var id = available_entity_ids.pop_back()
-	if id is not int:
-		return -1
-	entity_ids.append(id)
-	return id
+func client_handle_entity_damaged(entity_damaged: Packet_EntityDamaged) -> void:
+	if LowLevelNetworkHandler.is_server: return
+	# if the client is the attacker or defender, then they have already applied the damage locally and can ignore this packet.
+	if entity_damaged.defender_id == ClientNetworkGlobals.id or entity_damaged.attack_id == ClientNetworkGlobals.id: return
+	var defenderEntity = entity_ids.get(entity_damaged.defender_id)
+	var attackEntity = entity_ids.get(entity_damaged.attack_id)
+	if defenderEntity.get("stats") and attackEntity.get("stats"):
+		PA_Debug.log("client_id (%s): entity_id (%s) attacked entity_id (%s) for %s damage" % [ClientNetworkGlobals.id, attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id, Stats.calculate_damage(entity_damaged.damage, attackEntity.stats, defenderEntity.stats)])
+		defenderEntity.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.stats)
 
-func claim_entity_id(id: int) -> bool:
-	if available_entity_ids.has(id):
-		available_entity_ids.erase(id)
-		entity_ids.append(id)
-		return true
-	return false
-
-func reclaim_entity_id(id: int) -> void:
-	entity_ids.erase(id)
-	available_entity_ids.push_back(id)
+func server_handle_entity_damaged(entity_damaged: Packet_EntityDamaged) -> void:
+	if !LowLevelNetworkHandler.is_server: return
+	var defenderEntity : Entity = entity_ids.get(entity_damaged.defender_id)
+	var attackEntity : Entity = entity_ids.get(entity_damaged.attack_id)
+	if defenderEntity.get("stats") and attackEntity.get("stats"):
+		PA_Debug.log("server: entity_id (%s) attacked entity_id (%s) for %s damage" % [attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id, Stats.calculate_damage(entity_damaged.damage, attackEntity.stats, defenderEntity.stats)])
+		defenderEntity.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.stats)
+		Packet_EntityDamaged.create(entity_damaged.damage, attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id).broadcast(LowLevelNetworkHandler.connection)

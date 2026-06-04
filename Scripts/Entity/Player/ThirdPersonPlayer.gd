@@ -93,7 +93,7 @@ func _ready() -> void:
 	if !_manager.is_authority: # if the instance isn't the auth player remove unneccessary nodes for other players on this client. 
 		cleanClientChildren()
 		return
-
+	stats.owner = self
 	comboTimer = Timer.new()
 	add_child(comboTimer)
 	comboTimer.one_shot = true

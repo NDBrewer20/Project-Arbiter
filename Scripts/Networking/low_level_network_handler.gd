@@ -138,14 +138,14 @@ func start_host(ip_address: String="127.0.0.1", port: int = 27015) -> void:
 	if connection == null:
 		return
 
-	is_host = true
+	#is_host = true
 	# reserve host peer id and force a local id assignment.
-	host_peer_id = EntityNetworkGlobals.provision_entity_id()
-	ClientNetworkGlobals.id = host_peer_id
-	ClientNetworkGlobals.handle_local_id_assignment.emit(host_peer_id)
+	#host_peer_id = EntityNetworkGlobals.provision_entity_id()
+	#ClientNetworkGlobals.id = host_peer_id
+	#ClientNetworkGlobals.handle_local_id_assignment.emit(host_peer_id)
 
 	# Keep host in the server peer list so new clients learn about the host player.
-	ServerNetworkGlobals.peer_ids.append(host_peer_id)
+	#ServerNetworkGlobals.peer_ids.append(host_peer_id)
 
 	print("Host started with local player id: ", host_peer_id)
 
@@ -172,15 +172,15 @@ func disconnect_host() -> void:
 ## when a peer is connected to the server.
 func peer_connected(peer: ENetPacketPeer) -> void:
 	# reserve a peer id
-	var peer_id: int = EntityNetworkGlobals.provision_entity_id()
+	var peer_id: int = EntityNetworkGlobals.preprovision_entity_id()
 	if peer_id == -1:
-		var entityToRemove: int = EntityNetworkGlobals.entity_ids.pick_random()
+		var entityToRemove: int = EntityNetworkGlobals.entity_ids.keys().pick_random()
 		PA_Debug.log("server: attempting to assign peer id (%s)" % [entityToRemove])
 		while client_peers.has(entityToRemove) || host_peer_id == entityToRemove:
-			entityToRemove = EntityNetworkGlobals.entity_ids.pick_random()
+			entityToRemove = EntityNetworkGlobals.entity_ids.keys().pick_random()
 			PA_Debug.log("server: attempting to assign peer id (%s)" % [entityToRemove])
 		LowLevelEntitySpawner.instance.server_remove_entity(entityToRemove)
-		peer_id = EntityNetworkGlobals.provision_entity_id()
+		peer_id = EntityNetworkGlobals.preprovision_entity_id()
 	# add metadata to peer using reserved peer id
 	peer.set_meta("peer_id", peer_id)
 	# add peer it list of managed clients

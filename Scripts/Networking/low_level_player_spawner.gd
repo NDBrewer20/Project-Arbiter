@@ -42,6 +42,7 @@ func remove_player(id: int) -> void:
 ## spawn a client player and add to list of connected players.
 func spawn_player(id: int) -> void:
 	var player :ThirdPersonPlayer = LOW_LEVEL_NETWORK_PLAYER.instantiate()
+	EntityNetworkGlobals.assign_entity_id(id, player)
 	setupPlayer(player,id)
 	add_child(player)
 	player.global_position = spawnPosition.global_position

@@ -18,6 +18,7 @@ func _ready() -> void:
 	LowLevelNetworkHandler.on_disconnected_from_server.connect(_on_disconnect_from_server)
 	detectionComponent.body_entered.connect(_on_body_entered)
 	detectionComponent.body_exited.connect(_on_body_exit)
+	stats.owner = self
 
 func _on_connected_to_server() -> void:
 	if !_manager.is_server:

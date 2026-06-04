@@ -33,8 +33,9 @@ func on_client_packet(data: PackedByteArray) -> void:
 			PA_Debug.log("client_id (%s): Recieved Packet_IDUnassignment" % [id])
 			remove_ids(Packet_IDUnassignment.create_from_data(data))
 
+
 		# packets unrelated to Player/client manipulation
-		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_ID_UNASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_STATE:
+		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_ID_UNASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_STATE, PacketInfo.PACKET_TYPE.ENTITY_DAMAGED:
 			pass
 		
 		# unknown packet was sent to client.
@@ -47,6 +48,7 @@ func manage_ids(id_assignment: Packet_IDAssignment) -> void:
 	if id == -1: # we haven't been assigned an id already
 		# take the id and emit id assignment signal
 		id = id_assignment.id
+		EntityNetworkGlobals.preclaim_entity_id(id)
 		PA_Debug.log("client_id (%s): Set ID to %s" % [id, id])
 		handle_local_id_assignment.emit(id_assignment.id)
 
@@ -56,11 +58,13 @@ func manage_ids(id_assignment: Packet_IDAssignment) -> void:
 			# ignore current id since we are already connected.
 			if remote_id == id: continue
 			PA_Debug.log("client_id (%s): remote id assigned (%s)" % [id, remote_id])
+			EntityNetworkGlobals.preclaim_entity_id(remote_id)
 			# emit remote id assignment signal.
 			handle_remote_id_assignment.emit(remote_id)
 	else: # if we already have an id.
 		# add the id to remote_ids and signal remote id assignment. 
 		PA_Debug.log("client_id (%s): remote id packet assigned (%s)" % [id, id_assignment.id])
+		EntityNetworkGlobals.preclaim_entity_id(id_assignment.id)
 		remote_ids.append(id_assignment.id)
 		handle_remote_id_assignment.emit(id_assignment.id)
 

@@ -38,6 +38,8 @@ var resource: int = 0 : set = _on_resource_set
 
 var stat_buffs: Array[StatBuff]
 
+var owner: Node
+
 func _init() -> void:
 	setup_stats.call_deferred()
 
@@ -74,16 +76,16 @@ func _on_health_set(new_value: float) -> void:
 	if health <= 0:
 		health_depleted.emit()
 
-func calculate_incoming_damage(incoming_damage: float, attack_power: float) -> float:
-	var dam = incoming_damage * (attack_power / (attack_power + base_defense))
+func calculate_incoming_damage(incoming_damage: float, attack_stats: Stats) -> float:
+	var dam = incoming_damage * (attack_stats.current_attack / (attack_stats.current_attack + base_defense))
 	return dam
-func apply_incoming_damage(incoming_damage: float, attack_power: float):
-	var dam = calculate_incoming_damage(incoming_damage,attack_power)
+func apply_incoming_damage(incoming_damage: float, attack_stats: Stats):
+	var dam = calculate_incoming_damage(incoming_damage,attack_stats)
 	health -= dam
-	PA_Debug.log("entity: took %s damage" % [dam])
+	PA_Debug.log("entity_id (%s) took %s damage, current health is %s" % [owner._manager.assigned_id, dam, health])
 
-static func calculate_damage(base_damage: float, attack: float, defense: float) -> float:
-	var dam = base_damage * (attack / (attack + defense))
+static func calculate_damage(base_damage: float, attack_stats: Stats, defense_stats: Stats) -> float:
+	var dam = base_damage * (attack_stats.current_attack / (attack_stats.current_attack + defense_stats.current_defense))
 	return dam
 
 func _on_resource_set(new_value: int) -> void:

@@ -40,6 +40,7 @@ placeholder_text = "27015"
 alignment = 2
 
 [node name="Host" type="Button" parent="Connect"]
+visible = false
 layout_mode = 2
 text = "HOST
 "
