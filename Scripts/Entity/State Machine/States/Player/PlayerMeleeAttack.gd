@@ -43,7 +43,7 @@ func _after_recovery_window():
 		player.comboPosition += 1
 
 func _send_attack_delayed():
-	var hitbox = HitboxComponent.new(player.stats, 0.5, hitbox_shape)
+	var hitbox = HitboxComponent.new(player.statManager.stats, 0.5, hitbox_shape)
 	player.attackOrigin.add_child(hitbox)
 
 func _exit() -> void:

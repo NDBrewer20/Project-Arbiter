@@ -35,7 +35,7 @@ func on_client_packet(data: PackedByteArray) -> void:
 
 
 		# packets unrelated to Player/client manipulation
-		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_ID_UNASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_STATE, PacketInfo.PACKET_TYPE.ENTITY_DAMAGED:
+		PacketInfo.PACKET_TYPE.ENTITY_STATS, PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_ID_UNASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_STATE, PacketInfo.PACKET_TYPE.ENTITY_DAMAGED:
 			pass
 		
 		# unknown packet was sent to client.

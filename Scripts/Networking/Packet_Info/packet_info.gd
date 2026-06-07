@@ -9,6 +9,7 @@ enum PACKET_TYPE {
 	ENTITY_ID_ASSIGNMENT = 4,
 	ENTITY_ID_UNASSIGNMENT = 5,
 	ENTITY_DAMAGED = 6,
+	ENTITY_STATS = 7,
 }
 
 ## Controls what type of packet is being sent.

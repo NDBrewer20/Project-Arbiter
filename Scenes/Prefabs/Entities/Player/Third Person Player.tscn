@@ -1,39 +1,19 @@
-[gd_scene load_steps=25 format=3 uid="uid://dwuo45o1taqky"]
+[gd_scene load_steps=21 format=3 uid="uid://dwuo45o1taqky"]
 
 [ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Entity/Player/ThirdPersonPlayer.gd" id="1_gsdtt"]
-[ext_resource type="Curve" uid="uid://drbruev4kahgc" path="res://Resources/Enemy Curves/maxHealth_statCurve.tres" id="2_0ml5q"]
-[ext_resource type="Script" uid="uid://cbchfh5tfrsr4" path="res://Scripts/Entity/Components/Stats/stats.gd" id="2_125pf"]
 [ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Entity/Player/player_cursor_control.gd" id="2_dahrh"]
 [ext_resource type="Script" uid="uid://yrg0uyvv2r2t" path="res://Scripts/Entity/Components/VelocityComponent.gd" id="2_xrskp"]
-[ext_resource type="Curve" uid="uid://cx41nw2psf5h4" path="res://Resources/Enemy Curves/maxResource_statCurve.tres" id="3_mneri"]
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="3_pfsti"]
 [ext_resource type="PackedScene" uid="uid://baexhy3bvlqrp" path="res://Scenes/Prefabs/Entities/Component/entity_transform_sync.tscn" id="4_dahrh"]
-[ext_resource type="Curve" uid="uid://dw0fy1llyo1pr" path="res://Resources/Enemy Curves/defense_statCurve.tres" id="4_q1rm7"]
 [ext_resource type="Script" uid="uid://mdyxlfjbunwd" path="res://Scripts/Entity/State Machine/stateMachine.gd" id="5_pfsti"]
-[ext_resource type="Curve" uid="uid://dsvmt7wpd03pm" path="res://Resources/Enemy Curves/attack_statCurve.tres" id="5_s33wf"]
 [ext_resource type="Script" uid="uid://d1t3jumv1iwuf" path="res://Scripts/Entity/Player/CameraBehavior.gd" id="7_mneri"]
+[ext_resource type="Script" uid="uid://bhbhaxa5mpvdw" path="res://Scripts/Entity/Components/Stats/StatManager.gd" id="7_r82im"]
 [ext_resource type="Script" uid="uid://b7ydmi7mwsfwa" path="res://Scripts/Entity/State Machine/States/Player/PlayerFalling.gd" id="8_ls38o"]
+[ext_resource type="Resource" uid="uid://bg1ed5s4j730x" path="res://Resources/player_body.tres" id="8_vvn5d"]
 [ext_resource type="Script" uid="uid://pe7md7qk1aqv" path="res://Scripts/Entity/State Machine/States/Player/PlayerFloor.gd" id="8_xia3x"]
 [ext_resource type="Script" uid="uid://co64v0lspaom6" path="res://Scripts/Entity/State Machine/States/Player/PlayerJump.gd" id="9_125pf"]
 [ext_resource type="Script" uid="uid://sq5x44u01csm" path="res://Scripts/Entity/State Machine/States/Player/PlayerMeleeAttack.gd" id="11_jagjn"]
 [ext_resource type="Script" uid="uid://c8pv7q66r7io3" path="res://Scripts/Entity/Components/Hitbox System/hurtbox.gd" id="12_q1rm7"]
-
-[sub_resource type="Resource" id="Resource_jagjn"]
-resource_local_to_scene = true
-script = ExtResource("2_125pf")
-STAT_CURVES = Dictionary[int, Curve]({
-0: ExtResource("2_0ml5q"),
-1: ExtResource("3_mneri"),
-2: ExtResource("4_q1rm7"),
-3: ExtResource("5_s33wf")
-})
-faction = 1
-base_max_health = 100.0
-base_max_resource = 100
-base_defense = 10.0
-base_attack = 10.0
-level = 1
-metadata/_custom_type_script = "uid://cbchfh5tfrsr4"
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_suiw6"]
 radius = 0.606938
@@ -51,7 +31,7 @@ material = SubResource("StandardMaterial3D_fuxo2")
 [sub_resource type="SphereShape3D" id="SphereShape3D_ff52u"]
 radius = 1.0
 
-[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("stateMachine", "attackOrigin", "velocityComponent", "_camPivot", "_camGimbal", "_cursorStateMachine", "_manager") groups=["player"]]
+[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("stateMachine", "attackOrigin", "velocityComponent", "_camPivot", "_camGimbal", "_cursorStateMachine", "_manager", "statManager") groups=["player"]]
 collision_layer = 2147483648
 collision_mask = 1073741825
 collision_priority = 10.0
@@ -59,7 +39,6 @@ axis_lock_angular_x = true
 axis_lock_angular_z = true
 slide_on_ceiling = false
 script = ExtResource("1_gsdtt")
-stats = SubResource("Resource_jagjn")
 stateMachine = NodePath("StateMachine")
 attackOrigin = NodePath("Attack Origin")
 velocityComponent = NodePath("VelocityComponent")
@@ -70,9 +49,13 @@ _camPivot = NodePath("Cam Gimbal/Cam Pivot")
 _camGimbal = NodePath("Cam Gimbal")
 _cursorStateMachine = NodePath("Player Cursor Control")
 _manager = NodePath("Network Manager")
+statManager = NodePath("StatManager")
 
 [node name="Player Body Collider" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_suiw6")
+
+[node name="Attack Origin" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 
 [node name="PlayerGFX" type="Node3D" parent="."]
 
@@ -99,6 +82,15 @@ margin = 0.5
 
 [node name="Camera3D" type="Camera3D" parent="Cam Gimbal/Cam Pivot/SpringArm3D"]
 
+[node name="HurtboxComponent" type="Area3D" parent="." node_paths=PackedStringArray("owner_statManager")]
+collision_layer = 2147483648
+script = ExtResource("12_q1rm7")
+owner_statManager = NodePath("../StatManager")
+metadata/_custom_type_script = "uid://c8pv7q66r7io3"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HurtboxComponent"]
+shape = SubResource("CapsuleShape3D_s33wf")
+
 [node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
 radius = 0.1
 height = 0.0
@@ -116,16 +108,10 @@ script = ExtResource("2_dahrh")
 [node name="Entity Transform Sync" parent="." node_paths=PackedStringArray("_body") instance=ExtResource("4_dahrh")]
 _body = NodePath("..")
 
-[node name="Attack Origin" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
-
-[node name="HurtboxComponent" type="Area3D" parent="."]
-collision_layer = 2147483648
-script = ExtResource("12_q1rm7")
-metadata/_custom_type_script = "uid://c8pv7q66r7io3"
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HurtboxComponent"]
-shape = SubResource("CapsuleShape3D_s33wf")
+[node name="StatManager" type="Node" parent="."]
+script = ExtResource("7_r82im")
+stats = ExtResource("8_vvn5d")
+metadata/_custom_type_script = "uid://bhbhaxa5mpvdw"
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 script = ExtResource("5_pfsti")

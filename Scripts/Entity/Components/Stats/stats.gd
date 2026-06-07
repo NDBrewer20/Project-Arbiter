@@ -43,6 +43,22 @@ var owner: Node
 func _init() -> void:
 	setup_stats.call_deferred()
 
+## Communicate to the client the stat block values that need to be updated.
+func _fetch_current_stat_values(peer_id: int):
+	if !LowLevelNetworkHandler.is_server: return
+	await owner.get_tree().physics_frame
+	PA_Debug.log("server: telling client_id (%s) to update stat values of entity_id (%s)" % [peer_id,owner._manager.assigned_id])
+	Packet_EntityStats.create(owner._manager.assigned_id, self).send(LowLevelNetworkHandler.client_peers[peer_id])
+
+func _set_current_stat_values(packet_stats: Packet_EntityStats):
+	if owner._manager.assigned_id != packet_stats.id: return
+	await owner.get_tree().physics_frame
+	PA_Debug.log("client_id (%s): Updating entity_id (%s) stat values" % [ClientNetworkGlobals.id,packet_stats.id])
+	health = packet_stats.health
+	resource = packet_stats.resource
+	recalculate_stats()
+
+
 func setup_stats() -> void:
 	recalculate_stats()
 	health = current_max_health

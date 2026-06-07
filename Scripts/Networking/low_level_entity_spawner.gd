@@ -67,12 +67,25 @@ func remove_entities(_peer_id: int = -1) -> void:
 ## when a client joins send them all the active entities
 func _on_peer_connected(peer_id: int) -> void:
 	if !LowLevelNetworkHandler.is_server: return
-	await get_tree().physics_frame
 	PA_Debug.log("server: telling client_id (%s) to spawn entities" % [peer_id])
-	for entity_id in _activeEntities:
-		var entity :Entity = _activeEntities[entity_id][0]
-		var spawn :SPAWNABLE= _activeEntities[entity_id][1]
-		Packet_EntityIDAssignment.create(entity_id, spawn, entity.global_position).send(LowLevelNetworkHandler.client_peers[peer_id])
+	var spawn_thread := Thread.new()
+	var error := spawn_thread.start(_communicate_entity_spawns.bind(peer_id,convert_dictionary_to_threadsafe(_activeEntities)))
+	if error != OK:
+		PA_Debug.log_error("Failed to communicate entity spawns to new peer")
+
+func _communicate_entity_spawns(peer_id: int, activeEntitiesSnapshot: Dictionary[int,Array]):
+	for entity_id in activeEntitiesSnapshot:
+		var entityposition :Vector3 = activeEntitiesSnapshot[entity_id][0]
+		var spawn :SPAWNABLE= activeEntitiesSnapshot[entity_id][1]
+		Packet_EntityIDAssignment.create(entity_id, spawn, entityposition).send(LowLevelNetworkHandler.client_peers[peer_id])
+
+func convert_dictionary_to_threadsafe(old_dict: Dictionary[int, Array]) -> Dictionary[int, Array]:
+	var new_dict: Dictionary[int, Array] = {}
+	for key: int in old_dict.keys():
+		var body: Entity = old_dict[key][0]
+		var spawnable_data: SPAWNABLE = old_dict[key][1]
+		new_dict[key] = [body.global_position, spawnable_data]
+	return new_dict
 
 ## spawn a client entity and add to list of connected entities.
 func client_spawn_entity(entity_id_assignment: Packet_EntityIDAssignment) -> void:

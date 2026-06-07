@@ -5,6 +5,7 @@ signal client_handle_entity_position(entity_transform: Packet_EntityTransform)
 signal server_handle_entity_position(entity_id:int, entity_transform: Packet_EntityTransform)
 signal handle_entity_id_assignment(entity_id_assignment: Packet_EntityIDAssignment)
 signal handle_entity_id_unassignment(entity_id: Packet_EntityIDUnassignment)
+signal recieve_Entity_stat_values(entity_stats: Packet_EntityStats)
 
 var available_entity_ids: Array = range((2 ** 16)-1,-1,-1) 
 var entity_ids: Dictionary[int, Entity] = {}
@@ -108,6 +109,9 @@ func on_client_packet(data: PackedByteArray) -> void:
 			# TODO: give the client a signal to manage the state of the different server managed statemachines.
 			pass
 
+		PacketInfo.PACKET_TYPE.ENTITY_STATS:
+			recieve_Entity_stat_values.emit(Packet_EntityStats.create_from_data(data))
+
 		PacketInfo.PACKET_TYPE.ENTITY_DAMAGED:
 			client_handle_entity_damaged(Packet_EntityDamaged.create_from_data(data))
 
@@ -121,15 +125,13 @@ func client_handle_entity_damaged(entity_damaged: Packet_EntityDamaged) -> void:
 	if entity_damaged.defender_id == ClientNetworkGlobals.id or entity_damaged.attack_id == ClientNetworkGlobals.id: return
 	var defenderEntity = entity_ids.get(entity_damaged.defender_id)
 	var attackEntity = entity_ids.get(entity_damaged.attack_id)
-	if defenderEntity.get("stats") and attackEntity.get("stats"):
-		PA_Debug.log("client_id (%s): entity_id (%s) attacked entity_id (%s) for %s damage" % [ClientNetworkGlobals.id, attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id, Stats.calculate_damage(entity_damaged.damage, attackEntity.stats, defenderEntity.stats)])
-		defenderEntity.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.stats)
+	PA_Debug.log("client_id (%s): entity_id (%s) attacked entity_id (%s) for %s damage" % [ClientNetworkGlobals.id, attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id, Stats.calculate_damage(entity_damaged.damage, attackEntity.statManager.stats, defenderEntity.statManager.stats)])
+	defenderEntity.statManager.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.statManager.stats)
 
 func server_handle_entity_damaged(entity_damaged: Packet_EntityDamaged) -> void:
 	if !LowLevelNetworkHandler.is_server: return
 	var defenderEntity : Entity = entity_ids.get(entity_damaged.defender_id)
 	var attackEntity : Entity = entity_ids.get(entity_damaged.attack_id)
-	if defenderEntity.get("stats") and attackEntity.get("stats"):
-		PA_Debug.log("server: entity_id (%s) attacked entity_id (%s) for %s damage" % [attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id, Stats.calculate_damage(entity_damaged.damage, attackEntity.stats, defenderEntity.stats)])
-		defenderEntity.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.stats)
-		Packet_EntityDamaged.create(entity_damaged.damage, attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id).broadcast(LowLevelNetworkHandler.connection)
+	PA_Debug.log("server: entity_id (%s) attacked entity_id (%s) for %s damage" % [attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id, Stats.calculate_damage(entity_damaged.damage, attackEntity.statManager.stats, defenderEntity.statManager.stats)])
+	defenderEntity.statManager.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.statManager.stats)
+	Packet_EntityDamaged.create(entity_damaged.damage, attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id).broadcast(LowLevelNetworkHandler.connection)

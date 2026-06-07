@@ -1,8 +1,7 @@
-[gd_scene load_steps=19 format=3 uid="uid://scl6pakak5ca"]
+[gd_scene load_steps=18 format=3 uid="uid://scl6pakak5ca"]
 
 [ext_resource type="Script" uid="uid://3b0j6vy8wdqy" path="res://Scripts/Entity/Enemy/BasicEnemy.gd" id="1_17ern"]
 [ext_resource type="Material" uid="uid://ctp1bg8fkyo8h" path="res://Assets/Materials/Enemy.tres" id="2_me5p2"]
-[ext_resource type="Resource" uid="uid://7ds61s5w6rr7" path="res://Resources/Enemy Stats/enemy_body.tres" id="2_ssga2"]
 [ext_resource type="PackedScene" uid="uid://stfl5k4vnh1g" path="res://Scenes/Prefabs/Entities/Component/pathfind_component.tscn" id="3_7nani"]
 [ext_resource type="PackedScene" uid="uid://baexhy3bvlqrp" path="res://Scenes/Prefabs/Entities/Component/entity_transform_sync.tscn" id="4_17ern"]
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="4_me5p2"]
@@ -29,7 +28,7 @@ material = SubResource("StandardMaterial3D_fuxo2")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2l4mg"]
 
-[node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "pathfindComponent", "detectionComponent", "stateMachine", "_manager", "statManager") groups=["enemy"]]
+[node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "pathfindComponent", "detectionComponent", "stateMachine", "_manager") groups=["enemy"]]
 collision_layer = 1073741824
 collision_mask = 2147483649
 script = ExtResource("1_17ern")
@@ -38,7 +37,6 @@ pathfindComponent = NodePath("PathfindComponent")
 detectionComponent = NodePath("Detection Radius")
 stateMachine = NodePath("StateMachine")
 _manager = NodePath("Network Manager")
-statManager = NodePath("StatManager")
 
 [node name="Enemy Body Collider" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_ssga2")
@@ -63,10 +61,9 @@ collision_mask = 2147483648
 [node name="Detection Shape" type="CollisionShape3D" parent="Detection Radius"]
 shape = SubResource("SphereShape3D_me5p2")
 
-[node name="HurtboxComponent" type="Area3D" parent="." node_paths=PackedStringArray("owner_statManager")]
+[node name="HurtboxComponent" type="Area3D" parent="."]
 collision_layer = 1073741824
 script = ExtResource("11_42wx6")
-owner_statManager = NodePath("../StatManager")
 metadata/_custom_type_script = "uid://c8pv7q66r7io3"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="HurtboxComponent"]
@@ -96,7 +93,6 @@ metadata/_custom_type_script = "uid://yrg0uyvv2r2t"
 
 [node name="StatManager" type="Node" parent="."]
 script = ExtResource("8_42wx6")
-stats = ExtResource("2_ssga2")
 metadata/_custom_type_script = "uid://bhbhaxa5mpvdw"
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]

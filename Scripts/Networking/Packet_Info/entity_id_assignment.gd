@@ -49,7 +49,5 @@ func encode() -> PackedByteArray:
 func decode(data: PackedByteArray) -> void:
 	super.decode(data)
 	id = data.decode_u16(1)
-	position.x = data.decode_float(2)
-	position.y = data.decode_float(6)
-	position.z = data.decode_float(10)
+	position = Vector3(data.decode_float(3), data.decode_float(7), data.decode_float(11))
 	spawn = data.decode_u16(15) as LowLevelEntitySpawner.SPAWNABLE
