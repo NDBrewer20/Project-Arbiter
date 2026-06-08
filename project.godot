@@ -83,6 +83,9 @@ Player_Alternative_Fire={
 
 [layer_names]
 
+3d_physics/layer_1="Default"
+3d_physics/layer_29="Enemy_hurtbox"
+3d_physics/layer_30="Player_hurtbox"
 3d_physics/layer_31="Enemy"
 3d_physics/layer_32="Player"
 

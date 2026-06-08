@@ -66,5 +66,8 @@ func AddSpeedPercentModifier(_name: String, change: float) -> void:
 func SetSpeedPercentModifier(_name: String, val: float) -> void:
 	speedPercentModifiers[_name] = val
 
+func RemoveSpeedPercentModifier(_name: String):
+	speedPercentModifiers.erase(_name)
+
 func GetSpeedPercentModifier(_name: String) -> float:
 	return speedPercentModifiers.get(_name, 0.0)

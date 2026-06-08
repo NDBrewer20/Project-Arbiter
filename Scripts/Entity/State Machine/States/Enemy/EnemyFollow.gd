@@ -5,7 +5,6 @@ const stateName := "EnemyFollow"
 
 ## Reference to the enemy that is being controlled.
 @export var enemy: BasicEnemy
-var _target: Node3D
 ## Timer to check when the user leaves the detection radius how long will the enemy chase for. [br]
 @export var interestTimer: Timer 
 
@@ -17,7 +16,7 @@ func _enter():
 	enemy.OnNearbyBodyExited.connect(_on_nearby_body_exited)
 	enemy.OnNearbyBodyEntered.connect(_on_nearby_body_entered)
 
-	_target = enemy._nearbyBodies.pick_random()
+	enemy._target = enemy._nearbyBodies.pick_random()
 
 func _exit():
 	super._exit()
@@ -38,26 +37,27 @@ func _physics_update(delta:float):
 	if !enemy.is_on_floor():
 		enemy.velocityComponent.AddForce(Vector3.DOWN * 9.84)
 
-	if _target:
-		enemy.pathfindComponent.SetTargetPosition(_target.global_position)
+	if enemy._target:
+		enemy.pathfindComponent.SetTargetPosition(enemy._target.global_position)
 		enemy.pathfindComponent.FollowPath()
 		enemy.velocityComponent.Move(enemy)
 	elif !enemy._nearbyBodies.is_empty():
-		_target = enemy._nearbyBodies.pick_random()
+		enemy._target = enemy._nearbyBodies.pick_random()
 	else:
-		_on_interest_timeout()
+		enemy._target = null
+		transitioned.emit(self, EnemyIdle.stateName)
 
 func _on_nearby_body_exited(body: Node3D):
-	if _target == body and interestTimer.is_inside_tree():
+	if enemy._target == body and interestTimer.is_inside_tree():
 		interestTimer.start()
 
 func _on_nearby_body_entered(body: Node3D):
-	if _target == body and !interestTimer.is_stopped():
+	if enemy._target == body and !interestTimer.is_stopped():
 		interestTimer.stop()
 
 func _on_interest_timeout():
 	if enemy._nearbyBodies.is_empty():
-		_target = null
+		enemy._target = null
 		transitioned.emit(self, EnemyIdle.stateName)
 		return
-	_target = enemy._nearbyBodies.pick_random()
+	enemy._target = enemy._nearbyBodies.pick_random()

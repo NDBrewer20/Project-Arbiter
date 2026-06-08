@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3 uid="uid://bbv346k5cxkcl"]
+
+[ext_resource type="Script" uid="uid://bewu2n1wup01" path="res://Scripts/Entity/Player/Weapon System/weapon.gd" id="1_xijnj"]
+[ext_resource type="Resource" uid="uid://bhnyp2sj42x1a" path="res://Resources/Player/Weapons/Stats/Greatsword_stats.tres" id="2_ox0pd"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_xijnj"]
+size = Vector3(0.2, 0.8, 0.2)
+
+[resource]
+script = ExtResource("1_xijnj")
+name = &"Shortsword"
+type = 0
+stats = ExtResource("2_ox0pd")
+mesh = SubResource("BoxMesh_xijnj")
+offsetPosition = Vector3(0.646465, 0.315489, -0.805246)
+offsetRotation = Vector3(-27.5, -4.3, 9.5)
+metadata/_custom_type_script = "uid://bewu2n1wup01"

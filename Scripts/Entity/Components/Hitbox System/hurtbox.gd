@@ -10,9 +10,9 @@ func _ready() -> void:
 	set_collision_mask_value(1, false)
 	match owner_statManager.stats.faction:
 		Stats.FACTION.PLAYER:
-			set_collision_layer_value(32, true)
+			set_collision_layer_value(30, true)
 		Stats.FACTION.ENEMY:
-			set_collision_layer_value(31, true)
+			set_collision_layer_value(29, true)
 
 func receive_hit(damage: int, attacker_stats: Stats) -> void:
 	owner_statManager.stats.apply_incoming_damage(damage, attacker_stats)

@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="Stats" load_steps=6 format=3 uid="uid://7ds61s5w6rr7"]
 
-[ext_resource type="Curve" uid="uid://drbruev4kahgc" path="res://Resources/Enemy Curves/maxHealth_statCurve.tres" id="1_e2ayg"]
-[ext_resource type="Curve" uid="uid://cx41nw2psf5h4" path="res://Resources/Enemy Curves/maxResource_statCurve.tres" id="2_e2ayg"]
-[ext_resource type="Curve" uid="uid://dw0fy1llyo1pr" path="res://Resources/Enemy Curves/defense_statCurve.tres" id="2_i1oj7"]
-[ext_resource type="Curve" uid="uid://dsvmt7wpd03pm" path="res://Resources/Enemy Curves/attack_statCurve.tres" id="3_8ykqo"]
+[ext_resource type="Curve" uid="uid://drbruev4kahgc" path="res://Resources/Enemy/Enemy Curves/maxHealth_statCurve.tres" id="1_e2ayg"]
+[ext_resource type="Curve" uid="uid://cx41nw2psf5h4" path="res://Resources/Enemy/Enemy Curves/maxResource_statCurve.tres" id="2_e2ayg"]
+[ext_resource type="Curve" uid="uid://dw0fy1llyo1pr" path="res://Resources/Enemy/Enemy Curves/defense_statCurve.tres" id="2_i1oj7"]
+[ext_resource type="Curve" uid="uid://dsvmt7wpd03pm" path="res://Resources/Enemy/Enemy Curves/attack_statCurve.tres" id="3_8ykqo"]
 [ext_resource type="Script" uid="uid://cbchfh5tfrsr4" path="res://Scripts/Entity/Components/Stats/stats.gd" id="4_7oapf"]
 
 [resource]

@@ -19,9 +19,22 @@ spawnAmt = NodePath("Connected/Server Control/Enemy Control/Spawn Enemy Amt")
 removeAmt = NodePath("Connected/Server Control/Enemy Control 2/Remove Enemy Amt")
 
 [node name="Connect" type="VBoxContainer" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -102.0
+offset_top = -50.5
+offset_right = 102.0
+offset_bottom = 50.5
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(102, 50.5)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Connect"]
 layout_mode = 2
@@ -55,9 +68,11 @@ text = "CLIENT"
 
 [node name="Connected" type="HBoxContainer" parent="."]
 visible = false
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 2
+offset_right = 94.0
+offset_bottom = 31.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
 
 [node name="Player Disconnect" type="VBoxContainer" parent="Connected"]
 layout_mode = 2

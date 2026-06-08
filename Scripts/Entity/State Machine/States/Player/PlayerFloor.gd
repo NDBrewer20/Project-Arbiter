@@ -25,9 +25,15 @@ func _physics_update(delta: float):
 	# later to be replaced with a call to a specific weapon resource 
 	# that will determine which state to transition to (melee, ranged) 
 	if Input.is_action_just_pressed("Player_Primary_Fire") and player._cursorStateMachine.Movement_Allowed():
-		transitioned.emit(self, PlayerMeleeAttack.stateName)
+		if player.weaponHolder.weapon.type == Weapon.WEAPON_TYPE.MELEE:
+			transitioned.emit(self, PlayerMeleeAttack.stateName)
+		else:
+			transitioned.emit(self, PlayerRangedAttack.stateName)
 	elif Input.is_action_just_pressed("Player_Alternative_Fire") and player._cursorStateMachine.Movement_Allowed():
-		pass
+		if player.weaponHolder.weapon.type == Weapon.WEAPON_TYPE.MELEE:
+			PA_Debug.log("TODO: Implement Alternative Firing State (MELEE)")
+		else:
+			PA_Debug.log("TODO: Implement Alternative Firing State (RANGED)")
 
 	if Input.is_action_just_pressed("Player_Jump") and player._cursorStateMachine.Movement_Allowed():
 		transitioned.emit(self, PlayerJump.stateName)
@@ -35,5 +41,4 @@ func _physics_update(delta: float):
 		transitioned.emit(self, PlayerFalling.stateName)
 	
 	player.velocityComponent.AccelerateInDirection(player._inputDirection)
-	player._lastOnFloor = player.is_on_floor()
-	player.velocityComponent.Move(player)
+	player.Move()

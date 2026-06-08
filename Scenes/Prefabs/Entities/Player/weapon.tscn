@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://cjj4mbaxfoo2s"]
+
+[ext_resource type="Script" uid="uid://32u3ll40dpjv" path="res://Scripts/Entity/Player/Weapon System/weapon_holder.gd" id="1_5b3j1"]
+[ext_resource type="Resource" uid="uid://csppd0ctq4iqj" path="res://Resources/Player/Weapons/Greatsword_weapon.tres" id="2_5b3j1"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_cfn1m"]
+size = Vector3(0.2, 1.5, 0.2)
+
+[node name="Weapon" type="Node3D" node_paths=PackedStringArray("weapon_mesh")]
+transform = Transform3D(0.999176, -0.0396451, 0.00863513, 0.0379857, 0.988796, 0.144356, -0.0142614, -0.143909, 0.989488, 0.702, 0.488, -0.762)
+script = ExtResource("1_5b3j1")
+weapon = ExtResource("2_5b3j1")
+weapon_mesh = NodePath("WeaponMesh")
+
+[node name="WeaponMesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_cfn1m")

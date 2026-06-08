@@ -9,6 +9,7 @@ class_name BasicEnemy extends Entity
 var _nearbyBodies: Array[Node3D]
 signal OnNearbyBodyExited(body: Node3D)
 signal OnNearbyBodyEntered(body: Node3D)
+var _target: Node3D
 
 func _ready() -> void:
 	LowLevelNetworkHandler.on_connected_to_server.connect(_on_connected_to_server)
@@ -32,7 +33,7 @@ func _physics_process(_delta: float) -> void:
 	
 	var lookdir :Vector3 = velocity.normalized()
 	lookdir.y = 0
-	if global_position + lookdir != global_position:
+	if !(global_position + lookdir).is_equal_approx(global_position):
 		look_at(global_position + lookdir)
 
 

@@ -6,6 +6,7 @@ class_name ThirdPersonPlayer extends Entity
 
 # Player Combat
 @export_category("Combat")
+@export var weaponHolder: WeaponHolder
 @export var attackOrigin: Node3D
 ## where the player is in their attack combo, this is used to determine which attack to use next in the combo sequence. 
 ## Resets after a certain amount of time or if the player uses a different attack.
@@ -70,6 +71,7 @@ var _canBufferJump: bool: # is the user within the window to use buffered jump?
 ## The pivot point for the camera, which is used to rotate the camera around the player. This should be a child node of the player that is positioned at the player's head or where you want the camera to rotate around.
 @export var _camPivot: Node3D
 @export var _camGimbal: Node3D
+@export var _cam: Camera3D
 ## The minimum and maximum angles the camera can pitch up and down, in degrees. [br]
 ## Example setup: X is minimum (looking down [-90]), Y is maximum (looking up [45]).
 @export var camClamp: Vector2 = Vector2(-90, 45)
@@ -151,8 +153,13 @@ func checkCollision() -> void:
 func _physics_process(_delta: float) -> void:
 	# only the authority (owner) of this player instance should handle physics for it.
 	if !_manager.is_authority: return 
-	try_rotate_player()
+	if _cursorStateMachine.Cursor_Locked():
+		try_rotate_player()
 	checkCollision()
+
+func Move():
+	_lastOnFloor = is_on_floor()
+	velocityComponent.Move(self)
 
 func try_rotate_player():
 	var pressingValidButton: bool = Input.is_anything_pressed() and !Input.is_action_pressed("ui_cancel")

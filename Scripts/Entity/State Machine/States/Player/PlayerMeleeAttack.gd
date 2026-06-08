@@ -17,11 +17,12 @@ var canCombo: bool:
 	get:
 		return comboWindow and attemptCombo
 
+
 func _enter() -> void:
 	super._enter()
 	if !player._manager.is_authority: return # Only run this code if this client has authority over the player.
 	recovery_window.timeout.connect(_after_recovery_window)
-	send_attack_delay.timeout.connect(_send_attack_delayed)
+	send_attack_delay.timeout.connect(_send_attack)
 	player.comboTimer.wait_time = recovery_window.wait_time * 1.1
 
 	player.velocityComponent.AddForce(player.transform.basis.z * -3.5)
@@ -36,21 +37,24 @@ func _enter() -> void:
 func _after_recovery_window():
 	if !canCombo:
 		transitioned.emit(self, PlayerFloor.stateName)
+		player.comboPosition = 0
 		return
 	else:
 		player.force_rotate_player()
 		transitioned.emit(self, PlayerMeleeAttack.stateName)
 		player.comboPosition += 1
 
-func _send_attack_delayed():
-	var hitbox = HitboxComponent.new(player.statManager.stats, 0.5, hitbox_shape)
+func _send_attack():
+	var hitlog: Hitlog = Hitlog.new()
+	var hitbox = HitboxComponent.new(player.statManager.stats, 0.5, hitbox_shape, hitlog,player.weaponHolder.weapon)
 	player.attackOrigin.add_child(hitbox)
+
 
 func _exit() -> void:
 	super._exit()
 	if !player._manager.is_authority: return # Only run this code if this client has authority over the player.
 	recovery_window.timeout.disconnect(_after_recovery_window)
-	send_attack_delay.timeout.disconnect(_send_attack_delayed)
+	send_attack_delay.timeout.disconnect(_send_attack)
 	attemptCombo = false
 	last_attack_time = 0.0
 
@@ -67,4 +71,4 @@ func _physics_update(delta: float):
 	super._physics_update(delta)
 	if !player._manager.is_authority: return # Only run this code if this client has authority over the player.
 	player.velocityComponent.Decelerate()
-	player.velocityComponent.Move(player)
+	player.Move()

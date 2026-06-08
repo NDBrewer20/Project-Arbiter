@@ -1,12 +1,14 @@
 class_name HitboxComponent extends Area3D
 
 var attacker_stats: Stats
+var attacker_weapon: Weapon
 var hitbox_lifetime: float
 var shape: Shape3D
 var hit_log: Hitlog
 
-func _init(_attacker_stats: Stats, _hitbox_lifetime: float, _shape: Shape3D, _hit_log: Hitlog = null) -> void:
+func _init(_attacker_stats: Stats, _hitbox_lifetime: float, _shape: Shape3D, _hit_log: Hitlog = null, _attacker_weapon : Weapon = null) -> void:
 	attacker_stats = _attacker_stats
+	attacker_weapon = _attacker_weapon
 	hitbox_lifetime = _hitbox_lifetime
 	shape = _shape
 	hit_log = _hit_log
@@ -30,9 +32,9 @@ func _ready() -> void:
 	set_collision_mask_value(1, false)
 	match attacker_stats.faction:
 		Stats.FACTION.PLAYER:
-			set_collision_mask_value(31, true)
+			set_collision_mask_value(29, true)
 		Stats.FACTION.ENEMY:
-			set_collision_mask_value(32, true)
+			set_collision_mask_value(30, true)
 
 func _on_area_entered(area: Area3D) -> void:
 	if !area.has_method("receive_hit"):
@@ -44,5 +46,7 @@ func _on_area_entered(area: Area3D) -> void:
 			return
 		else:
 			hit_log.log_hit(hurtbox_owner)
-	
-	area.receive_hit(attacker_stats.current_attack, attacker_stats)
+	if !attacker_weapon:
+		area.receive_hit(attacker_stats.current_attack, attacker_stats)
+	else:
+		area.receive_hit(attacker_weapon.calculate_weapon_damage(), attacker_stats)

@@ -35,5 +35,4 @@ func _physics_update(delta: float):
 	impulse += player._inputDirection * air_control_factor
 
 	player.velocityComponent.AddForce(impulse * delta)
-	player._lastOnFloor = player.is_on_floor()
-	player.velocityComponent.Move(player)
+	player.Move()

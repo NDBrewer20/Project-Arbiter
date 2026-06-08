@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="WeaponStats" load_steps=2 format=3 uid="uid://bhnyp2sj42x1a"]
+
+[ext_resource type="Script" uid="uid://bkn6qlxtvh88u" path="res://Scripts/Entity/Player/Weapon System/weapon_stats.gd" id="1_f8r32"]
+
+[resource]
+resource_local_to_scene = true
+script = ExtResource("1_f8r32")
+base_max_charge = 100
+base_attack = 10.0
+metadata/_custom_type_script = "uid://bkn6qlxtvh88u"

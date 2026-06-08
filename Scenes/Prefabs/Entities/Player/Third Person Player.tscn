@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://dwuo45o1taqky"]
+[gd_scene load_steps=25 format=3 uid="uid://dwuo45o1taqky"]
 
 [ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Entity/Player/ThirdPersonPlayer.gd" id="1_gsdtt"]
 [ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Entity/Player/player_cursor_control.gd" id="2_dahrh"]
@@ -14,6 +14,9 @@
 [ext_resource type="Script" uid="uid://co64v0lspaom6" path="res://Scripts/Entity/State Machine/States/Player/PlayerJump.gd" id="9_125pf"]
 [ext_resource type="Script" uid="uid://sq5x44u01csm" path="res://Scripts/Entity/State Machine/States/Player/PlayerMeleeAttack.gd" id="11_jagjn"]
 [ext_resource type="Script" uid="uid://c8pv7q66r7io3" path="res://Scripts/Entity/Components/Hitbox System/hurtbox.gd" id="12_q1rm7"]
+[ext_resource type="PackedScene" uid="uid://cjj4mbaxfoo2s" path="res://Scenes/Prefabs/Entities/Player/weapon.tscn" id="15_0ml5q"]
+[ext_resource type="Script" uid="uid://b4pj68krnwqrd" path="res://Scripts/Entity/State Machine/States/Player/PlayerRangedAttack.gd" id="15_mneri"]
+[ext_resource type="Resource" uid="uid://3vn8epyp6lf1" path="res://Resources/Player/Weapons/Crossbow_weapon.tres" id="17_q1rm7"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_suiw6"]
 radius = 0.606938
@@ -31,7 +34,10 @@ material = SubResource("StandardMaterial3D_fuxo2")
 [sub_resource type="SphereShape3D" id="SphereShape3D_ff52u"]
 radius = 1.0
 
-[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("stateMachine", "attackOrigin", "velocityComponent", "_camPivot", "_camGimbal", "_cursorStateMachine", "_manager", "statManager") groups=["player"]]
+[sub_resource type="SphereShape3D" id="SphereShape3D_q1rm7"]
+radius = 0.2
+
+[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("stateMachine", "weaponHolder", "attackOrigin", "velocityComponent", "_camPivot", "_camGimbal", "_cam", "_cursorStateMachine", "_manager", "statManager") groups=["player"]]
 collision_layer = 2147483648
 collision_mask = 1073741825
 collision_priority = 10.0
@@ -40,6 +46,7 @@ axis_lock_angular_z = true
 slide_on_ceiling = false
 script = ExtResource("1_gsdtt")
 stateMachine = NodePath("StateMachine")
+weaponHolder = NodePath("Weapon")
 attackOrigin = NodePath("Attack Origin")
 velocityComponent = NodePath("VelocityComponent")
 airControlStart = 1.2
@@ -47,6 +54,7 @@ airControlEnd = 0.05
 airControlFadeTime = 0.35
 _camPivot = NodePath("Cam Gimbal/Cam Pivot")
 _camGimbal = NodePath("Cam Gimbal")
+_cam = NodePath("Cam Gimbal/Cam Pivot/SpringArm3D/Camera3D")
 _cursorStateMachine = NodePath("Player Cursor Control")
 _manager = NodePath("Network Manager")
 statManager = NodePath("StatManager")
@@ -69,12 +77,12 @@ mesh = SubResource("TorusMesh_puwgh")
 skeleton = NodePath("")
 
 [node name="Cam Gimbal" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0.5, 0.5)
 top_level = true
 script = ExtResource("7_mneri")
 followCoefficient = 50.0
 
 [node name="Cam Pivot" type="Node3D" parent="Cam Gimbal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.898855, 1.08779, 0)
 
 [node name="SpringArm3D" type="SpringArm3D" parent="Cam Gimbal/Cam Pivot"]
 spring_length = 3.0
@@ -83,13 +91,17 @@ margin = 0.5
 [node name="Camera3D" type="Camera3D" parent="Cam Gimbal/Cam Pivot/SpringArm3D"]
 
 [node name="HurtboxComponent" type="Area3D" parent="." node_paths=PackedStringArray("owner_statManager")]
-collision_layer = 2147483648
+collision_layer = 536870912
 script = ExtResource("12_q1rm7")
 owner_statManager = NodePath("../StatManager")
 metadata/_custom_type_script = "uid://c8pv7q66r7io3"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="HurtboxComponent"]
 shape = SubResource("CapsuleShape3D_s33wf")
+
+[node name="Weapon" parent="." instance=ExtResource("15_0ml5q")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.63395, 0.488, -0.693951)
+weapon = ExtResource("17_q1rm7")
 
 [node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
 radius = 0.1
@@ -142,8 +154,27 @@ send_attack_delay = NodePath("Attack Delay")
 metadata/_custom_type_script = "uid://sq5x44u01csm"
 
 [node name="Recovery Window" type="Timer" parent="StateMachine/PlayerMeleeAttack"]
+process_callback = 0
 one_shot = true
 
 [node name="Attack Delay" type="Timer" parent="StateMachine/PlayerMeleeAttack"]
+process_callback = 0
 wait_time = 0.5
 one_shot = true
+
+[node name="PlayerRangedAttack" type="Node" parent="StateMachine" node_paths=PackedStringArray("player", "fire_timer")]
+script = ExtResource("15_mneri")
+player = NodePath("../..")
+fire_timer = NodePath("Fire Timer")
+metadata/_custom_type_script = "uid://b4pj68krnwqrd"
+
+[node name="Fire Timer" type="Timer" parent="StateMachine/PlayerRangedAttack"]
+process_callback = 0
+one_shot = true
+
+[node name="ShapeCast3D" type="ShapeCast3D" parent="StateMachine/PlayerRangedAttack"]
+shape = SubResource("SphereShape3D_q1rm7")
+target_position = Vector3(0, 0, -200)
+collision_mask = 268435457
+collide_with_areas = true
+collide_with_bodies = false
