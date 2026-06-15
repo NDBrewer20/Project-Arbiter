@@ -7,9 +7,9 @@ const stateName := "PlayerRangedAttack"
 @export var speedReduction: float = 0.3
 @export var fire_timer: Timer
 ## How many shots are fired per minute (RPM)
-@export var fireRate: float = 300:
+@onready var fireRate: float:
 	get:
-		return 60/fireRate
+		return 60.0 / player.weaponHolder.weapon.stats.current_fire_rate
 var weaponRange: float = 200
 @onready var shape_cast: ShapeCast3D = $ShapeCast3D
 
@@ -17,13 +17,13 @@ func _enter() -> void:
 	super._enter()
 	if !player._manager.is_authority: return # Only run this code if this client has authority over the player.
 	player.velocityComponent.SetSpeedPercentModifier(stateName,-speedReduction)
-	fire_timer.wait_time = fireRate
-	fire_timer.timeout.connect(_send_attack)
-	_send_attack()
-	fire_timer.start()
+	fire_timer.timeout.connect(_hitscan_send_attack)
+	if fire_timer.is_stopped():
+		_hitscan_send_attack()
+		fire_timer.start()
 
 
-func _send_attack():
+func _hitscan_send_attack():
 	shape_cast.global_position = player.weaponHolder.global_position
 	shape_cast.target_position = player._cam.project_ray_normal(player._cam.get_viewport().get_visible_rect().size/2) * weaponRange
 	shape_cast.force_shapecast_update()
@@ -39,8 +39,7 @@ func _exit() -> void:
 	super._exit()
 	if !player._manager.is_authority: return # Only run this code if this client has authority over the player.
 	player.velocityComponent.RemoveSpeedPercentModifier(stateName)
-	fire_timer.timeout.disconnect(_send_attack)
-	fire_timer.stop()
+	fire_timer.timeout.disconnect(_hitscan_send_attack)
 	
 
 func _update(delta: float):

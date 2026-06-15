@@ -28,13 +28,13 @@ func _ready() -> void:
 		collision_shape.shape = shape
 		add_child(collision_shape)
 
-	set_collision_layer_value(1, false)
-	set_collision_mask_value(1, false)
+	set_collision_layer_value(PhysicsLayers.NAMED_LAYER.DEFAULT, false)
+	set_collision_mask_value(PhysicsLayers.NAMED_LAYER.DEFAULT, false)
 	match attacker_stats.faction:
 		Stats.FACTION.PLAYER:
-			set_collision_mask_value(29, true)
+			set_collision_mask_value(PhysicsLayers.NAMED_LAYER.ENEMY_HURTBOX, true)
 		Stats.FACTION.ENEMY:
-			set_collision_mask_value(30, true)
+			set_collision_mask_value(PhysicsLayers.NAMED_LAYER.PLAYER_HURTBOX, true)
 
 func _on_area_entered(area: Area3D) -> void:
 	if !area.has_method("receive_hit"):
@@ -49,4 +49,5 @@ func _on_area_entered(area: Area3D) -> void:
 	if !attacker_weapon:
 		area.receive_hit(attacker_stats.current_attack, attacker_stats)
 	else:
+		PA_Debug.log("weapon damage: %s" % attacker_weapon.calculate_weapon_damage())
 		area.receive_hit(attacker_weapon.calculate_weapon_damage(), attacker_stats)

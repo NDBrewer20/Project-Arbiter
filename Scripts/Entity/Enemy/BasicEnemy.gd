@@ -14,8 +14,15 @@ var _target: Node3D
 func _ready() -> void:
 	LowLevelNetworkHandler.on_connected_to_server.connect(_on_connected_to_server)
 	LowLevelNetworkHandler.on_disconnected_from_server.connect(_on_disconnect_from_server)
+	if !_manager.is_server: return
 	detectionComponent.body_entered.connect(_on_body_entered)
 	detectionComponent.body_exited.connect(_on_body_exit)
+	statManager.stats.health_depleted.connect(death)
+
+func death():
+	if !_manager.is_server: return
+	
+	LowLevelEntitySpawner.instance.server_remove_entity(_manager.assigned_id)
 
 func _on_connected_to_server() -> void:
 	if !_manager.is_server:

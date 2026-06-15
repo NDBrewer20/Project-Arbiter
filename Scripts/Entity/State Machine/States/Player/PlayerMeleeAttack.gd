@@ -8,7 +8,10 @@ const stateName := "PlayerMeleeAttack"
 @export var recovery_window: Timer
 @export var send_attack_delay: Timer
 var last_attack_time: float = 0.0
-@export var comboBuffer: float = 0.25 # ideally this is set to be halfway between send_attack_delay and recovery_window, but for debug purposes manual timing.
+var comboBuffer: float:
+	get:
+		return 60.0 / player.weaponHolder.weapon.stats.current_fire_rate
+
 var attemptCombo: bool = false
 var comboWindow: bool:
 	get:
@@ -23,7 +26,7 @@ func _enter() -> void:
 	if !player._manager.is_authority: return # Only run this code if this client has authority over the player.
 	recovery_window.timeout.connect(_after_recovery_window)
 	send_attack_delay.timeout.connect(_send_attack)
-	player.comboTimer.wait_time = recovery_window.wait_time * 1.1
+	player.comboTimer.wait_time = recovery_window.wait_time + 0.1
 
 	player.velocityComponent.AddForce(player.transform.basis.z * -3.5)
 

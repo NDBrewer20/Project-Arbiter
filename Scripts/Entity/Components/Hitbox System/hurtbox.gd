@@ -6,13 +6,13 @@ class_name HurtboxComponent
 func _ready() -> void:
 	monitoring = false
 
-	set_collision_layer_value(1, false)
-	set_collision_mask_value(1, false)
+	set_collision_layer_value(PhysicsLayers.NAMED_LAYER.DEFAULT, false)
+	set_collision_mask_value(PhysicsLayers.NAMED_LAYER.DEFAULT, false)
 	match owner_statManager.stats.faction:
 		Stats.FACTION.PLAYER:
-			set_collision_layer_value(30, true)
+			set_collision_layer_value(PhysicsLayers.NAMED_LAYER.PLAYER_HURTBOX, true)
 		Stats.FACTION.ENEMY:
-			set_collision_layer_value(29, true)
+			set_collision_layer_value(PhysicsLayers.NAMED_LAYER.ENEMY_HURTBOX, true)
 
 func receive_hit(damage: int, attacker_stats: Stats) -> void:
 	owner_statManager.stats.apply_incoming_damage(damage, attacker_stats)

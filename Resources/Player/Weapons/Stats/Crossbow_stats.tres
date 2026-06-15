@@ -3,8 +3,10 @@
 [ext_resource type="Script" uid="uid://bkn6qlxtvh88u" path="res://Scripts/Entity/Player/Weapon System/weapon_stats.gd" id="1_8737l"]
 
 [resource]
+resource_local_to_scene = true
 script = ExtResource("1_8737l")
 base_max_charge = 100
 base_charge_rate = 50
 base_attack = 10.0
+base_fire_rate = 300
 metadata/_custom_type_script = "uid://bkn6qlxtvh88u"

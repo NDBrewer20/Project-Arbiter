@@ -6,5 +6,7 @@
 resource_local_to_scene = true
 script = ExtResource("1_f8r32")
 base_max_charge = 100
-base_attack = 10.0
+base_charge_rate = 50
+base_attack = 20.0
+base_fire_rate = 240
 metadata/_custom_type_script = "uid://bkn6qlxtvh88u"

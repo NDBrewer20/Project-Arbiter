@@ -7,10 +7,13 @@ signal charge_changed(cur_charge:int, max_charge:int)
 ## How much charge is generated in one second
 @export var base_charge_rate: int = 50
 @export var base_attack: float = 10
+## how many shots per minute (RPM)
+@export var base_fire_rate: int = 150
 
 var current_max_charge: int = 100
 var current_charge_rate: int = 50
 var current_attack: float = 10
+var current_fire_rate: int = 150
 
 var charge: int = 0 : set = _on_charge_set
 
@@ -74,6 +77,8 @@ func recalculate_stats() -> void:
 
 	current_max_charge = base_max_charge
 	current_attack = base_attack
+	current_charge_rate = base_charge_rate
+	current_fire_rate = base_fire_rate
 
 	for stat_name in stat_multipliers:
 		var cur_property_name: String = str("current_" + stat_name)

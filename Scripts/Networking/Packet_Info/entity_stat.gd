@@ -16,7 +16,7 @@ static func create(id: int, stats: Stats) -> Packet_EntityStats:
 	info.flag = ENetPacketPeer.FLAG_UNSEQUENCED
 	info.id = id
 	info.health = stats.health
-	info.resource = stats.resource
+	info.resource = stats.power
 	return info
 
 ## Factory method for creating a [Packet_EntityStats] packet from a PackedByteArray of data. [br]

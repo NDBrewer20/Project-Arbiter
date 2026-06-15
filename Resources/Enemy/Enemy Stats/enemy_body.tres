@@ -1,24 +1,24 @@
 [gd_resource type="Resource" script_class="Stats" load_steps=6 format=3 uid="uid://7ds61s5w6rr7"]
 
-[ext_resource type="Curve" uid="uid://drbruev4kahgc" path="res://Resources/Enemy/Enemy Curves/maxHealth_statCurve.tres" id="1_e2ayg"]
-[ext_resource type="Curve" uid="uid://cx41nw2psf5h4" path="res://Resources/Enemy/Enemy Curves/maxResource_statCurve.tres" id="2_e2ayg"]
-[ext_resource type="Curve" uid="uid://dw0fy1llyo1pr" path="res://Resources/Enemy/Enemy Curves/defense_statCurve.tres" id="2_i1oj7"]
-[ext_resource type="Curve" uid="uid://dsvmt7wpd03pm" path="res://Resources/Enemy/Enemy Curves/attack_statCurve.tres" id="3_8ykqo"]
-[ext_resource type="Script" uid="uid://cbchfh5tfrsr4" path="res://Scripts/Entity/Components/Stats/stats.gd" id="4_7oapf"]
+[ext_resource type="Curve" uid="uid://drbruev4kahgc" path="res://Resources/Enemy/Enemy Curves/maxHealth_statCurve.tres" id="1_edhpy"]
+[ext_resource type="Curve" uid="uid://cx41nw2psf5h4" path="res://Resources/Enemy/Enemy Curves/maxResource_statCurve.tres" id="2_0hebu"]
+[ext_resource type="Curve" uid="uid://dw0fy1llyo1pr" path="res://Resources/Enemy/Enemy Curves/defense_statCurve.tres" id="3_xlesv"]
+[ext_resource type="Curve" uid="uid://dsvmt7wpd03pm" path="res://Resources/Enemy/Enemy Curves/attack_statCurve.tres" id="4_gpvos"]
+[ext_resource type="Script" uid="uid://cbchfh5tfrsr4" path="res://Scripts/Entity/Components/Stats/stats.gd" id="5_b2jqo"]
 
 [resource]
 resource_local_to_scene = true
-script = ExtResource("4_7oapf")
+script = ExtResource("5_b2jqo")
 STAT_CURVES = Dictionary[int, Curve]({
-0: ExtResource("1_e2ayg"),
-1: ExtResource("2_e2ayg"),
-2: ExtResource("2_i1oj7"),
-3: ExtResource("3_8ykqo")
+0: ExtResource("1_edhpy"),
+1: ExtResource("2_0hebu"),
+2: ExtResource("3_xlesv"),
+3: ExtResource("4_gpvos")
 })
 faction = 0
 base_max_health = 100.0
 base_max_resource = 100
 base_defense = 10.0
 base_attack = 10.0
-level = 1
+level = 2
 metadata/_custom_type_script = "uid://cbchfh5tfrsr4"

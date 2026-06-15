@@ -16,7 +16,7 @@
 [ext_resource type="Script" uid="uid://c8pv7q66r7io3" path="res://Scripts/Entity/Components/Hitbox System/hurtbox.gd" id="12_q1rm7"]
 [ext_resource type="PackedScene" uid="uid://cjj4mbaxfoo2s" path="res://Scenes/Prefabs/Entities/Player/weapon.tscn" id="15_0ml5q"]
 [ext_resource type="Script" uid="uid://b4pj68krnwqrd" path="res://Scripts/Entity/State Machine/States/Player/PlayerRangedAttack.gd" id="15_mneri"]
-[ext_resource type="Resource" uid="uid://3vn8epyp6lf1" path="res://Resources/Player/Weapons/Crossbow_weapon.tres" id="17_q1rm7"]
+[ext_resource type="Resource" uid="uid://bbv346k5cxkcl" path="res://Resources/Player/Weapons/Shortsword_weapon.tres" id="16_mneri"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_suiw6"]
 radius = 0.606938
@@ -100,8 +100,8 @@ metadata/_custom_type_script = "uid://c8pv7q66r7io3"
 shape = SubResource("CapsuleShape3D_s33wf")
 
 [node name="Weapon" parent="." instance=ExtResource("15_0ml5q")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.63395, 0.488, -0.693951)
-weapon = ExtResource("17_q1rm7")
+transform = Transform3D(0.989223, -0.130436, -0.0665069, 0.146399, 0.874846, 0.461749, -0.00204553, -0.466509, 0.884514, 0.646465, 0.315489, -0.805246)
+weapon = ExtResource("16_mneri")
 
 [node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
 radius = 0.1

@@ -123,18 +123,8 @@ func _input(event: InputEvent) -> void:
 		_camPivot.rotate_x(deg_to_rad(-event.relative.y * mouse_Sensitivity)) # Rotate Camera Pivot (Camera Pitch)
 		_camPivot.rotation.x = clamp(_camPivot.rotation.x, deg_to_rad(camClamp.x), deg_to_rad(camClamp.y)) # Clamp Camera Pitch
 
-	# Handle movement input
-	if _cursorStateMachine.Movement_Allowed(): # if the cursor is not in the pause state, allow movement input. This is to prevent the player from moving while trying to interact with the UI.
-		var playerInput = Input.get_vector("Player_Left", "Player_Right", "Player_Forward", "Player_Back")
-		_inputDirection.x = playerInput.x
-		_inputDirection.y = 0
-		_inputDirection.z = playerInput.y
-		_inputDirection = global_transform.basis * _inputDirection # convert input to use the player's forward and right directions
-	else:
-		_inputDirection = Vector3.ZERO # if the cursor isn't in the default state, ignore movement input to prevent the player from moving while trying to interact with the UI.
-
 	# Handle jump input. (Prevent player form jumping in PAUSE_ALL cursor state) 
-	if Input.is_action_just_pressed("Player_Jump") and _cursorStateMachine.Movement_Allowed():
+	if event.is_action_pressed("Player_Jump") and _cursorStateMachine.Movement_Allowed():
 		_isjumping = true
 		_lastJumpPressed = _timeSinceFirstFrame
 
@@ -153,6 +143,9 @@ func checkCollision() -> void:
 func _physics_process(_delta: float) -> void:
 	# only the authority (owner) of this player instance should handle physics for it.
 	if !_manager.is_authority: return 
+
+	get_player_input()
+
 	if _cursorStateMachine.Cursor_Locked():
 		try_rotate_player()
 	checkCollision()
@@ -160,6 +153,17 @@ func _physics_process(_delta: float) -> void:
 func Move():
 	_lastOnFloor = is_on_floor()
 	velocityComponent.Move(self)
+
+func get_player_input():
+	# Handle movement input
+	if _cursorStateMachine.Movement_Allowed(): # if the cursor is not in the pause state, allow movement input. This is to prevent the player from moving while trying to interact with the UI.
+		var playerInput = Input.get_vector("Player_Left", "Player_Right", "Player_Forward", "Player_Back")
+		_inputDirection.x = playerInput.x
+		_inputDirection.y = 0
+		_inputDirection.z = playerInput.y
+		_inputDirection = global_transform.basis * _inputDirection # convert input to use the player's forward and right directions
+	else:
+		_inputDirection = Vector3.ZERO # if the cursor isn't in the default state, ignore movement input to prevent the player from moving while trying to interact with the UI.
 
 func try_rotate_player():
 	var pressingValidButton: bool = Input.is_anything_pressed() and !Input.is_action_pressed("ui_cancel")

@@ -7,6 +7,7 @@
 size = Vector3(0.2, 1.5, 0.2)
 
 [resource]
+resource_local_to_scene = true
 script = ExtResource("1_cfn1m")
 name = &"Greatsword"
 type = 0

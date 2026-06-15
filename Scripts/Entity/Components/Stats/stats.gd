@@ -1,10 +1,12 @@
+@tool
+
 extends Resource
 class_name Stats
 
 const MAX_LEVEL = 7
 enum buffableStats {
 	MAX_HEALTH,
-	RESOURCE,
+	POWER,
 	DEFENSE,
 	ATTACK,
 }
@@ -22,19 +24,19 @@ enum FACTION {
 @export var faction: FACTION
 
 @export var base_max_health: float = 100
-@export var base_max_resource: int = 100
+@export var base_max_power: int = 100
 @export var base_defense: float = 10
 @export var base_attack: float = 10
 
 @export_range(1,MAX_LEVEL) var level: int = 1: set = _on_level_set
 
 var current_max_health: float = 100
-var current_max_resource: int = 100
+var current_max_power: int = 100
 var current_defense: float = 10
 var current_attack: float = 10
 
 var health : float = 0 : set = _on_health_set
-var resource: int = 0 : set = _on_resource_set
+var power: int = 0 : set = _on_power_set
 
 var stat_buffs: Array[StatBuff]
 
@@ -55,7 +57,7 @@ func _set_current_stat_values(packet_stats: Packet_EntityStats):
 	await owner.get_tree().physics_frame
 	PA_Debug.log("client_id (%s): Updating entity_id (%s) stat values" % [ClientNetworkGlobals.id,packet_stats.id])
 	health = packet_stats.health
-	resource = packet_stats.resource
+	power = packet_stats.resource
 	recalculate_stats()
 
 
@@ -93,7 +95,7 @@ func _on_health_set(new_value: float) -> void:
 		health_depleted.emit()
 
 func calculate_incoming_damage(incoming_damage: float, attack_stats: Stats) -> float:
-	var dam = incoming_damage * (attack_stats.current_attack / (attack_stats.current_attack + base_defense))
+	var dam = incoming_damage * (attack_stats.current_attack / max(current_defense,1.0))
 	return dam
 func apply_incoming_damage(incoming_damage: float, attack_stats: Stats):
 	var dam = calculate_incoming_damage(incoming_damage,attack_stats)
@@ -104,10 +106,10 @@ static func calculate_damage(base_damage: float, attack_stats: Stats, defense_st
 	var dam = base_damage * (attack_stats.current_attack / (attack_stats.current_attack + defense_stats.current_defense))
 	return dam
 
-func _on_resource_set(new_value: int) -> void:
-	resource = clampi(new_value, 0, current_max_resource)
-	resource_changed.emit(resource, current_max_resource)
-	if resource <= 0:
+func _on_power_set(new_value: int) -> void:
+	power = clampi(new_value, 0, current_max_power)
+	resource_changed.emit(power, current_max_power)
+	if power <= 0:
 		resource_depleted.emit()
 
 func recalculate_stats() -> void:
@@ -131,7 +133,7 @@ func recalculate_stats() -> void:
 
 	var stat_sample_pos: float = (float(level)/MAX_LEVEL) - 0.01
 	current_max_health = base_max_health * STAT_CURVES[buffableStats.MAX_HEALTH].sample(stat_sample_pos)
-	current_max_resource = base_max_resource * round(STAT_CURVES[buffableStats.RESOURCE].sample(stat_sample_pos))
+	current_max_power = base_max_power * round(STAT_CURVES[buffableStats.POWER].sample(stat_sample_pos))
 	current_defense = base_defense * STAT_CURVES[buffableStats.DEFENSE].sample(stat_sample_pos)
 	current_attack = base_attack * STAT_CURVES[buffableStats.ATTACK].sample(stat_sample_pos)
 
