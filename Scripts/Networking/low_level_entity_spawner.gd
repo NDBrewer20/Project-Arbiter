@@ -1,8 +1,10 @@
 class_name LowLevelEntitySpawner extends Node
 
+## which type of enemy is being spawned.
 enum SPAWNABLE {
 	ENEMY_DEBUG,
 }
+## list of networked spawnable entities.
 const SPAWNABLE_NETWORK_ENTITIES: Dictionary[SPAWNABLE,PackedScene] = {
 	SPAWNABLE.ENEMY_DEBUG : preload("uid://scl6pakak5ca"),
 }
@@ -10,21 +12,33 @@ const SPAWNABLE_NETWORK_ENTITIES: Dictionary[SPAWNABLE,PackedScene] = {
 ## Stores the reference to the node (id)(0) and it's spawn type (id)(1) by it's [assigned_id]
 var _activeEntities: Dictionary[int,Array]
 
+## refernce to the specific instance of the entity spawner.
 static var instance: LowLevelEntitySpawner
 
+## set the entity spawn parent for this instance so that they all can be children of this scene.
 @export var spawnParent: Node3D
 
 func _ready() -> void:
+	# if there is already an instance remove it and set a new one.
 	if instance:
+		# clear all server entities if a scene was swapped.
+		if LowLevelNetworkHandler.is_server:
+			for entity_id in instance._activeEntities:
+				instance.server_remove_entity(entity_id)
+		else: # clear all client references if a scene was swapped.
+			instance.remove_entities()
 		queue_free()
 		return
 	instance = self
+
 	# cleanup entities when disconnecting from server or when the server disconnects.
 	LowLevelNetworkHandler.on_disconnected_from_server.connect(remove_entities)
 	LowLevelNetworkHandler.on_server_disconnect.connect(remove_entities)
 	EntityNetworkGlobals.handle_entity_id_unassignment.connect(remove_entity)
+
 	# when a new peer connects to the server send them all the active entities so they can spawn them on their end.
 	LowLevelNetworkHandler.on_peer_connected.connect(_on_peer_connected)
+
 	# when the server assigns an entity id to spawn an entity on the client.
 	EntityNetworkGlobals.handle_entity_id_assignment.connect(client_spawn_entity)
 
@@ -73,12 +87,14 @@ func _on_peer_connected(peer_id: int) -> void:
 	if error != OK:
 		PA_Debug.log_error("Failed to communicate entity spawns to new peer")
 
+## function for communicating the current active entities to the newly joined client.
 func _communicate_entity_spawns(peer_id: int, activeEntitiesSnapshot: Dictionary[int,Array]):
 	for entity_id in activeEntitiesSnapshot:
 		var entityposition :Vector3 = activeEntitiesSnapshot[entity_id][0]
 		var spawn :SPAWNABLE= activeEntitiesSnapshot[entity_id][1]
 		Packet_EntityIDAssignment.create(entity_id, spawn, entityposition).send(LowLevelNetworkHandler.client_peers[peer_id])
 
+## converts the entity spawner list to a threadsafe version that doesn't reference any live nodes.
 func convert_dictionary_to_threadsafe(old_dict: Dictionary[int, Array]) -> Dictionary[int, Array]:
 	var new_dict: Dictionary[int, Array] = {}
 	for key: int in old_dict.keys():

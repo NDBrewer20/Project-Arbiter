@@ -23,10 +23,12 @@ func _on_disconnected_from_server(peer_id: int):
 		UI_connected.visible = false		
 		UI_server.visible = false
 
+## retrieves the connection details from the connection information text boxes.
 func retrieve_connection_details() -> Array:
+	# set baseline values to return if the textboxes are empty.
 	var ip: String = "127.0.0.1"
 	var port: int = 27015
-	if !UI_ip_address.text.is_empty(): ip = UI_ip_address.text
+	if !UI_ip_address.text.is_empty(): ip = IP.resolve_hostname(UI_ip_address.text,IP.TYPE_IPV4)
 	if !UI_port.text.is_empty(): port = UI_port.text.to_int()
 	return [ip,port]
 
@@ -66,6 +68,7 @@ func _on_disconnect_pressed() -> void:
 	UI_connect.visible = true
 	UI_connected.visible = false
 
+## when DEBUG server spawn button is pressed it will spawn the specified amount of enemies on the server. 
 func _on_spawn_enemy_pressed() -> void:
 	var val := 1
 	if !spawnAmt.text.is_empty():
@@ -73,6 +76,7 @@ func _on_spawn_enemy_pressed() -> void:
 	for i in range(val):
 		LowLevelEntitySpawner.server_spawn_entity(randi_range(0,LowLevelEntitySpawner.SPAWNABLE.size()-1), Vector3.UP)
 
+## when DEBUG server remove button is pressed it will remove the specified amount of enemies on the server.
 func _on_remove_enemy_pressed() -> void:
 	var val := 1
 	var spawner := LowLevelEntitySpawner.instance

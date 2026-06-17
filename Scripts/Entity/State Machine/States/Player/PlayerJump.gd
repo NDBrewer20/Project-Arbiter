@@ -3,6 +3,7 @@ class_name PlayerJump
 
 const stateName := "PlayerJump"
 
+## reference to the player.
 @export var player: ThirdPersonPlayer
 
 func _enter() -> void:
@@ -26,13 +27,17 @@ func _update(delta: float):
 func _physics_update(delta: float):
 	super._physics_update(delta)
 	if !player._manager.is_authority: return # Only run this code if this client has authority over the player.
+	# if the players at the apex of their jump or they just released the jump.
 	if player.velocity.y <= 0 || Input.is_action_just_released("Player_Jump"):
+		# transition to the falling state.
 		transitioned.emit(self, PlayerFalling.stateName)
 
+	# create the impulse for air control and gravity.
 	var impulse: Vector3 = Vector3(0,-player.gravity,0)
 	var t = clampf((player._timeSinceFirstFrame - player._lastTimeOnGround) / player.airControlFadeTime, 0, 1)
 	var air_control_factor = lerp(player.airControlStart, player.airControlEnd, t)
 	impulse += player._inputDirection * air_control_factor
 
+	# apply the impulse to the player velocity and move.
 	player.velocityComponent.AddForce(impulse * delta)
 	player.Move()

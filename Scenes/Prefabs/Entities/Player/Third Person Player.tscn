@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://dwuo45o1taqky"]
+[gd_scene load_steps=29 format=3 uid="uid://dwuo45o1taqky"]
 
 [ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Entity/Player/ThirdPersonPlayer.gd" id="1_gsdtt"]
 [ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Entity/Player/player_cursor_control.gd" id="2_dahrh"]
@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://blyomik27o2ts" path="res://Scenes/Prefabs/Network/network_manager.tscn" id="3_pfsti"]
 [ext_resource type="PackedScene" uid="uid://baexhy3bvlqrp" path="res://Scenes/Prefabs/Entities/Component/entity_transform_sync.tscn" id="4_dahrh"]
 [ext_resource type="Script" uid="uid://mdyxlfjbunwd" path="res://Scripts/Entity/State Machine/stateMachine.gd" id="5_pfsti"]
+[ext_resource type="Script" uid="uid://bewu2n1wup01" path="res://Scripts/Entity/Player/Weapon System/weapon.gd" id="5_s33wf"]
+[ext_resource type="Script" uid="uid://bkn6qlxtvh88u" path="res://Scripts/Entity/Player/Weapon System/weapon_stats.gd" id="6_5wtsb"]
 [ext_resource type="Script" uid="uid://d1t3jumv1iwuf" path="res://Scripts/Entity/Player/CameraBehavior.gd" id="7_mneri"]
 [ext_resource type="Script" uid="uid://bhbhaxa5mpvdw" path="res://Scripts/Entity/Components/Stats/StatManager.gd" id="7_r82im"]
 [ext_resource type="Script" uid="uid://b7ydmi7mwsfwa" path="res://Scripts/Entity/State Machine/States/Player/PlayerFalling.gd" id="8_ls38o"]
@@ -16,7 +18,6 @@
 [ext_resource type="Script" uid="uid://c8pv7q66r7io3" path="res://Scripts/Entity/Components/Hitbox System/hurtbox.gd" id="12_q1rm7"]
 [ext_resource type="PackedScene" uid="uid://cjj4mbaxfoo2s" path="res://Scenes/Prefabs/Entities/Player/weapon.tscn" id="15_0ml5q"]
 [ext_resource type="Script" uid="uid://b4pj68krnwqrd" path="res://Scripts/Entity/State Machine/States/Player/PlayerRangedAttack.gd" id="15_mneri"]
-[ext_resource type="Resource" uid="uid://bbv346k5cxkcl" path="res://Resources/Player/Weapons/Shortsword_weapon.tres" id="16_mneri"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_suiw6"]
 radius = 0.606938
@@ -30,6 +31,30 @@ albedo_color = Color(0, 0, 0, 1)
 material = SubResource("StandardMaterial3D_fuxo2")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_s33wf"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_xijnj"]
+size = Vector3(0.2, 0.8, 0.2)
+
+[sub_resource type="Resource" id="Resource_1j0mk"]
+resource_local_to_scene = true
+script = ExtResource("6_5wtsb")
+base_max_charge = 100
+base_charge_rate = 50
+base_attack = 7.5
+base_fire_rate = 360
+metadata/_custom_type_script = "uid://bkn6qlxtvh88u"
+
+[sub_resource type="Resource" id="Resource_6jfts"]
+resource_local_to_scene = true
+script = ExtResource("5_s33wf")
+name = &"Shortsword"
+type = 0
+stats = SubResource("Resource_1j0mk")
+chargeable = false
+mesh = SubResource("BoxMesh_xijnj")
+offsetPosition = Vector3(0.646465, 0.315489, -0.805246)
+offsetRotation = Vector3(-27.5, -4.3, 9.5)
+metadata/_custom_type_script = "uid://bewu2n1wup01"
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ff52u"]
 radius = 1.0
@@ -82,7 +107,7 @@ script = ExtResource("7_mneri")
 followCoefficient = 50.0
 
 [node name="Cam Pivot" type="Node3D" parent="Cam Gimbal"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.898855, 1.08779, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.621052, 1.06133, 0)
 
 [node name="SpringArm3D" type="SpringArm3D" parent="Cam Gimbal/Cam Pivot"]
 spring_length = 3.0
@@ -100,8 +125,8 @@ metadata/_custom_type_script = "uid://c8pv7q66r7io3"
 shape = SubResource("CapsuleShape3D_s33wf")
 
 [node name="Weapon" parent="." instance=ExtResource("15_0ml5q")]
-transform = Transform3D(0.989223, -0.130436, -0.0665069, 0.146399, 0.874846, 0.461749, -0.00204553, -0.466509, 0.884514, 0.646465, 0.315489, -0.805246)
-weapon = ExtResource("16_mneri")
+transform = Transform3D(0.989223, -0.130436, -0.066507, 0.146399, 0.874846, 0.461749, -0.00204553, -0.466509, 0.884514, 0.646465, 0.315489, -0.805246)
+weapon = SubResource("Resource_6jfts")
 
 [node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
 radius = 0.1
@@ -125,9 +150,10 @@ script = ExtResource("7_r82im")
 stats = ExtResource("8_vvn5d")
 metadata/_custom_type_script = "uid://bhbhaxa5mpvdw"
 
-[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state", "anim_locked_states")]
 script = ExtResource("5_pfsti")
 initial_state = NodePath("PlayerFloor")
+anim_locked_states = [NodePath("PlayerMeleeAttack"), NodePath("PlayerFalling")]
 metadata/_custom_type_script = "uid://mdyxlfjbunwd"
 
 [node name="PlayerFloor" type="Node" parent="StateMachine" node_paths=PackedStringArray("player")]

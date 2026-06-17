@@ -1,25 +1,32 @@
 class_name ThirdPersonPlayer extends Entity
 
 @export_category("State Machine")
+## the movement state machine for the player.
 @export var stateMachine: StateMachine
 
 
 # Player Combat
 @export_category("Combat")
+## the players weapon holder reference.
 @export var weaponHolder: WeaponHolder
+## the origin of attacks for the player.
 @export var attackOrigin: Node3D
 ## where the player is in their attack combo, this is used to determine which attack to use next in the combo sequence. 
 ## Resets after a certain amount of time or if the player uses a different attack.
 var comboPosition: int = 0 : set = _on_combo_position_set
 var comboTimer: Timer
+## setter function for combo position.
 func _on_combo_position_set(new_value: int) -> void:
 	comboPosition = new_value
+	# starts the timer that on timeout will wipe current combo position.
 	comboTimer.start()
 
 
 # Player movement parameters
 @export_category("Movement")
+## reference to the players velocity component.
 @export var velocityComponent: VelocityComponent
+## direction of movement input from player.
 var _inputDirection: Vector3 = Vector3.ZERO
 
 # Air control parameters
@@ -36,32 +43,46 @@ var _inputDirection: Vector3 = Vector3.ZERO
 
 # Player jumping parameters
 @export_category("Jumping")
+## the force of gravity on the player.
 @export var gravity: float = 9.8
+## the amount of force used by the player to jump.
 @export var jumpVelocity: float = 4.5
-var _lastOnFloor: bool # was the user on the ground in the last frame?
-var _isjumping: bool = false # is the user currently trying to jump?
-var _lastJumpPressed: float # how long since the user last tried to jump?
-var _lastTimeOnGround: float # how long since the user was last on the ground?
+## was the user on the ground in the last frame?
+var _lastOnFloor: bool 
+## is the user currently trying to jump?
+var _isjumping: bool = false 
+## how long since the user last tried to jump?
+var _lastJumpPressed: float 
+## how long since the user was last on the ground?
+var _lastTimeOnGround: float 
 
 # Player Coyote Time parameters
 @export_subgroup("Coyote Time")
+## how long the player has to queue a coyote jump after leaving the ground.
 @export var coyoteTime: float = 0.16
-var _coyoteUsable: bool # can the user press jump and have it work after starting to fall?
-var _coyoteWindow: bool: # if the timer hasn't timed out (time since jump + coyote time > current time), the user can still jump
+## can the user press jump and have it work after starting to fall?
+var _coyoteUsable: bool 
+## if the timer hasn't timed out (time since jump + coyote time > current time), the user can still jump
+var _coyoteWindow: bool: 
 	get:
 		return _timeSinceFirstFrame < _lastTimeOnGround + coyoteTime
-var _canCoyote: bool: # is the user within the window to use coyote time?
+## is the user within the window to use coyote time?
+var _canCoyote: bool:
 	get:
 		return _coyoteUsable and !is_on_floor() and _coyoteWindow
 
 # Player Jump Buffer parameters
 @export_subgroup("Jump Buffer")
+## how long the player has to queue a jump before they land.
 @export var jumpBuffer: float = 0.21
-var _bufferJumpUsable: bool # can the user press jump and have it work before landing?
-var _bufferWindow: bool: # if the timer hasn't timed out (time since jump + jump buffer time > current time), the user can still jump
+## can the user press jump and have it work before landing?
+var _bufferJumpUsable: bool 
+## if the timer hasn't timed out (time since jump + jump buffer time > current time), the user can still jump
+var _bufferWindow: bool: 
 	get:
 		return _timeSinceFirstFrame < _lastJumpPressed + jumpBuffer
-var _canBufferJump: bool: # is the user within the window to use buffered jump?
+## is the user within the window to use buffered jump?
+var _canBufferJump: bool: 
 	get:
 		return _bufferJumpUsable and _bufferWindow
 
@@ -70,7 +91,9 @@ var _canBufferJump: bool: # is the user within the window to use buffered jump?
 @export_category("Camera")
 ## The pivot point for the camera, which is used to rotate the camera around the player. This should be a child node of the player that is positioned at the player's head or where you want the camera to rotate around.
 @export var _camPivot: Node3D
+## the transform component of the camera used to determine the position of the camera independently of the player.
 @export var _camGimbal: Node3D
+## reference to the players camera.
 @export var _cam: Camera3D
 ## The minimum and maximum angles the camera can pitch up and down, in degrees. [br]
 ## Example setup: X is minimum (looking down [-90]), Y is maximum (looking up [45]).
@@ -80,9 +103,11 @@ var _canBufferJump: bool: # is the user within the window to use buffered jump?
 
 # Player Cursor State Machine
 @export_category("Cursor")
+## the cursor state machine used by the player.
 @export var _cursorStateMachine: PlayerCursor
 
 # Internal Variables
+## how long has it been since the first frame this player has seen.
 var _timeSinceFirstFrame: float = 0.0
 
 
@@ -90,6 +115,7 @@ func _ready() -> void:
 	if !_manager.is_authority: # if the instance isn't the auth player remove unneccessary nodes for other players on this client. 
 		cleanClientChildren()
 		return
+	# create combo timer for player.
 	comboTimer = Timer.new()
 	add_child(comboTimer)
 	comboTimer.one_shot = true
@@ -106,12 +132,14 @@ func cleanClientChildren() -> void:
 	# If this client is not the authority (owner) of this player instance,
 	# Disable processing input for this instance since only the authority should handle input for it.
 	set_process_input(false)
-	_camPivot.queue_free()
+
+	# remove camera gimbal and cursor state machine.
+	_camGimbal.queue_free()
 	_cursorStateMachine.queue_free()
 
 func _process(delta: float) -> void:
 	if !_manager.is_authority: return # only the authority (owner) of this player instance should handle processing for it.
-	_timeSinceFirstFrame += delta
+	_timeSinceFirstFrame += delta # increment time since first frame.
 
 func _input(event: InputEvent) -> void:
 	if !_manager.is_authority: return # only the authority (owner) of this player instance should handle input for it.
@@ -144,32 +172,48 @@ func _physics_process(_delta: float) -> void:
 	# only the authority (owner) of this player instance should handle physics for it.
 	if !_manager.is_authority: return 
 
+	# fetch player input before doing anything with it.
 	get_player_input()
 
-	if _cursorStateMachine.Cursor_Locked():
-		try_rotate_player()
+	# check and update collision information.
 	checkCollision()
 
+	# if the cursor is locked then try to rotate the player to look at the camera direction.
+	if _cursorStateMachine.Cursor_Locked():
+		try_rotate_player()
+
+## move the player body
 func Move():
+	# set the last known floor value.
 	_lastOnFloor = is_on_floor()
+	# move the player body using the velocity component.
 	velocityComponent.Move(self)
 
+## gets the players movement input based on left, right, forward, and back buttons being pressed.
 func get_player_input():
 	# Handle movement input
-	if _cursorStateMachine.Movement_Allowed(): # if the cursor is not in the pause state, allow movement input. This is to prevent the player from moving while trying to interact with the UI.
+	if _cursorStateMachine.Movement_Allowed():
 		var playerInput = Input.get_vector("Player_Left", "Player_Right", "Player_Forward", "Player_Back")
 		_inputDirection.x = playerInput.x
 		_inputDirection.y = 0
 		_inputDirection.z = playerInput.y
-		_inputDirection = global_transform.basis * _inputDirection # convert input to use the player's forward and right directions
+		# convert input to use the player's forward and right directions
+		_inputDirection = global_transform.basis * _inputDirection 
 	else:
-		_inputDirection = Vector3.ZERO # if the cursor isn't in the default state, ignore movement input to prevent the player from moving while trying to interact with the UI.
+		_inputDirection = Vector3.ZERO
 
+## try to rotate the player if restrictions aren't active.
 func try_rotate_player():
+	# there is currently anything pressed and it's not the ui_cancel input.
 	var pressingValidButton: bool = Input.is_anything_pressed() and !Input.is_action_pressed("ui_cancel")
-	var animLocked: bool = stateMachine.currentState.name == PlayerMeleeAttack.stateName
+	# state machine currently is playing a forced animation.
+	var animLocked: bool = stateMachine.animLocked()
 	if pressingValidButton and !animLocked:
-		global_rotation.y = _camGimbal.global_rotation.y # rotate the player to match the camera's y rotation when the player is providing input. This makes movement relative to the camera direction.
+		# rotate the player to match the camera's y rotation when the player is providing input. This makes movement relative to the camera direction.
+		global_rotation.y = _camGimbal.global_rotation.y 
 
+## forecfully rotate the player to face the camera direction.
 func force_rotate_player():
-	global_rotation.y = _camGimbal.global_rotation.y # force rotate the player to match the camera's y rotation regardless of input. This is used in certain attack states to ensure the player is facing the correct direction for the attack animation.
+	# force rotate the player to match the camera's y rotation regardless of input. 
+	# This is used in certain attack states to ensure the player is facing the correct direction for the attack animation.
+	global_rotation.y = _camGimbal.global_rotation.y 

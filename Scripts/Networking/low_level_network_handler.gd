@@ -161,7 +161,7 @@ func disconnect_host() -> void:
 	on_peer_disconnected.emit(host_peer_id)
 
 	# Disconnect the server.
-	disconnect_server()
+	disconnect_server.call_deferred()
 
 	# Reset host/server flags and id.
 	is_host = false

@@ -9,7 +9,12 @@ enum CursorState {
 var _cursorState: CursorState = CursorState.DEFAULT
 
 func _ready() -> void:
+	# when the player disconnects from the server setup disconnection functions.
 	LowLevelNetworkHandler.on_disconnected_from_server.connect(_on_disconnected_from_server)
+
+func _exit_tree() -> void:
+	# cleanup any lingering signals.
+	LowLevelNetworkHandler.on_disconnected_from_server.disconnect(_on_disconnected_from_server)
 
 ## When client disconnects from the server and its for this instance then free the cursor.
 func _on_disconnected_from_server(peer_id: int):

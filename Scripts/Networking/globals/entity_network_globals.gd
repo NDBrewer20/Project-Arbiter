@@ -1,13 +1,17 @@
 extends Node
 
-## signal called when Packet_EntityTransform packet is recieved.
+# signal called when Packet_EntityTransform packet is recieved.
 signal client_handle_entity_position(entity_transform: Packet_EntityTransform)
 signal server_handle_entity_position(entity_id:int, entity_transform: Packet_EntityTransform)
+# signals for handling entity ids
 signal handle_entity_id_assignment(entity_id_assignment: Packet_EntityIDAssignment)
 signal handle_entity_id_unassignment(entity_id: Packet_EntityIDUnassignment)
-signal recieve_Entity_stat_values(entity_stats: Packet_EntityStats)
+## called when a client recieves a entity stat values packet.
+signal client_recieve_entity_stat_values(entity_stats: Packet_EntityStats)
 
+## list of available entity ids to pull from.
 var available_entity_ids: Array = range((2 ** 16)-1,-1,-1) 
+## list of entity ids that are in use (and their corresponding entity).
 var entity_ids: Dictionary[int, Entity] = {}
 
 ## This function is used to provision an entity id and fill in the specific entity in the list of entity ids. [br]
@@ -59,6 +63,7 @@ func reclaim_entity_id(id: int) -> void:
 	available_entity_ids.push_back(id)
 
 func _ready() -> void:
+	# connect packet handling functions.
 	LowLevelNetworkHandler.on_client_packet.connect(on_client_packet)
 	LowLevelNetworkHandler.on_server_packet.connect(on_server_packet)
 
@@ -110,7 +115,7 @@ func on_client_packet(data: PackedByteArray) -> void:
 			pass
 
 		PacketInfo.PACKET_TYPE.ENTITY_STATS:
-			recieve_Entity_stat_values.emit(Packet_EntityStats.create_from_data(data))
+			client_recieve_entity_stat_values.emit(Packet_EntityStats.create_from_data(data))
 
 		PacketInfo.PACKET_TYPE.ENTITY_DAMAGED:
 			client_handle_entity_damaged(Packet_EntityDamaged.create_from_data(data))
@@ -120,18 +125,21 @@ func on_client_packet(data: PackedByteArray) -> void:
 			push_error("Packet type with index ", data[0], " unhandled!")
 
 func client_handle_entity_damaged(entity_damaged: Packet_EntityDamaged) -> void:
-	if LowLevelNetworkHandler.is_server: return
+	if LowLevelNetworkHandler.is_server: return # don't let the server double dip on entity damaging.
 	# if the client is the attacker or defender, then they have already applied the damage locally and can ignore this packet.
 	if entity_damaged.defender_id == ClientNetworkGlobals.id or entity_damaged.attack_id == ClientNetworkGlobals.id: return
-	var defenderEntity = entity_ids.get(entity_damaged.defender_id)
-	var attackEntity = entity_ids.get(entity_damaged.attack_id)
+	var defenderEntity = entity_ids.get(entity_damaged.defender_id) # fetch defending entity.
+	var attackEntity = entity_ids.get(entity_damaged.attack_id) # fetch attacking entity.
 	PA_Debug.log("client_id (%s): entity_id (%s) attacked entity_id (%s) for %s damage" % [ClientNetworkGlobals.id, attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id, Stats.calculate_damage(entity_damaged.damage, attackEntity.statManager.stats, defenderEntity.statManager.stats)])
+	# apply the damage to the corresponding entities.
 	defenderEntity.statManager.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.statManager.stats)
 
 func server_handle_entity_damaged(entity_damaged: Packet_EntityDamaged) -> void:
-	if !LowLevelNetworkHandler.is_server: return
-	var defenderEntity : Entity = entity_ids.get(entity_damaged.defender_id)
+	if !LowLevelNetworkHandler.is_server: return # don't let a client communicate the damaging of specific entities.
+	var defenderEntity : Entity = entity_ids.get(entity_damaged.defender_id) 
 	var attackEntity : Entity = entity_ids.get(entity_damaged.attack_id)
 	PA_Debug.log("server: entity_id (%s) attacked entity_id (%s) for %s damage" % [attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id, Stats.calculate_damage(entity_damaged.damage, attackEntity.statManager.stats, defenderEntity.statManager.stats)])
-	defenderEntity.statManager.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.statManager.stats)
+	if LowLevelNetworkHandler.client_peers.has(entity_damaged.attack_id): # if attacker is a player then apply damage.
+		defenderEntity.statManager.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.statManager.stats)
+	# communicate to the connected clients that an entity was damaged by attacker for damage amount.
 	Packet_EntityDamaged.create(entity_damaged.damage, attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id).broadcast(LowLevelNetworkHandler.connection)

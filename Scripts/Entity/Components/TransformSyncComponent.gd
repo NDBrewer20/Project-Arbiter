@@ -24,12 +24,13 @@ func _physics_process(_delta: float) -> void:
 func communicate_entity_position() -> void:
 	if !LowLevelNetworkHandler.connection: return # If there is no connection don't try to send entity transform data.
 	if _body._manager.is_server:
-		# send out the enemy position data to clients.
+		# communicate server managed entities position to clients.
 		if _body.get("velocity"):
 			Packet_EntityTransform.create(_body._manager.assigned_id, _body.global_position, _body.velocity, _body.global_rotation).broadcast(LowLevelNetworkHandler.connection)
 		else:
 			Packet_EntityTransform.create(_body._manager.assigned_id, _body.global_position, Vector3.ZERO, _body.global_rotation).broadcast(LowLevelNetworkHandler.connection)
 	elif _body._manager.is_authority:
+		# if the body is client authority then communicate it's position to the server so it can be propagated.
 		if _body.get("velocity"):
 			Packet_EntityTransform.create(_body._manager.assigned_id, _body.global_position, _body.velocity, _body.global_rotation).send(LowLevelNetworkHandler.server_peer)
 		else:
@@ -39,34 +40,45 @@ func communicate_entity_position() -> void:
 func server_handle_entity_position(entity_id: int, entity_transform: Packet_EntityTransform) -> void:
 	if entity_id != _body._manager.assigned_id: return # Not for this entity.
 	
+	# rotate the entity based on the recieved packet.
 	_body.global_rotation.y = entity_transform.rotation.y
 	if _body.get("velocity"):
+		# set the bodies velocity
 		_body.velocity = entity_transform.velocity
 		var velocityComponent: VelocityComponent = _body.get("velocityComponent")
-		if velocityComponent:
+		if velocityComponent: # if it uses a velocity component then override that velocity.
 			velocityComponent.velocityOverride = entity_transform.velocity
-		if _body is ThirdPersonPlayer:
-			_body._inputDirection = entity_transform.velocity.normalized()
-	await get_tree().physics_frame
+		if _body is ThirdPersonPlayer: # if the entity is a player the possible corresponding input direction is derived by the velocity (without y-axis)
+			var inputDirection = entity_transform.velocity
+			inputDirection.y = 0
+			_body._inputDirection = inputDirection.normalized()
+	
+	# set the position of the entity based on the packet.
 	_body.global_position = entity_transform.position
+
 	# send out the entity position data to clients.
 	if _body.get("velocity"):
 		Packet_EntityTransform.create(_body._manager.assigned_id, _body.global_position, _body.velocity, _body.global_rotation).broadcast(LowLevelNetworkHandler.connection)
 	else:
 		Packet_EntityTransform.create(_body._manager.assigned_id, _body.global_position, Vector3.ZERO, _body.global_rotation).broadcast(LowLevelNetworkHandler.connection)
 	
-	
+## move a client's entity based on packet recieved from server.
 func client_handle_entity_position(entity_transform: Packet_EntityTransform) -> void:
-	if _body._manager.is_authority or _body._manager.assigned_id != entity_transform.id: return # the entity is the owner of this entity or not for this entity.
+	if _body._manager.is_authority or _body._manager.assigned_id != entity_transform.id: return # the entity is the owner of this entity or it is not for this entity.
 
+	# set the entities rotation.
 	_body.global_rotation.y = entity_transform.rotation.y
 	if _body.get("velocity"):
+		# set the bodies velocity.
 		_body.velocity = entity_transform.velocity
 		var velocityComponent : VelocityComponent = _body.get("velocityComponent")
-		if velocityComponent:
+		if velocityComponent: # if it uses a velocity component then override that components velocity.
 			velocityComponent.velocityOverride = entity_transform.velocity
-	if _body is ThirdPersonPlayer:
-		_body._inputDirection = entity_transform.velocity.normalized()
-	await get_tree().physics_frame # wait for the current frame to finish to prevent jittery movement.
-	_body.global_position = _body.global_position.lerp(entity_transform.position, 0.5) # lerp the position to prevent jittery movement.
+	if _body is ThirdPersonPlayer: # if the entity is a player the possible corresponding input direction is derived by the velocity (without y-axis)
+			var inputDirection = entity_transform.velocity
+			inputDirection.y = 0
+			_body._inputDirection = inputDirection.normalized()
+	
+	# lerp the position to reduce jittery movement.
+	_body.global_position = _body.global_position.lerp(entity_transform.position, 0.5) 
 	
