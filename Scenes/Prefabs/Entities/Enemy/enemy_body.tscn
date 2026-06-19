@@ -31,14 +31,14 @@ material = SubResource("StandardMaterial3D_fuxo2")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2l4mg"]
 
-[node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "pathfindComponent", "detectionArea", "stateMachine", "_manager", "statManager") groups=["enemy"]]
+[node name="Enemy Body" type="CharacterBody3D" node_paths=PackedStringArray("velocityComponent", "pathfindComponent", "detectionArea", "movementStateMachine", "_manager", "statManager") groups=["enemy"]]
 collision_layer = 1073741824
 collision_mask = 2147483649
 script = ExtResource("1_17ern")
 velocityComponent = NodePath("Velocity Component")
 pathfindComponent = NodePath("PathfindComponent")
 detectionArea = NodePath("Detection Radius")
-stateMachine = NodePath("Movement StateMachine")
+movementStateMachine = NodePath("Movement StateMachine")
 _manager = NodePath("Network Manager")
 statManager = NodePath("StatManager")
 

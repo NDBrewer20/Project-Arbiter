@@ -42,7 +42,7 @@ func _send_attack():
 	# create a hitlog for hitbox to log hit enemies.
 	var hitlog: Hitlog = Hitlog.new()
 	# create hitbox to hit enemies and add it to the attack origin.
-	var hitbox = HitboxComponent.new(player.weaponHolder.weapon.stats.current_attack, player.statManager.stats, 0.5, hitbox_shape, hitlog,)
+	var hitbox = HitboxComponent.new(player.weaponHolder.weapon.stats.current_attack, player.statManager.stats, 0.2, hitbox_shape, hitlog,)
 	player.attackOrigin.add_child(hitbox)
 
 

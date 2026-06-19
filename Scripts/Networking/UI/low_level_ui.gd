@@ -57,10 +57,7 @@ func _on_host_pressed() -> void:
 
 ## when Disconnect button is pressed if you're a host disconnect the host gracefully otherwise, disconnect the client and disable/enable corresponding UI
 func _on_disconnect_pressed() -> void:
-	if LowLevelNetworkHandler.is_host:
-		LowLevelNetworkHandler.disconnect_host()
-		UI_server.visible = false
-	elif LowLevelNetworkHandler.is_server:
+	if LowLevelNetworkHandler.is_server:
 		LowLevelNetworkHandler.disconnect_server()
 		UI_server.visible = false
 	else:

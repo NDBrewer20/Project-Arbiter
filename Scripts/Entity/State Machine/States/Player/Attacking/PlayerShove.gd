@@ -1,4 +1,4 @@
-extends State
+extends ShoveState
 class_name PlayerShove
 
 const stateName := "PlayerShove"
@@ -11,7 +11,9 @@ const stateName := "PlayerShove"
 @export var recovery_window: Timer
 ## the amount of time into the animation the attack hitbox should be spawned.
 @export var send_attack_delay: Timer
-@export var shoveForce: float = 3.5
+
+func _ready() -> void:
+	entity = player
 
 func _enter() -> void:
 	super._enter()
@@ -40,10 +42,12 @@ func _send_attack():
 	# create a hitlog for hitbox to log hit enemies.
 	var hitlog: Hitlog = Hitlog.new()
 	# create hitbox to hit enemies and add it to the attack origin.
-	var hitbox = HitboxComponent.new(0.0, player.statManager.stats, 0.5, hitbox_shape, hitlog)
+	var hitbox = HitboxComponent.new(0.0, player.statManager.stats, 0.1, hitbox_shape, hitlog)
 	# Shove should be centered on the player so that the player can push enemies that are behind them.
 	player.add_child(hitbox)
 
+	await get_tree().physics_frame
+	
 	for hit_node in hitlog.hit_log:
 		if hit_node is Entity:
 			var hit_entity:Entity = hit_node as Entity

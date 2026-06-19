@@ -31,5 +31,6 @@ func _physics_update(delta:float):
 	if !enemy._manager.is_server: return
 	
 	# force the enemy velocity component to fall down.
-	enemy.velocityComponent.AddForce(Vector3.DOWN * 9.84 * delta)
+	enemy.velocityComponent.Decelerate()
+	enemy.velocityComponent.AddForce(Vector3.DOWN * 9.84)
 	enemy.velocityComponent.Move(enemy)

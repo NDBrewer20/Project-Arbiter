@@ -14,8 +14,7 @@ func _enter():
 	if !enemy._manager.is_server: return
 
 	# connect functions for maintaing a chase and knowing who has entered detection range.
-	if !interestTimer.timeout.is_connected(_on_interest_timeout): # if interest timer hasn't already been connected then connect it.
-		interestTimer.timeout.connect(_on_interest_timeout)
+	interestTimer.timeout.connect(_on_interest_timeout)
 	enemy.OnNearbyBodyExited.connect(_on_nearby_body_exited)
 	enemy.OnNearbyBodyEntered.connect(_on_nearby_body_entered)
 
@@ -28,6 +27,7 @@ func _exit():
 	if !enemy._manager.is_server: return
 
 	# disconnect functions related to maintaing a chase and knowing who has entered detection range.
+	interestTimer.timeout.disconnect(_on_interest_timeout)
 	enemy.OnNearbyBodyExited.disconnect(_on_nearby_body_exited)
 	enemy.OnNearbyBodyEntered.disconnect(_on_nearby_body_entered)
 

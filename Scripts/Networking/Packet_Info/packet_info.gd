@@ -10,6 +10,7 @@ enum PACKET_TYPE {
 	ENTITY_ID_UNASSIGNMENT = 5,
 	ENTITY_DAMAGED = 6,
 	ENTITY_STATS = 7,
+	STAGGER_ATTEMPT = 8,
 }
 
 ## Controls what type of packet is being sent.
@@ -18,7 +19,7 @@ var packet_type: PACKET_TYPE
 ## [enum ENetPacketPeer.FLAG_RELIABLE] [br]
 ## [enum ENetPacketPeer.FLAG_UNSEQUENCED] [br]
 var flag: int
-
+## controls what channel the packet will be sent on.
 var channel: int = 0
 
 ## Encodes the [PacketInfo] data into a [PackedByteArray] for sending over the network. [br]

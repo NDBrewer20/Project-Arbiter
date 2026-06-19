@@ -11,19 +11,19 @@ class_name Packet_StaggerAttempt extends PacketInfo
 var attack_id: int
 var defender_id: int
 
-## Factory method for creating a [Packet_EntityDamaged] packet with the given parameters.
-static func create(attack_id: int, defender_id: int) -> Packet_EntityDamaged:
-	var info: Packet_EntityDamaged = Packet_EntityDamaged.new()
-	info.packet_type = PACKET_TYPE.ENTITY_DAMAGED
+## Factory method for creating a [Packet_StaggerAttempt] packet with the given parameters.
+static func create(attack_id: int, defender_id: int) -> Packet_StaggerAttempt:
+	var info: Packet_StaggerAttempt = Packet_StaggerAttempt.new()
+	info.packet_type = PACKET_TYPE.STAGGER_ATTEMPT
 	info.flag = ENetPacketPeer.FLAG_RELIABLE
 	info.attack_id = attack_id
 	info.defender_id = defender_id
 	return info
 
-## Factory method for creating a [Packet_EntityDamaged] packet from a PackedByteArray of data. [br]
-## This is used when receiving a packet to decode it into a [Packet_EntityDamaged] instance.
-static func create_from_data(data: PackedByteArray) -> Packet_EntityDamaged:
-	var info: Packet_EntityDamaged = Packet_EntityDamaged.new()
+## Factory method for creating a [Packet_StaggerAttempt] packet from a PackedByteArray of data. [br]
+## This is used when receiving a packet to decode it into a [Packet_StaggerAttempt] instance.
+static func create_from_data(data: PackedByteArray) -> Packet_StaggerAttempt:
+	var info: Packet_StaggerAttempt = Packet_StaggerAttempt.new()
 	info.decode(data)
 	return info
 

@@ -8,7 +8,7 @@ class_name BasicEnemy extends Entity
 ## reference to the Detection radius
 @export var detectionArea: Area3D
 ## reference to the state machine that controls the enemies movement.
-@export var stateMachine: StateMachine
+@export var movementStateMachine: StateMachine
 
 ## list of nearby bodies that have entered the Enemies Detection Area.
 var _nearbyBodies: Array[Node3D]
@@ -17,7 +17,11 @@ signal OnNearbyBodyExited(body: Node3D)
 ## signal for others to listen to when a body has just entered the detection area.
 signal OnNearbyBodyEntered(body: Node3D)
 ## the current focused target for this enemy.
-var _target: Node3D
+var _target: Node3D:
+	set(value):
+		_target = value
+		PA_Debug.log("server: entity (%s) target set to (%s)" % [self, _target])
+	
 
 func _ready() -> void:
 	if !_manager.is_server: return
@@ -70,6 +74,3 @@ func _on_body_exit(body: Node3D) -> void:
 	# remove body from nearby bodies list and emit signal.
 	_nearbyBodies.erase(body)
 	OnNearbyBodyExited.emit(body)
-	# as a fallback when the enemy loses the target and isn't in the enemy follow state then remove the current target.
-	if body == _target and stateMachine.currentState.name != EnemyFollow.stateName:
-		_target = null

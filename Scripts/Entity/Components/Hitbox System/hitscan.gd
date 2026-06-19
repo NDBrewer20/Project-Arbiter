@@ -41,7 +41,7 @@ func _physics_process(_delta: float) -> void:
 	if is_colliding():
 		hitscan_colliding()
 
-	#queue_free.call_deferred()
+	queue_free.call_deferred()
 
 func hitscan_colliding():
 	# get how many collisions happened

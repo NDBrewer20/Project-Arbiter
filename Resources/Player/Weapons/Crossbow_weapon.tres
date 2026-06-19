@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3 uid="uid://3vn8epyp6lf1"]
+[gd_resource type="Resource" script_class="Weapon" format=3 uid="uid://3vn8epyp6lf1"]
 
 [ext_resource type="Script" uid="uid://bewu2n1wup01" path="res://Scripts/Entity/Player/Weapon System/weapon.gd" id="1_wm5th"]
 [ext_resource type="Resource" uid="uid://dbkj5qxnuipko" path="res://Resources/Player/Weapons/Stats/Crossbow_stats.tres" id="2_i7w4k"]
@@ -12,7 +12,6 @@ script = ExtResource("1_wm5th")
 name = &"Crossbow"
 type = 1
 stats = ExtResource("2_i7w4k")
-chargeable = false
 mesh = SubResource("CapsuleMesh_10wic")
 offsetPosition = Vector3(0.63395, 0.488, -0.693951)
 offsetRotation = Vector3(-90, 0, 0)

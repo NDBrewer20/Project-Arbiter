@@ -85,6 +85,9 @@ func on_server_packet(peer_id: int, data: PackedByteArray) -> void:
 		PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM:
 			server_handle_entity_position.emit(peer_id, Packet_EntityTransform.create_from_data(data))
 
+		PacketInfo.PACKET_TYPE.STAGGER_ATTEMPT:
+			server_handle_stagger(Packet_StaggerAttempt.create_from_data(data))
+
 		# unknown packet was sent to server.
 		_:
 			PA_Debug.log_error("Packet type with index %s unhandled!" % data[0])
@@ -130,6 +133,7 @@ func client_handle_entity_damaged(entity_damaged: Packet_EntityDamaged) -> void:
 	if entity_damaged.defender_id == ClientNetworkGlobals.id or entity_damaged.attack_id == ClientNetworkGlobals.id: return
 	var defenderEntity = entity_ids.get(entity_damaged.defender_id) # fetch defending entity.
 	var attackEntity = entity_ids.get(entity_damaged.attack_id) # fetch attacking entity.
+	if !(attackEntity and defenderEntity): return
 	PA_Debug.log("client_id (%s): entity_id (%s) attacked entity_id (%s) for %s damage" % [ClientNetworkGlobals.id, attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id, Stats.calculate_damage(entity_damaged.damage, attackEntity.statManager.stats, defenderEntity.statManager.stats)])
 	# apply the damage to the corresponding entities.
 	defenderEntity.statManager.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.statManager.stats)
@@ -138,8 +142,23 @@ func server_handle_entity_damaged(entity_damaged: Packet_EntityDamaged) -> void:
 	if !LowLevelNetworkHandler.is_server: return # don't let a client communicate the damaging of specific entities.
 	var defenderEntity : Entity = entity_ids.get(entity_damaged.defender_id) 
 	var attackEntity : Entity = entity_ids.get(entity_damaged.attack_id)
+	if !(attackEntity and defenderEntity): return
 	PA_Debug.log("server: entity_id (%s) attacked entity_id (%s) for %s damage" % [attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id, Stats.calculate_damage(entity_damaged.damage, attackEntity.statManager.stats, defenderEntity.statManager.stats)])
 	if LowLevelNetworkHandler.client_peers.has(entity_damaged.attack_id): # if attacker is a player then apply damage.
 		defenderEntity.statManager.stats.apply_incoming_damage(entity_damaged.damage, attackEntity.statManager.stats)
 	# communicate to the connected clients that an entity was damaged by attacker for damage amount.
 	Packet_EntityDamaged.create(entity_damaged.damage, attackEntity._manager.assigned_id, defenderEntity._manager.assigned_id).broadcast(LowLevelNetworkHandler.connection)
+
+func server_handle_stagger(stagger_attempt: Packet_StaggerAttempt):
+	var attack_entity: Entity = entity_ids.get(stagger_attempt.attack_id)
+	var defenderEntity : Entity = entity_ids.get(stagger_attempt.defender_id) 
+	if !(attack_entity and defenderEntity): return
+	PA_Debug.log("server: entity (%s) pushed entity (%s)" % [attack_entity, defenderEntity])
+	var defenderVelocityComponent :VelocityComponent = defenderEntity.get("velocityComponent")
+	if defenderVelocityComponent:
+		var dir := (defenderEntity.global_position - attack_entity.global_position).normalized() * ShoveState.shoveForce
+		defenderVelocityComponent.AddForce(dir)
+		var movementStateMachine := (defenderEntity.get("movementStateMachine") as StateMachine)
+		var staggerStateName : String = movementStateMachine.get_child(movementStateMachine.get_children().find(func(node: Node): return node.name.to_lower().contains("stagger"))).name
+		movementStateMachine._on_child_transition(movementStateMachine.currentState, staggerStateName)
+		PA_Debug.log("server: pushing entity (%s) dir (%s)" % [defenderEntity, dir])

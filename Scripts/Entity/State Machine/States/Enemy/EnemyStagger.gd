@@ -21,7 +21,10 @@ func _enter() -> void:
 
 ## once the recovery window is over.
 func _after_recovery_window():
-	transitioned.emit(self, EnemyIdle.stateName)
+	if enemy._target:
+		transitioned.emit(self, EnemyFollow.stateName)
+	else:
+		transitioned.emit(self, EnemyIdle.stateName)
 
 
 func _exit() -> void:
@@ -31,6 +34,9 @@ func _exit() -> void:
 func _update(delta: float):
 	super._update(delta)
 	if !enemy._manager.is_server: return 
+
+	if !enemy.is_on_floor():
+		transitioned.emit(self, EnemyFalling.stateName)
 
 func _physics_update(delta: float):
 	super._physics_update(delta)
