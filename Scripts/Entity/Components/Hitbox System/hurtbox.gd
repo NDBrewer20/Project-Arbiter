@@ -15,9 +15,11 @@ func _ready() -> void:
 			set_collision_layer_value(PhysicsLayers.NAMED_LAYER.PLAYER_HURTBOX, true)
 		Stats.FACTION.ENEMY:
 			set_collision_layer_value(PhysicsLayers.NAMED_LAYER.ENEMY_HURTBOX, true)
+		_:
+			PA_Debug.log_warning("Hurtbox:\nentity_id (%s): Faction not set" % (owner as Entity)._manager.assigned_id)
 
 ## apply the damage from the attacker hitbox to the owner's health
-func receive_hit(damage: int, attacker_stats: Stats) -> void:
+func receive_hit(damage: float, attacker_stats: Stats) -> void:
 	# apply the incoming damage to the owner's health.
 	owner_statManager.stats.apply_incoming_damage(damage, attacker_stats)
 	# inform the server that the owner was damaged.

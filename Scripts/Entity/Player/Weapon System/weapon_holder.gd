@@ -5,7 +5,7 @@ class_name WeaponHolder extends Node3D
 @export var weapon : Weapon:
 	set(value):
 		weapon = value
-		if weapon:
+		if weapon and weapon_mesh:
 			load_weapon()
 ## the reference to the mesh of the weapon holder instance.
 @export var weapon_mesh: MeshInstance3D

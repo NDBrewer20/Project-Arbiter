@@ -33,10 +33,6 @@ var server_peer: ENetPacketPeer
 var connection: ENetConnection
 ## if this instance is the server.
 var is_server: bool = false
-## if this instance is the host.
-var is_host: bool = false
-## the host's peer id
-var host_peer_id: int = -1
 
 func _process(_delta: float) -> void:
 	if connection == null:
@@ -49,8 +45,6 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		if is_server:
 			disconnect_server()
-		elif is_host:
-			disconnect_host()
 		else:
 			disconnect_client()
 
@@ -119,55 +113,18 @@ func disconnect_server() -> void:
 		for peer_id in client_peers.keys():
 			var peer = client_peers[peer_id]
 			if peer:
-				peer.peer_disconnect()
 				on_peer_disconnected.emit(peer_id)
+				peer.peer_disconnect.call_deferred()
 			EntityNetworkGlobals.reclaim_entity_id(peer_id)
 		client_peers.clear()
 
 	# Try to destroy the ENet host, then null the connection.
 	if connection != null:
-		connection.destroy()
+		connection.destroy.call_deferred()
 	connection = null
 
 	is_server = false
 
-
-## starts the server and a manually managed client instance
-func start_host(ip_address: String="127.0.0.1", port: int = 27015) -> void:
-	start_server(ip_address, port)
-	if connection == null:
-		return
-
-	#is_host = true
-	# reserve host peer id and force a local id assignment.
-	#host_peer_id = EntityNetworkGlobals.provision_entity_id()
-	#ClientNetworkGlobals.id = host_peer_id
-	#ClientNetworkGlobals.handle_local_id_assignment.emit(host_peer_id)
-
-	# Keep host in the server peer list so new clients learn about the host player.
-	#ServerNetworkGlobals.peer_ids.append(host_peer_id)
-
-	print("Host started with local player id: ", host_peer_id)
-
-## disconnects the host
-func disconnect_host() -> void:
-	if not is_host:
-		push_warning("Cannot disconnect host when not running as host!")
-		return
-
-	# push peer id back into available pool
-	EntityNetworkGlobals.reclaim_entity_id(host_peer_id)
-	# Inform server globals and clients that the host id is being unassigned.
-	on_peer_disconnected.emit(host_peer_id)
-
-	# Disconnect the server.
-	disconnect_server.call_deferred()
-
-	# Reset host/server flags and id.
-	is_host = false
-	host_peer_id = -1
-
-	print("Host disconnected and server closed")
 
 ## when a peer is connected to the server.
 func peer_connected(peer: ENetPacketPeer) -> void:
@@ -176,7 +133,7 @@ func peer_connected(peer: ENetPacketPeer) -> void:
 	if peer_id == -1:
 		var entityToRemove: int = EntityNetworkGlobals.entity_ids.keys().pick_random()
 		PA_Debug.log("server: attempting to assign peer id (%s)" % [entityToRemove])
-		while client_peers.has(entityToRemove) || host_peer_id == entityToRemove:
+		while client_peers.has(entityToRemove):
 			entityToRemove = EntityNetworkGlobals.entity_ids.keys().pick_random()
 			PA_Debug.log("server: attempting to assign peer id (%s)" % [entityToRemove])
 		LowLevelEntitySpawner.instance.server_remove_entity(entityToRemove)
@@ -220,13 +177,13 @@ func start_client(ip_address: String = "127.0.0.1", port: int = 27015) -> void:
 
 ## manually to force a clean disconnect.
 func disconnect_client() -> void:
-	if is_server and not is_host: # Don't let the server or host run this command.
+	if is_server: # Don't let the server or host run this command.
 		push_warning("Cannot disconnect client from server when running as a server!")
 		return
 	
 	# This happens automatically when the client disconnects from the server
 	# disconnect from the server cleanly.
-	server_peer.peer_disconnect()
+	server_peer.peer_disconnect.call_deferred()
 
 ## when the client is connected to the server.
 func connected_to_server() -> void:

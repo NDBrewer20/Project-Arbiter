@@ -37,4 +37,4 @@ func on_server_packet(peer_id: int, data: PackedByteArray) -> void:
 
 		# unknown packet was sent to server.
 		_:
-			push_error("Packet type with index ", data[0], " Unhandled!")
+			PA_Debug.log_error("Packet type with index %s unhandled!" % data[0])

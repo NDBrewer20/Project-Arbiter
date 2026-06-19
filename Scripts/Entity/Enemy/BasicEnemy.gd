@@ -29,6 +29,8 @@ func _ready() -> void:
 	statManager.stats.health_depleted.connect(death)
 
 func _exit_tree() -> void:
+	if !_manager.is_server: return
+
 	# if the entity is being removed then disconnect all signals to prevent errors.
 	detectionArea.body_entered.disconnect(_on_body_entered)
 	detectionArea.body_exited.disconnect(_on_body_exit)
@@ -50,6 +52,12 @@ func _physics_process(_delta: float) -> void:
 	# if the look direction isn't looking at the bodies position then look that way.
 	if !(global_position + lookdir).is_equal_approx(global_position):
 		look_at(global_position + lookdir)
+
+func Move(tarPos: Vector3 = global_position):
+	# set Navigation Agents target position to the wander point and move to it. 
+	pathfindComponent.SetTargetPosition(tarPos)
+	pathfindComponent.FollowPath()
+	velocityComponent.Move(self)
 
 ## called when a body enters the detection area.
 func _on_body_entered(body: Node3D) -> void:

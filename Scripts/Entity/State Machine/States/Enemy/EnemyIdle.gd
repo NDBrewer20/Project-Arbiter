@@ -67,9 +67,7 @@ func _physics_update(delta: float):
 	super._physics_update(delta)
 	if !enemy._manager.is_server: return
 	# set Navigation Agents target position to the wander point and move to it. 
-	enemy.pathfindComponent.SetTargetPosition(_wanderPoint)
-	enemy.pathfindComponent.FollowPath()
-	enemy.velocityComponent.Move(enemy)
+	enemy.Move(_wanderPoint)
 
 ## when a body enters the detection area
 func _on_nearby_body_entered(_body: Node3D):

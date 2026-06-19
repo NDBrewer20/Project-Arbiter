@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://dumt533k1y7y5"]
+
+[ext_resource type="Script" uid="uid://b15qw800tyujj" path="res://Scripts/UI/Crosshair.gd" id="1_js5gm"]
+
+[node name="Player UI" type="CanvasLayer"]
+layer = -1
+
+[node name="Crosshair Center Control" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Crosshair" type="Control" parent="Crosshair Center Control"]
+layout_mode = 2
+script = ExtResource("1_js5gm")

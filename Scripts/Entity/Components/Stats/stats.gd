@@ -10,7 +10,6 @@ enum BUFFABLE_STATS {
 	POWER,
 	DEFENSE,
 	ATTACK,
-	UNARMED_DAMAGE,
 }
 ## the curves that define what multiplier is applied to a stat based on level. [br] 
 ## (Ex. level 2 could have 2x the stat of level 1)
@@ -41,8 +40,6 @@ enum FACTION {
 @export var base_defense: float = 10
 ## baseline attack power of a given stat block.
 @export var base_attack: float = 10
-## baseline amount of unarmed damage for a given stat block.
-@export var base_unarmed_damage: float = 10
 
 ## the current level of this specific stat block.
 @export_range(1,MAX_LEVEL) var level: int = 1: set = _on_level_set
@@ -185,7 +182,6 @@ func recalculate_stats() -> void:
 	current_max_power = base_max_power * round(STAT_CURVES[BUFFABLE_STATS.POWER].sample(stat_sample_pos))
 	current_defense = base_defense * STAT_CURVES[BUFFABLE_STATS.DEFENSE].sample(stat_sample_pos)
 	current_attack = base_attack * STAT_CURVES[BUFFABLE_STATS.ATTACK].sample(stat_sample_pos)
-	current_unarmed_damage = base_unarmed_damage * STAT_CURVES[BUFFABLE_STATS.UNARMED_DAMAGE].sample(stat_sample_pos)
 
 	# for each buffable stat apply the modifiers to the corresponding stat.
 	for stat_name in stat_multipliers:

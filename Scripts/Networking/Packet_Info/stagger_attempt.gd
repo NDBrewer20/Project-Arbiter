@@ -1,27 +1,23 @@
-class_name Packet_EntityDamaged extends PacketInfo
+class_name Packet_StaggerAttempt extends PacketInfo
 
 # [packet_type, 
 #  attack_id, attack_id, 
-#  defender_id, defender_id,
-#  damage, damage, damage, damage]
+#  defender_id, defender_id,]
 # [0, 
 #  1, 2, 
-#  3, 4,
-#  5, 6, 7 ,8] => 9 bytes
+#  3, 4,] => 5 bytes
 
 ## attack_id of the entity that has spawned
 var attack_id: int
 var defender_id: int
-var damage: float
 
 ## Factory method for creating a [Packet_EntityDamaged] packet with the given parameters.
-static func create(damage: float, attack_id: int, defender_id: int) -> Packet_EntityDamaged:
+static func create(attack_id: int, defender_id: int) -> Packet_EntityDamaged:
 	var info: Packet_EntityDamaged = Packet_EntityDamaged.new()
 	info.packet_type = PACKET_TYPE.ENTITY_DAMAGED
 	info.flag = ENetPacketPeer.FLAG_RELIABLE
 	info.attack_id = attack_id
 	info.defender_id = defender_id
-	info.damage = damage
 	return info
 
 ## Factory method for creating a [Packet_EntityDamaged] packet from a PackedByteArray of data. [br]
@@ -33,14 +29,12 @@ static func create_from_data(data: PackedByteArray) -> Packet_EntityDamaged:
 
 func encode() -> PackedByteArray:
 	var data: PackedByteArray = super.encode()
-	data.resize(9)
+	data.resize(5)
 	data.encode_u16(1, attack_id)
 	data.encode_u16(3, defender_id)
-	data.encode_float(5, damage)
 	return data
 
 func decode(data: PackedByteArray) -> void:
 	super.decode(data)
 	attack_id = data.decode_u16(1)
 	defender_id = data.decode_u16(3)
-	damage = data.decode_float(5)

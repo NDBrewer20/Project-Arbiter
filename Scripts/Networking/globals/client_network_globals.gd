@@ -40,7 +40,7 @@ func on_client_packet(data: PackedByteArray) -> void:
 		
 		# unknown packet was sent to client.
 		_:
-			push_error("Packet type with index ", data[0], " unhandled!")
+			PA_Debug.log_error("Packet type with index %s unhandled!" % data[0])
 
 ## manage client ids [br]
 ## if current clients [id] is unassigned then take the passed [id] otherwise, add id to [remote_ids] for tracking.

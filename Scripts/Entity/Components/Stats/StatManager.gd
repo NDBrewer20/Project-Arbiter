@@ -7,8 +7,8 @@ func _ready() -> void:
 	# set the owner of the stats equal to the owner of the stat manager.
 	stats.owner = owner
 	# enable the communication of the entity stat values for when a new player enters the server.
-	LowLevelNetworkHandler.on_peer_connected.connect(stats._fetch_current_stat_values)
-	EntityNetworkGlobals.client_recieve_entity_stat_values.connect(stats._set_current_stat_values)
+	LowLevelNetworkHandler.on_peer_connected.connect(_fetch_current_stat_values)
+	EntityNetworkGlobals.client_recieve_entity_stat_values.connect(_set_current_stat_values)
 
 ## Communicate to the client the stat block values that need to be updated.
 func _fetch_current_stat_values(peer_id: int):

@@ -2,19 +2,19 @@ class_name HitboxComponent extends Area3D
 
 ## Who is creating the hitbox.
 var attacker_stats: Stats
-## what weapon is involved in the hitbox.
-var attacker_weapon: Weapon
 ## how long the hitbox will live for.
 var hitbox_lifetime: float
 ## shape of the hitbox.
 var shape: Shape3D
 ## what has been hit by the hitbox(s)
 var hit_log: Hitlog
+## how much damage is supposed to be dealt by this hitbox.
+var damage_payload: float = 0.0
 
 ## Constructor for hitbox taking the creator's stats, lifetime of hitbox, shape of hitbox, list of recent hits, and the hitbox owner weapon.
-func _init(_attacker_stats: Stats, _hitbox_lifetime: float, _shape: Shape3D, _hit_log: Hitlog = null, _attacker_weapon : Weapon = null) -> void:
+func _init(_damage:float, _attacker_stats: Stats, _hitbox_lifetime: float, _shape: Shape3D, _hit_log: Hitlog = null) -> void:
+	damage_payload = _damage
 	attacker_stats = _attacker_stats
-	attacker_weapon = _attacker_weapon
 	hitbox_lifetime = _hitbox_lifetime
 	shape = _shape
 	hit_log = _hit_log
@@ -44,6 +44,8 @@ func _ready() -> void:
 			set_collision_mask_value(PhysicsLayers.NAMED_LAYER.ENEMY_HURTBOX, true)
 		Stats.FACTION.ENEMY:
 			set_collision_mask_value(PhysicsLayers.NAMED_LAYER.PLAYER_HURTBOX, true)
+		_:
+			PA_Debug.log_warning("hitbox:\nentity_id (%s): Faction not found" % (attacker_stats.owner as Entity)._manager.assigned_id)
 
 func _on_area_entered(area: Area3D) -> void:
 	# if you didn't hit a hurtbox don't continue
@@ -58,8 +60,4 @@ func _on_area_entered(area: Area3D) -> void:
 		else:
 			hit_log.log_hit(hurtbox_owner)
 
-	if !attacker_weapon: # if the attacker doesn't use a weapon then use the baseline amount of damage
-		area.receive_hit(attacker_stats.base_unarmed_damage, attacker_stats)
-	else: # if the attacker uses a weapon then calculate the weapon damage.
-		PA_Debug.log("weapon damage: %s" % attacker_weapon.calculate_weapon_damage())
-		area.receive_hit(attacker_weapon.calculate_weapon_damage(), attacker_stats)
+	(area as HurtboxComponent).receive_hit(damage_payload, attacker_stats)

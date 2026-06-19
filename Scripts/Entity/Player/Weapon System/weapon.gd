@@ -12,8 +12,6 @@ enum WEAPON_TYPE{
 @export var type : WEAPON_TYPE
 ## what stats the weapon uses.
 @export var stats : WeaponStats
-## is the weapon a chargeable weapon
-@export var chargeable: bool
 @export_category("VFX")
 ## how the weapon looks
 @export var mesh : Mesh

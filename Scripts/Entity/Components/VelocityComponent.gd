@@ -1,7 +1,7 @@
 class_name VelocityComponent extends Node
 
 ## the max possible speed for the character body using this component.
-@export var maxSpeed: float = 100
+@export var maxSpeed: float = 5
 ## how quickly the max speed can be reached.
 @export var accelerationCoefficient: float = 10
 

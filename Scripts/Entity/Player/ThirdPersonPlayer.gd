@@ -2,7 +2,8 @@ class_name ThirdPersonPlayer extends Entity
 
 @export_category("State Machine")
 ## the movement state machine for the player.
-@export var stateMachine: StateMachine
+@export var movementStateMachine: StateMachine
+@export var attackingStateMachine: StateMachine
 
 
 # Player Combat
@@ -100,6 +101,8 @@ var _canBufferJump: bool:
 @export var camClamp: Vector2 = Vector2(-90, 45)
 ## The sensitivity of the mouse input for rotating the camera. Higher values make the camera rotate faster in response to mouse movement.
 @export var mouse_Sensitivity: float = 0.1
+## how quickly the player will attempt to turn to face the desired direction.
+@export var turnSpeedAcceleration: float = 10
 
 # Player Cursor State Machine
 @export_category("Cursor")
@@ -206,11 +209,10 @@ func get_player_input():
 func try_rotate_player():
 	# there is currently anything pressed and it's not the ui_cancel input.
 	var pressingValidButton: bool = Input.is_anything_pressed() and !Input.is_action_pressed("ui_cancel")
-	# state machine currently is playing a forced animation.
-	var animLocked: bool = stateMachine.animLocked()
-	if pressingValidButton and !animLocked:
+	# if valid button and not in an animation lock then allow player rotation.
+	if pressingValidButton and !movementStateMachine.animLocked()and !attackingStateMachine.animLocked():
 		# rotate the player to match the camera's y rotation when the player is providing input. This makes movement relative to the camera direction.
-		global_rotation.y = _camGimbal.global_rotation.y 
+		global_rotation.y = lerp_angle(global_rotation.y, _camGimbal.global_rotation.y, 1.0-exp(-turnSpeedAcceleration*get_physics_process_delta_time()))
 
 ## forecfully rotate the player to face the camera direction.
 func force_rotate_player():

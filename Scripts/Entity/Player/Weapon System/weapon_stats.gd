@@ -10,9 +10,15 @@ signal charge_changed(cur_charge:int, max_charge:int)
 ## baseline how much charge is generated in one second
 @export var base_charge_rate: int = 50
 ## baseline amount of damage a weapon deals.
-@export var base_attack: float = 10
+@export var base_attack: float = 10.0
 ## baseline how many shots per minute (RPM)
 @export var base_fire_rate: int = 150
+## how accurate a weapon can be [br]
+## 0 has max spread 1 is right on cursor.
+@export_range(0,1) var base_accuracy: float = 0.6
+## the amount (in degrees) that the weapon deviates from center.
+@export var max_spread: float = 5
+@export var weapon_Range: float = 50
 
 
 # important to note that current_stat_name means that it's the final value after all stat value modifiations (buffs + level multipliers)
@@ -24,9 +30,10 @@ var current_charge_rate: int = 50
 var current_attack: float = 10
 ## the current fire rate of a stat block.
 var current_fire_rate: int = 150
+var current_accuracy: float = 0.6
 
 ## the current charge amount.
-var charge: int = 0 : set = _on_charge_set
+var charge: float = 0 : set = _on_charge_set
 ## what percent the charge has reached.
 var chargePercent: float:
 	get:
@@ -38,6 +45,7 @@ enum BUFFABLE_WEAPON_STATS {
 	CHARGE,
 	CHARGE_RATE,
 	ATTACK,
+	ACCURACY,
 }
 
 ## constructor for a stat block.
@@ -75,8 +83,8 @@ func delayed_recalculate_stats()->void:
 		recalculate_stats.call_deferred() # defer recalculation to end of frame
 
 ## setter for charge variable
-func _on_charge_set(new_value: int) -> void:
-	charge = clampi(new_value, 0, current_max_charge) # clamp the charge (cannot go negative or above max charge)
+func _on_charge_set(new_value: float) -> void:
+	charge = clampf(new_value, 0, current_max_charge) # clamp the charge (cannot go negative or above max charge)
 	charge_changed.emit(charge, current_max_charge) # charge was changed so emit signal.
 	if charge >= current_max_charge: # if charge has been filled to maximum then emit signal.
 		charge_filled.emit()
@@ -114,6 +122,7 @@ func recalculate_stats() -> void:
 	current_attack = base_attack
 	current_charge_rate = base_charge_rate
 	current_fire_rate = base_fire_rate
+	current_accuracy = base_accuracy
 
 	# for each buffable stat apply the modifiers to the corresponding stat.
 	for stat_name in stat_multipliers:

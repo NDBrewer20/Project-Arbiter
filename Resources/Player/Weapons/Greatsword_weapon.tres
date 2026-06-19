@@ -12,6 +12,7 @@ script = ExtResource("1_cfn1m")
 name = &"Greatsword"
 type = 0
 stats = ExtResource("2_oeu3m")
+chargeable = false
 mesh = SubResource("BoxMesh_cfn1m")
 offsetPosition = Vector3(0.702, 0.488, -0.762)
 offsetRotation = Vector3(-8.3, 0.5, 2.2)

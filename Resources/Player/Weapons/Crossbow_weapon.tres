@@ -12,6 +12,7 @@ script = ExtResource("1_wm5th")
 name = &"Crossbow"
 type = 1
 stats = ExtResource("2_i7w4k")
+chargeable = false
 mesh = SubResource("CapsuleMesh_10wic")
 offsetPosition = Vector3(0.63395, 0.488, -0.693951)
 offsetRotation = Vector3(-90, 0, 0)

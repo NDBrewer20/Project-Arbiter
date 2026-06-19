@@ -19,6 +19,8 @@ var packet_type: PACKET_TYPE
 ## [enum ENetPacketPeer.FLAG_UNSEQUENCED] [br]
 var flag: int
 
+var channel: int = 0
+
 ## Encodes the [PacketInfo] data into a [PackedByteArray] for sending over the network. [br]
 func encode() -> PackedByteArray:
 	var data: PackedByteArray
@@ -32,12 +34,12 @@ func decode(data: PackedByteArray) -> void:
 
 func send(target: ENetPacketPeer) -> void:
 	if target:
-		target.send(0, encode(), flag)
+		target.send(channel, encode(), flag)
 	else:
 		push_error("packet couldn't send to target: Target not found.")
 
 func broadcast(server: ENetConnection) -> void:
 	if server:
-		server.broadcast(0,encode(),flag)
+		server.broadcast(channel,encode(),flag)
 	else:
 		push_error("packet couldn't broadcast from server: Server not found.")

@@ -45,9 +45,7 @@ func _physics_update(delta:float):
 	# if there is a target to chase
 	if enemy._target:
 		# set the Navigation Agents target position to the targets position and move along the Navigation Agents path.
-		enemy.pathfindComponent.SetTargetPosition(enemy._target.global_position)
-		enemy.pathfindComponent.FollowPath()
-		enemy.velocityComponent.Move(enemy)
+		enemy.Move(enemy._target.global_position)
 	elif !enemy._nearbyBodies.is_empty(): # if there is no target and there are still nearby targets then pick one
 		enemy._target = enemy._nearbyBodies.pick_random()
 	else: # if there is no target or nearby targets then transition to the idle state.

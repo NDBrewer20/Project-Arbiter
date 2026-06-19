@@ -12,6 +12,7 @@ script = ExtResource("1_xijnj")
 name = &"Shortsword"
 type = 0
 stats = ExtResource("2_xijnj")
+chargeable = false
 mesh = SubResource("BoxMesh_xijnj")
 offsetPosition = Vector3(0.646465, 0.315489, -0.805246)
 offsetRotation = Vector3(-27.5, -4.3, 9.5)

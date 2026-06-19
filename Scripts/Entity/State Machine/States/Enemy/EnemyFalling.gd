@@ -32,3 +32,4 @@ func _physics_update(delta:float):
 	
 	# force the enemy velocity component to fall down.
 	enemy.velocityComponent.AddForce(Vector3.DOWN * 9.84 * delta)
+	enemy.velocityComponent.Move(enemy)

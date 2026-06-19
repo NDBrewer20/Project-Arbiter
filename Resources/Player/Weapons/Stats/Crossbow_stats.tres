@@ -9,4 +9,7 @@ base_max_charge = 100
 base_charge_rate = 50
 base_attack = 10.0
 base_fire_rate = 300
+base_accuracy = 0.6
+max_spread = 5.0
+weapon_Range = 200.0
 metadata/_custom_type_script = "uid://bkn6qlxtvh88u"
