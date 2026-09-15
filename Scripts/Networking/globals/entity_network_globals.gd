@@ -159,6 +159,6 @@ func server_handle_stagger(stagger_attempt: Packet_StaggerAttempt):
 		var dir := (defenderEntity.global_position - attack_entity.global_position).normalized() * ShoveState.shoveForce
 		defenderVelocityComponent.AddForce(dir)
 		var movementStateMachine := (defenderEntity.get("movementStateMachine") as StateMachine)
-		var staggerStateName : String = movementStateMachine.get_child(movementStateMachine.get_children().find(func(node: Node): return node.name.to_lower().contains("stagger"))).name
+		var staggerStateName : String = movementStateMachine.get_child(movementStateMachine.get_children().filter(func(node: Node): return node.name.to_lower().contains("stagger"))[0]).name
 		movementStateMachine._on_child_transition(movementStateMachine.currentState, staggerStateName)
 		PA_Debug.log("server: pushing entity (%s) dir (%s)" % [defenderEntity, dir])

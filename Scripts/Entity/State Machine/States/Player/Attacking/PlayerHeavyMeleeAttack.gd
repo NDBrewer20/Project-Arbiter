@@ -75,7 +75,7 @@ func _exit() -> void:
 	player.weaponHolder.weapon.stats.charge_filled.disconnect(_send_attack)
 
 	# reset the charge value at the end of the frame so that any possible damage calculations can go through before charge gets reset
-	player.weaponHolder.weapon.stats.charge = 0
+	player.weaponHolder.weapon.stats.reset_charge.call_deferred()
 
 func _update(delta: float):
 	super._update(delta)

@@ -101,5 +101,4 @@ Player_Swap_Weapon={
 [physics]
 
 3d/run_on_separate_thread=true
-common/physics_ticks_per_second=120
-common/physics_interpolation=true
+3d/physics_engine="Jolt Physics"

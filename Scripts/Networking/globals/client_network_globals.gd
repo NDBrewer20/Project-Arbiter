@@ -33,7 +33,6 @@ func on_client_packet(data: PackedByteArray) -> void:
 			PA_Debug.log("client_id (%s): Recieved Packet_IDUnassignment" % [id])
 			remove_ids(Packet_IDUnassignment.create_from_data(data))
 
-
 		# packets unrelated to Player/client manipulation
 		PacketInfo.PACKET_TYPE.ENTITY_STATS, PacketInfo.PACKET_TYPE.ENTITY_TRANSFORM, PacketInfo.PACKET_TYPE.ENTITY_ID_ASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_ID_UNASSIGNMENT, PacketInfo.PACKET_TYPE.ENTITY_STATE, PacketInfo.PACKET_TYPE.ENTITY_DAMAGED:
 			pass

@@ -88,6 +88,9 @@ func _on_charge_set(new_value: float) -> void:
 	charge_changed.emit(charge, current_max_charge) # charge was changed so emit signal.
 	if charge >= current_max_charge: # if charge has been filled to maximum then emit signal.
 		charge_filled.emit()
+func reset_charge() -> void:
+	charge = 0
+	charge_changed.emit(charge, current_max_charge)
 
 ## recalculate the stats of the stat block.
 func recalculate_stats() -> void:

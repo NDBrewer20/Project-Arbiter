@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://dwuo45o1taqky"]
+[gd_scene format=3 uid="uid://dwuo45o1taqky"]
 
 [ext_resource type="Script" uid="uid://c0de2yy2vldlr" path="res://Scripts/Entity/Player/ThirdPersonPlayer.gd" id="1_gsdtt"]
 [ext_resource type="Script" uid="uid://doewjtyfdpfhi" path="res://Scripts/Entity/Player/player_cursor_control.gd" id="2_dahrh"]
@@ -45,7 +45,7 @@ radius = 0.3
 [sub_resource type="SphereShape3D" id="SphereShape3D_1j0mk"]
 radius = 0.2
 
-[node name="Player Body" type="CharacterBody3D" node_paths=PackedStringArray("movementStateMachine", "attackingStateMachine", "weaponHolder", "attackOrigin", "velocityComponent", "_camPivot", "_camGimbal", "_cam", "_cursorStateMachine", "_manager", "statManager") groups=["player"]]
+[node name="Player Body" type="CharacterBody3D" unique_id=800786072 node_paths=PackedStringArray("movementStateMachine", "attackingStateMachine", "weaponHolder", "attackOrigin", "velocityComponent", "_camPivot", "_camGimbal", "_cam", "_cursorStateMachine", "_manager", "statManager") groups=["player"]]
 collision_layer = 2147483648
 collision_mask = 1073741825
 collision_priority = 10.0
@@ -68,111 +68,111 @@ _cursorStateMachine = NodePath("Player Cursor Control")
 _manager = NodePath("Network Manager")
 statManager = NodePath("StatManager")
 
-[node name="Player Body Collider" type="CollisionShape3D" parent="."]
+[node name="Player Body Collider" type="CollisionShape3D" parent="." unique_id=1483082912]
 shape = SubResource("CapsuleShape3D_suiw6")
 
-[node name="Attack Origin" type="Node3D" parent="."]
+[node name="Attack Origin" type="Node3D" parent="." unique_id=346888015]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 
-[node name="PlayerGFX" type="Node3D" parent="."]
+[node name="PlayerGFX" type="Node3D" parent="." unique_id=471637310]
 
-[node name="Capsule" type="MeshInstance3D" parent="PlayerGFX"]
+[node name="Capsule" type="MeshInstance3D" parent="PlayerGFX" unique_id=1971917918]
 mesh = SubResource("CapsuleMesh_fuxo2")
 skeleton = NodePath("")
 
-[node name="Glasses" type="MeshInstance3D" parent="PlayerGFX"]
+[node name="Glasses" type="MeshInstance3D" parent="PlayerGFX" unique_id=289379915]
 transform = Transform3D(0.5, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0.362, -0.144821)
 mesh = SubResource("TorusMesh_puwgh")
 skeleton = NodePath("")
 
-[node name="Cam Gimbal" type="Node3D" parent="." node_paths=PackedStringArray("target")]
+[node name="Cam Gimbal" type="Node3D" parent="." unique_id=363010060 node_paths=PackedStringArray("target")]
 top_level = true
 script = ExtResource("7_mneri")
 followCoefficient = 50.0
 target = NodePath("..")
 
-[node name="Cam Pivot" type="Node3D" parent="Cam Gimbal"]
+[node name="Cam Pivot" type="Node3D" parent="Cam Gimbal" unique_id=1477408349]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.621052, 1.06133, 0)
 
-[node name="SpringArm3D" type="SpringArm3D" parent="Cam Gimbal/Cam Pivot"]
+[node name="SpringArm3D" type="SpringArm3D" parent="Cam Gimbal/Cam Pivot" unique_id=1635182634]
 spring_length = 3.0
 margin = 0.5
 
-[node name="Camera3D" type="Camera3D" parent="Cam Gimbal/Cam Pivot/SpringArm3D"]
+[node name="Camera3D" type="Camera3D" parent="Cam Gimbal/Cam Pivot/SpringArm3D" unique_id=421719494]
 
-[node name="HurtboxComponent" type="Area3D" parent="." node_paths=PackedStringArray("owner_statManager")]
+[node name="HurtboxComponent" type="Area3D" parent="." unique_id=1050679565 node_paths=PackedStringArray("owner_statManager")]
 collision_layer = 536870912
 script = ExtResource("12_q1rm7")
 owner_statManager = NodePath("../StatManager")
 metadata/_custom_type_script = "uid://c8pv7q66r7io3"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HurtboxComponent"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HurtboxComponent" unique_id=891411683]
 shape = SubResource("CapsuleShape3D_s33wf")
 
-[node name="Weapon" parent="." instance=ExtResource("15_0ml5q")]
-transform = Transform3D(0.999999, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.63395, 0.488, -0.693951)
+[node name="Weapon" parent="." unique_id=1559355828 instance=ExtResource("15_0ml5q")]
+transform = Transform3D(0.999999, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.63395, 0.488, -0.693951)
 weapon = ExtResource("5_1j0mk")
 
-[node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
+[node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="." unique_id=1835565495]
 radius = 0.1
 height = 0.0
 
-[node name="VelocityComponent" type="Node" parent="."]
+[node name="VelocityComponent" type="Node" parent="." unique_id=1006732903]
 script = ExtResource("2_xrskp")
 maxSpeed = 5.5
 metadata/_custom_type_script = "uid://yrg0uyvv2r2t"
 
-[node name="Player Cursor Control" type="Node" parent="."]
+[node name="Player Cursor Control" type="Node" parent="." unique_id=767241149]
 script = ExtResource("2_dahrh")
 
-[node name="Network Manager" parent="." instance=ExtResource("3_pfsti")]
+[node name="Network Manager" parent="." unique_id=79052365 instance=ExtResource("3_pfsti")]
 
-[node name="Entity Transform Sync" parent="." node_paths=PackedStringArray("_body") instance=ExtResource("4_dahrh")]
+[node name="Entity Transform Sync" parent="." unique_id=352639616 node_paths=PackedStringArray("_body") instance=ExtResource("4_dahrh")]
 _body = NodePath("..")
 
-[node name="StatManager" type="Node" parent="."]
+[node name="StatManager" type="Node" parent="." unique_id=1294814789]
 script = ExtResource("7_r82im")
 stats = ExtResource("8_vvn5d")
 metadata/_custom_type_script = "uid://bhbhaxa5mpvdw"
 
-[node name="Movement StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state", "anim_locked_states")]
+[node name="Movement StateMachine" type="Node" parent="." unique_id=1903046221 node_paths=PackedStringArray("initial_state", "anim_locked_states")]
 script = ExtResource("5_pfsti")
 initial_state = NodePath("PlayerIdle")
 anim_locked_states = [NodePath("../Attacking StateMachine/PlayerMeleeAttack"), NodePath("PlayerFalling")]
 metadata/_custom_type_script = "uid://mdyxlfjbunwd"
 
-[node name="PlayerIdle" type="Node" parent="Movement StateMachine" node_paths=PackedStringArray("player")]
+[node name="PlayerIdle" type="Node" parent="Movement StateMachine" unique_id=98637245 node_paths=PackedStringArray("player")]
 script = ExtResource("14_1j0mk")
 player = NodePath("../..")
 metadata/_custom_type_script = "uid://b1bmc3kohfgh7"
 
-[node name="PlayerFloor" type="Node" parent="Movement StateMachine" node_paths=PackedStringArray("player")]
+[node name="PlayerFloor" type="Node" parent="Movement StateMachine" unique_id=116104300 node_paths=PackedStringArray("player")]
 script = ExtResource("8_xia3x")
 player = NodePath("../..")
 metadata/_custom_type_script = "uid://pe7md7qk1aqv"
 
-[node name="PlayerFalling" type="Node" parent="Movement StateMachine" node_paths=PackedStringArray("player")]
+[node name="PlayerFalling" type="Node" parent="Movement StateMachine" unique_id=1421800931 node_paths=PackedStringArray("player")]
 script = ExtResource("8_ls38o")
 player = NodePath("../..")
 metadata/_custom_type_script = "uid://b7ydmi7mwsfwa"
 
-[node name="PlayerJump" type="Node" parent="Movement StateMachine" node_paths=PackedStringArray("player")]
+[node name="PlayerJump" type="Node" parent="Movement StateMachine" unique_id=890925075 node_paths=PackedStringArray("player")]
 script = ExtResource("9_125pf")
 player = NodePath("../..")
 metadata/_custom_type_script = "uid://co64v0lspaom6"
 
-[node name="Attacking StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state", "anim_locked_states")]
+[node name="Attacking StateMachine" type="Node" parent="." unique_id=1626378863 node_paths=PackedStringArray("initial_state", "anim_locked_states")]
 script = ExtResource("5_pfsti")
 initial_state = NodePath("PlayerAttackIdle")
 anim_locked_states = [NodePath("PlayerMeleeAttack")]
 metadata/_custom_type_script = "uid://mdyxlfjbunwd"
 
-[node name="PlayerAttackIdle" type="Node" parent="Attacking StateMachine" node_paths=PackedStringArray("player")]
+[node name="PlayerAttackIdle" type="Node" parent="Attacking StateMachine" unique_id=1137300059 node_paths=PackedStringArray("player")]
 script = ExtResource("17_5wtsb")
 player = NodePath("../..")
 metadata/_custom_type_script = "uid://c71y27iuqb0sy"
 
-[node name="PlayerMeleeAttack" type="Node" parent="Attacking StateMachine" node_paths=PackedStringArray("player", "recovery_window", "send_attack_delay")]
+[node name="PlayerMeleeAttack" type="Node" parent="Attacking StateMachine" unique_id=57640778 node_paths=PackedStringArray("player", "recovery_window", "send_attack_delay")]
 script = ExtResource("11_jagjn")
 player = NodePath("../..")
 hitbox_shape = SubResource("SphereShape3D_ff52u")
@@ -180,16 +180,16 @@ recovery_window = NodePath("Recovery Window")
 send_attack_delay = NodePath("Attack Delay")
 metadata/_custom_type_script = "uid://sq5x44u01csm"
 
-[node name="Recovery Window" type="Timer" parent="Attacking StateMachine/PlayerMeleeAttack"]
+[node name="Recovery Window" type="Timer" parent="Attacking StateMachine/PlayerMeleeAttack" unique_id=1817096823]
 process_callback = 0
 one_shot = true
 
-[node name="Attack Delay" type="Timer" parent="Attacking StateMachine/PlayerMeleeAttack"]
+[node name="Attack Delay" type="Timer" parent="Attacking StateMachine/PlayerMeleeAttack" unique_id=158115918]
 process_callback = 0
 wait_time = 0.5
 one_shot = true
 
-[node name="PlayerShove" type="Node" parent="Attacking StateMachine" node_paths=PackedStringArray("player", "recovery_window", "send_attack_delay")]
+[node name="PlayerShove" type="Node" parent="Attacking StateMachine" unique_id=2140007791 node_paths=PackedStringArray("player", "recovery_window", "send_attack_delay")]
 script = ExtResource("19_6rlsy")
 player = NodePath("../..")
 hitbox_shape = SubResource("SphereShape3D_ff52u")
@@ -197,31 +197,31 @@ recovery_window = NodePath("Recovery Window")
 send_attack_delay = NodePath("Attack Delay")
 metadata/_custom_type_script = "uid://cqn7o45b3a8iu"
 
-[node name="Recovery Window" type="Timer" parent="Attacking StateMachine/PlayerShove"]
+[node name="Recovery Window" type="Timer" parent="Attacking StateMachine/PlayerShove" unique_id=246500629]
 process_callback = 0
 wait_time = 0.5
 one_shot = true
 
-[node name="Attack Delay" type="Timer" parent="Attacking StateMachine/PlayerShove"]
+[node name="Attack Delay" type="Timer" parent="Attacking StateMachine/PlayerShove" unique_id=69786730]
 process_callback = 0
 wait_time = 0.25
 one_shot = true
 
-[node name="PlayerHeavyMeleeAttack" type="Node" parent="Attacking StateMachine" node_paths=PackedStringArray("player")]
+[node name="PlayerHeavyMeleeAttack" type="Node" parent="Attacking StateMachine" unique_id=1133142747 node_paths=PackedStringArray("player")]
 script = ExtResource("20_6jfts")
 player = NodePath("../..")
 hitbox_shape = SubResource("SphereShape3D_6rlsy")
 metadata/_custom_type_script = "uid://1q7pungy0ipp"
 
-[node name="PlayerRangedAttack" type="Node" parent="Attacking StateMachine" node_paths=PackedStringArray("player", "fire_timer")]
+[node name="PlayerRangedAttack" type="Node" parent="Attacking StateMachine" unique_id=381948506 node_paths=PackedStringArray("player", "fire_timer")]
 script = ExtResource("15_mneri")
 player = NodePath("../..")
 hitscanShape = SubResource("SphereShape3D_1j0mk")
 fire_timer = NodePath("Fire Timer")
 metadata/_custom_type_script = "uid://b4pj68krnwqrd"
 
-[node name="Fire Timer" type="Timer" parent="Attacking StateMachine/PlayerRangedAttack"]
+[node name="Fire Timer" type="Timer" parent="Attacking StateMachine/PlayerRangedAttack" unique_id=470808374]
 process_callback = 0
 one_shot = true
 
-[node name="Player UI" parent="." instance=ExtResource("22_6rlsy")]
+[node name="Player UI" parent="." unique_id=1896726809 instance=ExtResource("22_6rlsy")]
